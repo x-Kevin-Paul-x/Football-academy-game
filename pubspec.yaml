@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  provider: ^6.1.2 # Add provider package (Using a recent stable version)
   flutter:
     sdk: flutter
 
@@ -35,6 +36,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  intl: ^0.19.0  # Package for date formatting and localization
 
 dev_dependencies:
   flutter_test:

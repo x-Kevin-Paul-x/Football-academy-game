@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Import provider
+import 'Screens/Dashboard.dart';
+import 'game_state_manager.dart'; // Import the GameStateManager
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => GameStateManager(), // Create an instance
+      child: const MyApp(), // Wrap MyApp
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -12,7 +20,19 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Youth Academy',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        brightness: Brightness.dark, // Enable dark mode
+        primarySwatch: Colors.deepPurple, // Keep purple as primary
+        scaffoldBackgroundColor: Colors.grey[900], // Dark background
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.grey[850], // Slightly lighter AppBar
+          foregroundColor: Colors.white, // White title text
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Colors.grey[850], // Match AppBar
+          selectedItemColor: Colors.deepPurpleAccent, // Brighter purple for selection
+          unselectedItemColor: Colors.grey[400], // Lighter grey for unselected
+          type: BottomNavigationBarType.fixed,
+        ),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Football Youth Academy'),
@@ -39,62 +59,90 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Use the theme's scaffold background color
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Center(child: Text(
-              'Youth Academy',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Roboto",
-                color: Colors.black,
+        child: Padding( // Add padding around the column
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch, // Make buttons stretch
+            children: [
+              Text( // Use widget.title for consistency
+                widget.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 32, // Slightly larger title
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface, // Use theme color
+                ),
               ),
-            )),
-            const Padding(padding: EdgeInsets.all(5)),
+              const SizedBox(height: 40), // Increased spacing
 
-            ElevatedButton(
-            onPressed: () {
-              // Navigate to the next screen
-            }, 
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(20),
-              textStyle: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15), // Adjusted padding
+                  textStyle: const TextStyle(
+                    fontSize: 18, // Adjusted font size
+                    fontWeight: FontWeight.bold,
+                  ),
+                  // Use theme colors for button
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                child: const Text("New Game"),
               ),
-            ),child: const Text("New Game")),
 
+              const SizedBox(height: 15), // Spacing between buttons
 
-            const Padding(padding: EdgeInsets.all(5)),
-            ElevatedButton(onPressed: () {
-              (BuildContext context) => [
-                const PopupMenuItem(value: "Load Game",child: Text("Load Game"),)];
-            },style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(20),
-              textStyle: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              ElevatedButton(
+                onPressed: () {
+                  // TODO: Implement Load Game functionality
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Load Game not implemented yet')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  textStyle: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.secondary, // Use secondary color
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                ),
+                child: const Text("Load Game"),
               ),
-            ), child: const Text("Load Game")),
 
+              const SizedBox(height: 15), // Spacing between buttons
 
-            const Padding(padding: EdgeInsets.all(5)),
-            ElevatedButton(onPressed: () {
-              // Navigate to the next screen
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(20),
-              textStyle: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              ElevatedButton(
+                onPressed: () {
+                  // TODO: Implement Quit Game functionality (e.g., SystemNavigator.pop())
+                   ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Quit Game not implemented yet')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  textStyle: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                   backgroundColor: Colors.grey[700], // Different color for Quit
+                   foregroundColor: Colors.white,
+                ),
+                child: const Text("Quit Game"),
               ),
-            ), child: const Text("Quit Game")),
-          ],
+            ],
+          ),
         ),
-        
       ),
     );
   }
