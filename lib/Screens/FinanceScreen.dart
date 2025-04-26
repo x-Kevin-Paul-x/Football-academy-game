@@ -52,6 +52,8 @@ class FinanceScreen extends StatelessWidget {
               _buildStaffWagesList(context, currencyFormat, hiredStaff), // Pass hiredStaff
               const SizedBox(height: 20),
               _buildPlayerWagesList(context, currencyFormat, academyPlayers), // Pass academyPlayers
+              const SizedBox(height: 20),
+              _buildTransferOffersCard(context, currencyFormat, gameStateManager), // Add Transfer Offers section
             ],
           );
         },
@@ -215,4 +217,96 @@ class FinanceScreen extends StatelessWidget {
       ),
     );
   }
+
+  // --- Transfer Offers Section ---
+  Widget _buildTransferOffersCard(BuildContext context, NumberFormat currencyFormat, GameStateManager gameStateManager) {
+    final offers = gameStateManager.transferOffers;
+
+    return Card(
+      elevation: 4.0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Incoming Transfer Offers (${offers.length})',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const Divider(height: 20, thickness: 1),
+            if (offers.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(child: Text('No current transfer offers.')),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true, // Important inside a ListView
+                physics: const NeverScrollableScrollPhysics(), // Disable scrolling for the inner list
+                itemCount: offers.length,
+                itemBuilder: (context, index) {
+                  final offer = offers[index];
+                  return ListTile(
+                    title: Text('Offer for ${offer['playerName']}'),
+                    subtitle: Text('From: ${offer['offeringClubName']}\nAmount: ${currencyFormat.format(offer['offerAmount'])}'),
+                    isThreeLine: true,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.check_circle, color: Colors.green),
+                          tooltip: 'Accept Offer',
+                          onPressed: () {
+                            // Show confirmation dialog before accepting
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext dialogContext) {
+                                return AlertDialog(
+                                  title: const Text('Confirm Transfer'),
+                                  content: Text('Are you sure you want to sell ${offer['playerName']} to ${offer['offeringClubName']} for ${currencyFormat.format(offer['offerAmount'])}?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop(); // Close the dialog
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text('Accept'),
+                                      onPressed: () {
+                                        gameStateManager.acceptTransferOffer(offer);
+                                        Navigator.of(dialogContext).pop(); // Close the dialog
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Accepted offer for ${offer['playerName']}')),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.cancel, color: Colors.red),
+                          tooltip: 'Reject Offer',
+                          onPressed: () {
+                             gameStateManager.rejectTransferOffer(offer);
+                             ScaffoldMessenger.of(context).showSnackBar(
+                               SnackBar(content: Text('Rejected offer for ${offer['playerName']}')),
+                             );
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+  // --- End Transfer Offers Section ---
 }

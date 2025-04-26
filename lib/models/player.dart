@@ -18,6 +18,9 @@ class Player {
   // Add more stats: shots, tackles, saves (if GK), etc.
   // ---
 
+  // --- Reputation ---
+  int reputation; // Player's reputation score
+
   Player({
     required this.id,
     required this.name,
@@ -27,6 +30,7 @@ class Player {
     required this.potentialSkill,
     required this.weeklyWage,
     this.isScouted = false,
+    this.reputation = 0, // Initialize reputation in default constructor
   });
 
   // Factory constructor for generating random scouted players
@@ -51,6 +55,7 @@ class Player {
       potentialSkill: potentialSkill,
       weeklyWage: weeklyWage,
       isScouted: true, // Mark as scouted initially
+      reputation: 10 + random.nextInt(21), // Give scouted players some initial reputation (e.g., 10-30)
     );
   }
 

@@ -12,6 +12,7 @@ import 'FacilitiesScreen.dart';
 import 'TournamentsScreen.dart';
 import 'SettingsScreen.dart';
 import 'ScoutingScreen.dart'; // Import the new Scouting Screen
+import 'TransferOffersScreen.dart'; // Import Transfer Offers Screen
 
 // Import Models
 import '../models/player.dart';
@@ -142,7 +143,13 @@ class _DashboardState extends State<Dashboard> {
                 'Weekly Wages: \$${gameStateManager.totalWeeklyWages}', // Use gameStateManager.totalWeeklyWages
                 style: const TextStyle(fontSize: 16, color: Colors.orange),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 10), // Add some space
+              // Display Academy Reputation
+              Text(
+                'Academy Reputation: ${gameStateManager.academyReputation}',
+                style: const TextStyle(fontSize: 16, color: Colors.blue), // Example style
+              ),
+              const SizedBox(height: 30), // Adjust spacing before button
               ElevatedButton.icon(
                 // Call GameStateManager's advanceWeek method
                  onPressed: () {
@@ -196,6 +203,8 @@ class _DashboardState extends State<Dashboard> {
         // hireStaffCallback: _hireStaff, // REMOVED
       ), 'icon': Icons.work},
       {'title': 'Facilities', 'screen': const FacilitiesScreen(), 'icon': Icons.business},
+      // Add Transfer Offers Screen
+      {'title': 'Transfers', 'screen': const TransferOffersScreen(), 'icon': Icons.swap_horiz},
       // TournamentsScreen already uses Consumer
       {'title': 'Tournaments', 'screen': const TournamentsScreen(/* academyPlayerCount: _academyPlayers.length REMOVED */), 'icon': Icons.emoji_events},
       {'title': 'Settings', 'screen': const SettingsScreen(), 'icon': Icons.settings},
@@ -227,18 +236,40 @@ class _DashboardState extends State<Dashboard> {
       // Display the selected screen's widget
       // Special handling for Dashboard Home to ensure it rebuilds with latest data
       body: _selectedIndex == 0 ? _buildDashboardHome() : currentScreenData['screen'] as Widget,
-      bottomNavigationBar: BottomNavigationBar(
-        items: _buildScreenData().map((data) => BottomNavigationBarItem(
-          icon: Icon(data['icon'] as IconData),
-          label: data['title'] as String,
-        )).toList(), // Dynamically create items
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple, // Or use Theme.of(context).colorScheme.primary
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Ensure all labels are visible
-        showUnselectedLabels: true, // Show labels for unselected items
-      ),
-    );
+      // Use Consumer here to access GameStateManager for the badge count
+      bottomNavigationBar: Consumer<GameStateManager>(
+        builder: (context, gameStateManager, child) {
+          final screenDataList = _buildScreenData(); // Get screen data
+          final transferOffersCount = gameStateManager.transferOffers.length;
+
+          return BottomNavigationBar(
+            items: screenDataList.map((data) {
+              final String title = data['title'] as String;
+              final IconData iconData = data['icon'] as IconData;
+              Widget iconWidget = Icon(iconData); // Default icon
+
+              // Add badge specifically for the 'Transfers' item
+              if (title == 'Transfers' && transferOffersCount > 0) {
+                iconWidget = Badge(
+                  label: Text(transferOffersCount.toString()),
+                  child: iconWidget,
+                );
+              }
+
+              return BottomNavigationBarItem(
+                icon: iconWidget, // Use the potentially badged icon
+                label: title,
+              );
+            }).toList(), // Dynamically create items
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.deepPurple, // Or use Theme.of(context).colorScheme.primary
+            unselectedItemColor: Colors.grey,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed, // Ensure all labels are visible
+            showUnselectedLabels: true, // Show labels for unselected items
+          ); // End of BottomNavigationBar
+        }, // End of Consumer builder
+      ), // End of Consumer
+    ); // End of Scaffold
   }
 }

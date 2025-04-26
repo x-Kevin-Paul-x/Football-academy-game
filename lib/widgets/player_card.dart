@@ -50,6 +50,7 @@ class PlayerCard extends StatelessWidget {
               children: [
                 _buildInfoChip(Icons.cake_outlined, 'Age: ${player.age}'),
                 _buildInfoChip(Icons.attach_money_outlined, 'Wage: \$${player.weeklyWage}/wk'),
+                _buildInfoChip(Icons.star_outline, 'Rep: ${player.reputation}'), // Display Reputation
               ],
             ),
             const SizedBox(height: 10),

@@ -7,77 +7,58 @@ class FacilitiesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // Added Scaffold for better structure
-      // appBar: AppBar( // Optional AppBar
-      //   title: const Text('Facilities'),
-      //   automaticallyImplyLeading: false,
-      // ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Academy Facilities'),
+      ),
       body: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
-          int currentLevel = gameStateManager.trainingFacilityLevel;
-          // TODO: Define upgrade costs and logic
-          int nextLevel = currentLevel + 1;
-          double upgradeCost = 10000 * pow(2, currentLevel - 1).toDouble(); // Example exponential cost
-          bool canAfford = gameStateManager.balance >= upgradeCost;
-
-          return Padding(
+          return ListView(
             padding: const EdgeInsets.all(16.0),
-            child: ListView( // Use ListView for potential future additions
-              children: [
-                _buildFacilityCard(
-                  context: context,
-                  icon: Icons.fitness_center,
-                  title: 'Training Facility',
-                  level: currentLevel,
-                  description: 'Improves player skill development rate during weekly training.',
-                  upgradeCost: upgradeCost,
-                  canAfford: canAfford,
-                  onUpgrade: () {
-                    // TODO: Implement upgrade logic in GameStateManager
-                    // - Check affordability
-                    // - Deduct cost
-                    // - Increment _trainingFacilityLevel
-                    // - notifyListeners()
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Upgrade functionality not yet implemented. Cost: \$${upgradeCost.toStringAsFixed(0)}')),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildFacilityCard(
-                  context: context,
-                  icon: Icons.visibility,
-                  title: 'Scouting Network',
-                  level: 1, // Placeholder
-                  description: 'Increases the quality and quantity of scouted players.',
-                  upgradeCost: 5000, // Placeholder
-                  canAfford: false, // Placeholder
-                  onUpgrade: () {
+            children: [
+              _buildFacilityCard(
+                context: context,
+                icon: Icons.fitness_center,
+                title: 'Training Facility',
+                currentLevel: gameStateManager.trainingFacilityLevel,
+                description: 'Improves player skill development during training.',
+                upgradeCost: gameStateManager.getTrainingFacilityUpgradeCost(),
+                canAfford: gameStateManager.balance >= gameStateManager.getTrainingFacilityUpgradeCost(),
+                onUpgrade: () {
+                  bool success = gameStateManager.upgradeTrainingFacility();
+                  if (context.mounted) { // Check if widget is still in the tree
                      ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Upgrade functionality not yet implemented.')),
-                    );
-                  },
-                  isPlaceholder: true, // Mark as placeholder
-                ),
-                 const SizedBox(height: 16),
-                _buildFacilityCard(
-                  context: context,
-                  icon: Icons.healing,
-                  title: 'Medical Center',
-                  level: 1, // Placeholder
-                  description: 'Reduces player injury duration and occurrence.',
-                   upgradeCost: 7500, // Placeholder
-                  canAfford: false, // Placeholder
-                  onUpgrade: () {
+                       SnackBar(
+                         content: Text(success ? 'Training Facility upgraded!' : 'Insufficient funds!'),
+                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
+                       ),
+                     );
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildFacilityCard(
+                context: context,
+                icon: Icons.search,
+                title: 'Scouting Network',
+                currentLevel: gameStateManager.scoutingFacilityLevel,
+                description: 'Increases the quantity and potentially quality of players found by scouts.',
+                upgradeCost: gameStateManager.getScoutingFacilityUpgradeCost(),
+                canAfford: gameStateManager.balance >= gameStateManager.getScoutingFacilityUpgradeCost(),
+                onUpgrade: () {
+                   bool success = gameStateManager.upgradeScoutingFacility();
+                   if (context.mounted) { // Check if widget is still in the tree
                      ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Upgrade functionality not yet implemented.')),
-                    );
-                  },
-                  isPlaceholder: true, // Mark as placeholder
-                ),
-                // Add more facility types here...
-              ],
-            ),
+                       SnackBar(
+                         content: Text(success ? 'Scouting Network upgraded!' : 'Insufficient funds!'),
+                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
+                       ),
+                     );
+                   }
+                },
+              ),
+              // TODO: Add more facilities later (e.g., Medical, Youth Academy)
+            ],
           );
         },
       ),
@@ -88,13 +69,13 @@ class FacilitiesScreen extends StatelessWidget {
     required BuildContext context,
     required IconData icon,
     required String title,
-    required int level,
+    required int currentLevel,
     required String description,
-    required double upgradeCost,
-    required bool canAfford,
-    required VoidCallback onUpgrade,
-    bool isPlaceholder = false, // Flag for placeholder facilities
+    required int upgradeCost, // Pass cost explicitly
+    required bool canAfford, // Pass affordability explicitly
+    required VoidCallback onUpgrade, // Pass upgrade callback
   }) {
+
     return Card(
       elevation: 3,
       child: Padding(
@@ -104,8 +85,8 @@ class FacilitiesScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 40, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(width: 16),
+                Icon(icon, size: 30, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     title,
@@ -113,7 +94,7 @@ class FacilitiesScreen extends StatelessWidget {
                   ),
                 ),
                 Chip(
-                  label: Text('Level $level'),
+                  label: Text('Level $currentLevel'),
                   backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
                   labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
                 ),
@@ -122,43 +103,65 @@ class FacilitiesScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(description, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 16),
-            if (!isPlaceholder) ...[ // Only show upgrade button for non-placeholders for now
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Upgrade Cost: \$${upgradeCost.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      color: canAfford ? Colors.green : Colors.redAccent,
-                      fontWeight: FontWeight.bold,
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Upgrade to Level ${currentLevel + 1}',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: canAfford ? onUpgrade : null, // Disable if cannot afford
-                    icon: const Icon(Icons.upgrade),
-                    label: const Text('Upgrade'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: canAfford ? Colors.green : Colors.grey,
+                    Text(
+                      'Cost: \$${upgradeCost.toStringAsFixed(0)}',
+                      style: TextStyle(color: Colors.green[700]),
                     ),
+                  ],
+                ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.upgrade),
+                  label: const Text('Upgrade'),
+                  // Disable button if cannot afford
+                  onPressed: canAfford ? () {
+                    // Show confirmation dialog
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext dialogContext) {
+                        return AlertDialog(
+                          title: Text('Confirm Upgrade'),
+                          content: Text('Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop(); // Close the dialog
+                              },
+                            ),
+                            TextButton(
+                              child: const Text('Upgrade'),
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop(); // Close the dialog
+                                onUpgrade(); // Execute the upgrade action passed in
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } : null, // Set onPressed to null to disable
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
+                    foregroundColor: Colors.white,
                   ),
-                ],
-              ),
-            ] else ... [
-               Text('(More details coming soon)', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
-            ]
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
-  }
-
-  // Need to import 'dart:math' for pow()
-  num pow(num x, num exponent) {
-    num result = 1;
-    for (int i = 0; i < exponent; i++) {
-      result *= x;
-    }
-    return result;
   }
 }

@@ -22,6 +22,7 @@ class Tournament {
   final List<String> participants; // List of club IDs (Player's academy + AI clubs)
   // final DateTime startDate; // REMOVED - Scheduling is now relative to entry date
   final String prize; // Could be money, reputation, etc.
+  final int requiredReputation; // Reputation needed to enter
   // bool isCompleted; // Replaced by status
   String? winner; // Club ID of the winner
   TournamentStatus status;
@@ -35,6 +36,7 @@ class Tournament {
     required this.participants,
     // required this.startDate, // REMOVED
     required this.prize,
+    required this.requiredReputation, // Add to required parameters
     // this.isCompleted = false, // Removed
     this.winner,
     this.status = TournamentStatus.Available, // Default status

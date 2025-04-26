@@ -23,6 +23,7 @@ final List<Tournament> availableTournaments = [
     participants: [], // Will be filled later (mutable list needed)
     // startDate: gameStartDateReference.add(const Duration(days: 7)), // REMOVED
     prize: '\$100 + Reputation',
+    requiredReputation: 0, // No rep needed for the first one
     // status and matches use default values
   ),
   Tournament(
@@ -33,6 +34,7 @@ final List<Tournament> availableTournaments = [
     participants: [], // Mutable list needed
     // startDate: gameStartDateReference.add(const Duration(days: 14)), // REMOVED
     prize: '\$250 + Reputation',
+    requiredReputation: 50, // Example requirement
     // status and matches use default values
   ),
   Tournament(
@@ -43,6 +45,7 @@ final List<Tournament> availableTournaments = [
     participants: [], // Mutable list needed
     // startDate: gameStartDateReference.add(const Duration(days: 21)), // REMOVED
     prize: '\$500 + Reputation',
+    requiredReputation: 100, // Example requirement
     // status and matches use default values
   ),
   Tournament(
@@ -53,6 +56,7 @@ final List<Tournament> availableTournaments = [
     participants: [], // Mutable list needed
     // startDate: gameStartDateReference.add(const Duration(days: 30)), // REMOVED
     prize: 'League Trophy + \$1000 + Reputation',
+    requiredReputation: 150, // Example requirement
     // status and matches use default values
   ),
   // --- Added More Tournaments ---
@@ -63,6 +67,7 @@ final List<Tournament> availableTournaments = [
     requiredPlayers: 5,
     participants: [],
     prize: '\$300 + Reputation',
+    requiredReputation: 75, // Example requirement
   ),
   Tournament(
     id: 't_7v7_2',
@@ -71,6 +76,7 @@ final List<Tournament> availableTournaments = [
     requiredPlayers: 7,
     participants: [],
     prize: '\$600 + Reputation',
+    requiredReputation: 120, // Example requirement
   ),
   // --- End Added ---
 ];
@@ -162,12 +168,13 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                     children: [
                       Text(tournament.typeDisplay),
                       Text('Requires: ${tournament.requiredPlayers} players'),
+                      Text('Reputation Req: ${tournament.requiredReputation}'), // Display Reputation Req
                       Text('Prize: ${tournament.prize}'),
                       // Text('Starts: ${tournament.startDate.toLocal().toString().split(' ')[0]}'), // REMOVED Start Date Display
                     ],
                   ),
-                  // Pass currentPlayerCount to _buildEnterButton
-                  trailing: _buildEnterButton(context, tournament, canEnter, isUnlockedProgression, currentPlayerCount),
+                  // Pass currentPlayerCount and academyReputation to _buildEnterButton
+                  trailing: _buildEnterButton(context, tournament, canEnter, isUnlockedProgression, currentPlayerCount, gameStateManager.academyReputation),
                   // Allow tap ONLY if an instance of this tournament is currently in progress
                   onTap: () {
                     Tournament? activeInstance; // Initialize as nullable
@@ -210,9 +217,9 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     }
   }
 
-  // Add currentPlayerCount parameter
-  Widget _buildEnterButton(BuildContext context, Tournament tournamentTemplate, bool canEnter, bool isUnlockedProgression, int currentPlayerCount) {
-    // Get GameStateManager to check active tournaments
+  // Add currentPlayerCount and academyReputation parameters
+  Widget _buildEnterButton(BuildContext context, Tournament tournamentTemplate, bool canEnter, bool isUnlockedProgression, int currentPlayerCount, int currentAcademyReputation) {
+    // Get GameStateManager (needed for _enterTournament call)
     final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
 
     // Check if an instance of this tournament template is currently active
@@ -220,8 +227,9 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       (activeTournament) => activeTournament.baseId == tournamentTemplate.id
     );
 
-    // Explicitly check player count requirement here for the button state
+    // Explicitly check requirements here for the button state
     final bool meetsPlayerRequirement = currentPlayerCount >= tournamentTemplate.requiredPlayers;
+    final bool meetsReputationRequirement = currentAcademyReputation >= tournamentTemplate.requiredReputation;
 
     if (isAlreadyInProgress) { // Check if an instance is active
       return ElevatedButton(
@@ -234,17 +242,39 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       );
     } else {
       // Tournament template is available and no instance is active
-      // Ensure all conditions (player count, progression) are met for enabling the button
-      final bool canActuallyEnter = meetsPlayerRequirement && isUnlockedProgression;
+      // Ensure all conditions (player count, reputation, progression) are met for enabling the button
+      final bool canActuallyEnter = meetsPlayerRequirement && meetsReputationRequirement && isUnlockedProgression;
+      String buttonText = 'Enter';
+      Color? buttonColor = canActuallyEnter ? Theme.of(context).colorScheme.primary : Colors.grey[600];
+      Color? textColor = canActuallyEnter ? Theme.of(context).colorScheme.onPrimary : Colors.grey[400];
+      String? tooltipMessage;
+
+      if (!meetsPlayerRequirement) {
+        tooltipMessage = 'Need ${tournamentTemplate.requiredPlayers} players';
+      } else if (!meetsReputationRequirement) {
+        tooltipMessage = 'Need ${tournamentTemplate.requiredReputation} reputation (Have $currentAcademyReputation)';
+      } else if (!isUnlockedProgression) {
+        tooltipMessage = 'Unlock by progressing further'; // Placeholder message
+      }
+
+      Widget buttonChild = Text(buttonText);
+      if (tooltipMessage != null && !canActuallyEnter) {
+         // Wrap button in Tooltip if disabled and there's a reason
+         buttonChild = Tooltip(
+           message: tooltipMessage,
+           child: buttonChild,
+         );
+      }
+
+
       return ElevatedButton(
         // Pass the tournament *template* to _enterTournament
         onPressed: canActuallyEnter ? () {
-          _enterTournament(tournamentTemplate, currentPlayerCount); // Pass template
-        } : null, // Disable button if requirements not met (player count or progression)
+          // Pass current reputation to _enterTournament for the check
+          _enterTournament(tournamentTemplate, currentPlayerCount, currentAcademyReputation);
+        } : null, // Disable button if requirements not met
         style: ElevatedButton.styleFrom(
-           backgroundColor: canActuallyEnter
-              ? Theme.of(context).colorScheme.primary
-              : Colors.grey[600], // Greyed out if cannot enter
+           backgroundColor: buttonColor,
            foregroundColor: canActuallyEnter
               ? Theme.of(context).colorScheme.onPrimary
               : Colors.grey[400], // Greyed out text
@@ -254,9 +284,9 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     }
   }
 
-  // Add currentPlayerCount parameter
-  void _enterTournament(Tournament tournament, int currentPlayerCount) {
-    // Check status instead of ID set
+  // Add currentPlayerCount and currentAcademyReputation parameters
+  void _enterTournament(Tournament tournament, int currentPlayerCount, int currentAcademyReputation) {
+    // Check status
     if (tournament.status != TournamentStatus.Available) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Tournament ${tournament.name} is already in progress or completed.')),
@@ -273,6 +303,14 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       return; // Stop execution if not enough players
     }
 
+    // *** Add reputation check ***
+    if (currentAcademyReputation < tournament.requiredReputation) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cannot enter ${tournament.name}. Requires ${tournament.requiredReputation} reputation, you have $currentAcademyReputation.')),
+      );
+      return; // Stop execution if not enough reputation
+    }
+
     // --- Create a unique instance of the tournament for this entry ---
     final String instanceId = '${tournament.id}_${DateTime.now().millisecondsSinceEpoch}';
     final Tournament tournamentInstance = Tournament(
@@ -282,6 +320,7 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       type: tournament.type,
       requiredPlayers: tournament.requiredPlayers,
       prize: tournament.prize,
+      requiredReputation: tournament.requiredReputation, // Pass from template
       participants: [], // Start with fresh participants list for the instance
       matches: [],      // Start with fresh matches list for the instance
       status: TournamentStatus.InProgress, // Will be set to InProgress shortly
@@ -354,49 +393,63 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     // This will be handled when integrating with the weekly advance logic. // <<< Kept TODO as reminder
   }
 
-  // Updated: Generates match schedule relative to entryDate
+  // Updated: Generates a round-robin match schedule relative to entryDate
   List<Match> _generateMatches(Tournament tournament, DateTime entryDate) {
     List<Match> generatedMatches = [];
-    List<String> participants = tournament.participants;
-    if (participants.length < 2) return generatedMatches;
+    List<String> teams = List.from(tournament.participants); // Mutable copy
 
-    int matchesPerWeek = (participants.length / 2).floor(); // Simple: half the teams play each week
-    int weekOffset = 0;
-    int matchInWeekCounter = 0;
+    // Handle odd number of teams by adding a dummy "bye" team
+    bool isOdd = teams.length % 2 != 0;
+    if (isOdd) {
+      teams.add("bye");
+    }
 
-    // Basic round-robin generation
-    for (int i = 0; i < participants.length; i++) {
-      for (int j = i + 1; j < participants.length; j++) {
-        String homeTeamId = participants[i];
-        String awayTeamId = participants[j];
+    int numTeams = teams.length;
+    int numRounds = numTeams - 1; // Each team plays every other team once
+    int matchesPerRound = numTeams ~/ 2;
 
-        // Create unique match ID
-        String matchId = 'm_${tournament.id}_${homeTeamId}_vs_${awayTeamId}';
+    List<String> roundTeams = List.from(teams); // List to rotate
 
-        // Calculate match date based on weeks FROM THE ENTRY DATE
-        // Add 1 day buffer so first match isn't on the exact entry day? Optional.
-        DateTime matchDate = entryDate.add(Duration(days: 1 + (weekOffset * 7)));
+    for (int round = 0; round < numRounds; round++) {
+      DateTime roundStartDate = entryDate.add(Duration(days: 1 + (round * 7))); // Start matches 1 day after the week starts
 
-        // Create the match object (unsimulated)
+      for (int matchIndex = 0; matchIndex < matchesPerRound; matchIndex++) {
+        String homeTeamId = roundTeams[matchIndex];
+        String awayTeamId = roundTeams[numTeams - 1 - matchIndex];
+
+        // Skip matches involving the dummy "bye" team
+        if (homeTeamId == "bye" || awayTeamId == "bye") {
+          continue;
+        }
+
+        // Alternate home/away based on round or match index if desired (simple version: first is home)
+        // For simplicity, we'll just use the pairing as is for now.
+
+        String matchId = 'm_${tournament.id}_${homeTeamId}_vs_${awayTeamId}_r${round}';
+        DateTime matchDate = roundStartDate; // All matches in a round happen in the same week
+
         Match match = Match(
           id: matchId,
           tournamentId: tournament.id,
           homeTeamId: homeTeamId,
           awayTeamId: awayTeamId,
           matchDate: matchDate,
-          // homeScore, awayScore, result, isSimulated will be null/false initially
         );
-
         generatedMatches.add(match);
+      }
 
-        // Increment week offset logic (very basic, needs proper scheduling algorithm later)
-        matchInWeekCounter++;
-        if (matchInWeekCounter >= matchesPerWeek) {
-          weekOffset++;
-          matchInWeekCounter = 0;
-        }
+      // Rotate teams for the next round (excluding the first team if numTeams > 2)
+      if (numTeams > 2) {
+         String lastTeam = roundTeams.removeLast();
+         roundTeams.insert(1, lastTeam); // Insert the last team after the first one
       }
     }
+
+     // Optional: If you want a double round-robin (each team plays each other twice, home and away)
+     // You can duplicate the generatedMatches list, swap home/away teams, and adjust dates.
+     // For now, we'll stick to single round-robin.
+
+    print("Generated ${generatedMatches.length} matches for ${tournament.name} over $numRounds rounds.");
     return generatedMatches;
   }
 
