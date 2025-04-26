@@ -31,7 +31,8 @@ dependencies:
   provider: ^6.1.2 # Add provider package (Using a recent stable version)
   flutter:
     sdk: flutter
-
+  collection: ^1.18.0 # Add collection package
+  uuid: ^4.3.3 # Add uuid package (Assuming this was intended earlier)
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart'; // For ChangeNotifier
 import 'models/tournament.dart';
 import 'models/match.dart';
-import 'package:flutter/foundation.dart'; // For ChangeNotifier
-import 'models/tournament.dart';
-import 'models/match.dart';
 import 'models/player.dart'; // Import Player model
 import 'models/staff.dart'; // Import Staff model
 import 'models/ai_club.dart'; // Import AIClub model
 import 'models/match_event.dart'; // Import MatchEventType
+import 'models/news_item.dart'; // Import NewsItem model
 import 'dart:math'; // For random simulation
+import 'package:collection/collection.dart'; // Import collection package
 
 class GameStateManager with ChangeNotifier {
   // Core Game Time & State
@@ -42,8 +41,10 @@ class GameStateManager with ChangeNotifier {
   int _academyReputation = 100; // Starting academy reputation
 
   // --- Transfer Offers ---
-  // Placeholder for transfer offers - needs a dedicated model later
   List<Map<String, dynamic>> _transferOffers = [];
+
+  // --- News Feed ---
+  final List<NewsItem> _newsItems = []; // List to store news
 
   // --- Getters ---
   DateTime get currentDate => _currentDate;
@@ -61,15 +62,26 @@ class GameStateManager with ChangeNotifier {
   int get scoutingFacilityLevel => _scoutingFacilityLevel; // Getter for scouting facility level
   int get academyReputation => _academyReputation; // Getter for academy reputation
   List<Map<String, dynamic>> get transferOffers => _transferOffers; // Getter for transfer offers
+  List<NewsItem> get newsItems => List.unmodifiable(_newsItems.reversed); // Getter for news (reversed for latest first)
 
   GameStateManager() {
     // Initialize game state on creation
     _generateInitialAvailableStaff();
     _populateAIClubMap(); // Populate AI club map
-    _calculateWeeklyWages(); // Initial calculation (should be 0)
+    // _generateInitialAcademyPlayers(); // REMOVED: Temporary player generation
+    _calculateWeeklyWages(); // Calculate initial wages (should be 0 initially)
   }
 
   // --- Initialization ---
+  // REMOVED: Temporary player generation method
+  // void _generateInitialAcademyPlayers() {
+  //   // Add 8 random players for testing purposes
+  //   for (int i = 0; i < 8; i++) {
+  //     _academyPlayers.add(Player.randomScoutedPlayer('initial_player_$i')..isScouted = false); // Mark as not scouted
+  //   }
+  //   print("Generated ${_academyPlayers.length} initial academy players for testing.");
+  // }
+
    void _generateInitialAvailableStaff() {
     // Using _random directly as it's now a member variable
     _availableStaff = List.generate(5, (index) {
@@ -92,7 +104,6 @@ class GameStateManager with ChangeNotifier {
   // --- Weekly Update Logic ---
 
   // Method to advance the game by one week
-  // No longer needs hiredStaff passed in, uses internal state
   void advanceWeek() {
     _currentDate = _currentDate.add(const Duration(days: 7));
     print("Advancing week to: $_currentDate"); // Simple log
@@ -103,19 +114,35 @@ class GameStateManager with ChangeNotifier {
 
     // 2. Scouting Logic
     _scoutedPlayers.clear(); // Clear previous week's reports
-    int totalScoutingSkill = _hiredStaff // Use internal _hiredStaff
+    int totalScoutingSkill = _hiredStaff
         .where((s) => s.role == StaffRole.Scout)
         .fold(0, (sum, scout) => sum + scout.skill);
 
     // Generate players based on total scouting skill (simple example)
     int playersToFind = (totalScoutingSkill / 50).ceil() + _random.nextInt(2); // More skill = more players
-    if (_hiredStaff.where((s) => s.role == StaffRole.Scout).isEmpty) { // Use internal _hiredStaff
+    if (_hiredStaff.where((s) => s.role == StaffRole.Scout).isEmpty) {
       playersToFind = 0; // No scouts, no players found
     }
     print("Scouting found $playersToFind players this week.");
 
     for (int i = 0; i < playersToFind; i++) {
       _scoutedPlayers.add(Player.randomScoutedPlayer('scouted_${_currentDate.millisecondsSinceEpoch}_$i'));
+    }
+    // --- Add Scouting News ---
+    if (playersToFind > 0) {
+       _addNewsItem(NewsItem.create(
+         title: "Scouting Report",
+         description: "Our scouts have identified $playersToFind potential new players this week.",
+         type: NewsItemType.Scouting,
+         date: _currentDate,
+       ));
+    } else if (_hiredStaff.any((s) => s.role == StaffRole.Scout)) {
+       _addNewsItem(NewsItem.create(
+         title: "Scouting Report",
+         description: "Scouts found no notable players this week.",
+         type: NewsItemType.Scouting,
+         date: _currentDate,
+       ));
     }
     // --- End Scouting Logic ---
 
@@ -144,49 +171,59 @@ class GameStateManager with ChangeNotifier {
     int staffWages = _hiredStaff.fold(0, (sum, staff) => sum + staff.weeklyWage);
     int playerWages = _academyPlayers.fold(0, (sum, player) => sum + player.weeklyWage);
     _totalWeeklyWages = staffWages + playerWages;
-    // No need to notify here, as this is usually called before another state change
-    // that *will* notify (like hiring/signing). If called independently, add notifyListeners().
     print("Calculated weekly wages: $_totalWeeklyWages");
   }
 
   void hireStaff(Staff staffToHire) {
     _hiredStaff.add(staffToHire);
     _availableStaff.removeWhere((s) => s.id == staffToHire.id);
-    // _balance -= staffToHire.weeklyWage * 4; // Optional: Signing bonus? Let's skip for now.
     _calculateWeeklyWages(); // Recalculate wages
-    notifyListeners(); // Notify about changes to staff and potentially wages/balance indirectly
+    // --- Add Staff Change News ---
+    _addNewsItem(NewsItem.create(
+      title: "Staff Hired",
+      description: "We have hired ${staffToHire.name} as our new ${staffToHire.role.toString().split('.').last}.",
+      type: NewsItemType.StaffChange,
+      date: _currentDate,
+    ));
+    // --- End Staff Change News ---
+    notifyListeners();
     print("Hired ${staffToHire.name}");
   }
 
   void signPlayer(Player playerToSign) {
     playerToSign.isScouted = false; // Mark as signed
     _academyPlayers.add(playerToSign);
-    _scoutedPlayers.removeWhere((p) => p.id == playerToSign.id); // Remove from scouted list
+    _scoutedPlayers.removeWhere((p) => p.id == playerToSign.id);
     _calculateWeeklyWages(); // Recalculate wages
-    notifyListeners(); // Notify about changes to players, scouted list, wages
+    // --- Add Player Signed News ---
+    _addNewsItem(NewsItem.create(
+      title: "Player Signed",
+      description: "We have signed the promising young player ${playerToSign.name} to the academy.",
+      type: NewsItemType.PlayerSigned,
+      date: _currentDate,
+    ));
+    // --- End Player Signed News ---
+    notifyListeners();
     print("Signed ${playerToSign.name}");
   }
 
   void rejectPlayer(Player playerToReject) {
     _scoutedPlayers.removeWhere((p) => p.id == playerToReject.id);
-    notifyListeners(); // Notify about change to scouted list
+    notifyListeners();
     print("Rejected ${playerToReject.name}");
   }
 
-  // Method to add a tournament when the player enters it
   void addActiveTournament(Tournament tournament) {
     if (!_activeTournaments.any((t) => t.id == tournament.id)) {
       _activeTournaments.add(tournament);
       print("Tournament ${tournament.name} added to active tournaments.");
-      // No need to notifyListeners here unless something needs to react immediately
-      // to the list of active tournaments changing.
     }
   }
 
   // Internal method to simulate matches scheduled within the week that just passed
   void _simulateMatchesForWeek() {
     DateTime startOfWeek = _currentDate.subtract(const Duration(days: 7));
-    DateTime endOfWeek = _currentDate; // Simulate up to (but not including) the new current date
+    DateTime endOfWeek = _currentDate;
 
     print("Simulating matches between $startOfWeek and $endOfWeek");
 
@@ -196,33 +233,26 @@ class GameStateManager with ChangeNotifier {
       if (tournament.status == TournamentStatus.InProgress) {
         bool tournamentMatchesRemaining = false;
         for (var match in tournament.matches) {
-          // Check if the match falls within the week that just passed AND hasn't been simulated yet
-          // Use >= startOfWeek and < endOfWeek for standard weekly range check
           if (!match.isSimulated &&
               !match.matchDate.isBefore(startOfWeek) &&
               match.matchDate.isBefore(endOfWeek)) {
 
             print("Preparing detailed simulation for match: ${match.id} scheduled for ${match.matchDate}");
 
-            // --- Select Teams ---
-            // Need tournament type to select correct number of players
-            TournamentType tournamentType = tournament.type; // Get type from the tournament object
+            TournamentType tournamentType = tournament.type;
             List<Player> homeLineup;
             List<Player> awayLineup;
-
-            const String playerAcademyId = 'player_academy_1'; // Consistent ID
+            const String playerAcademyId = 'player_academy_1';
 
             // Select Home Team
             if (match.homeTeamId == playerAcademyId) {
               homeLineup = selectPlayerTeamForMatch(tournamentType);
             } else {
               AIClub? homeAIClub = _aiClubMap[match.homeTeamId];
-              if (homeAIClub != null) {
-                homeLineup = selectAITeamForMatch(tournamentType, homeAIClub);
-              } else {
-                print("Error: Home AI Club ${match.homeTeamId} not found for match ${match.id}. Using empty lineup.");
-                homeLineup = []; // Fallback
-              }
+              homeLineup = (homeAIClub != null)
+                  ? selectAITeamForMatch(tournamentType, homeAIClub)
+                  : [];
+              if (homeAIClub == null) print("Error: Home AI Club ${match.homeTeamId} not found for match ${match.id}. Using empty lineup.");
             }
 
             // Select Away Team
@@ -230,117 +260,180 @@ class GameStateManager with ChangeNotifier {
               awayLineup = selectPlayerTeamForMatch(tournamentType);
             } else {
               AIClub? awayAIClub = _aiClubMap[match.awayTeamId];
-              if (awayAIClub != null) {
-                awayLineup = selectAITeamForMatch(tournamentType, awayAIClub);
-              } else {
-                print("Error: Away AI Club ${match.awayTeamId} not found for match ${match.id}. Using empty lineup.");
-                awayLineup = []; // Fallback
-              }
+              awayLineup = (awayAIClub != null)
+                  ? selectAITeamForMatch(tournamentType, awayAIClub)
+                  : [];
+               if (awayAIClub == null) print("Error: Away AI Club ${match.awayTeamId} not found for match ${match.id}. Using empty lineup.");
             }
-            // --- End Select Teams ---
 
             // Call the detailed simulation method
             match.simulateDetailed(homeLineup, awayLineup);
+
+            // --- Update Player Stats & Fatigue AFTER simulation ---
+            _updatePlayerStatsAndFatigue(match, homeLineup, awayLineup);
+            // ---
+
             // Update reputation immediately after simulation
             _updateReputationAfterMatch(tournament, match);
+
+            // --- Add Match Result News ---
+            if (match.isSimulated && match.result != null) {
+              const String playerAcademyId = 'player_academy_1'; // Define here or ensure it's accessible
+              String homeTeamName = match.homeTeamId == playerAcademyId ? "Academy" : (_aiClubMap[match.homeTeamId]?.name ?? match.homeTeamId);
+              String awayTeamName = match.awayTeamId == playerAcademyId ? "Academy" : (_aiClubMap[match.awayTeamId]?.name ?? match.awayTeamId);
+              String resultString;
+              switch (match.result!) {
+                case MatchResult.homeWin: resultString = "won against"; break;
+                case MatchResult.awayWin: resultString = "lost to"; break;
+                case MatchResult.draw: resultString = "drew with"; break;
+              }
+              if (match.awayTeamId == playerAcademyId) { // Flip perspective if player is away
+                 switch (match.result!) {
+                   case MatchResult.homeWin: resultString = "lost to"; break;
+                   case MatchResult.awayWin: resultString = "won against"; break;
+                   case MatchResult.draw: resultString = "drew with"; break;
+                 }
+              }
+              String score = "${match.homeScore} - ${match.awayScore}";
+              String opponentName = match.homeTeamId == playerAcademyId ? awayTeamName : homeTeamName;
+
+              _addNewsItem(NewsItem.create(
+                title: "Match Result (${tournament.name})",
+                description: "Academy $resultString $opponentName $score.",
+                type: NewsItemType.MatchResult,
+                date: match.matchDate, // Use match date for the news item
+              ));
+            }
+            // --- End Match Result News ---
           }
-          // Check if there are any matches left to simulate in the future for this tournament
           if (!match.isSimulated) {
             tournamentMatchesRemaining = true;
           }
         }
 
-        // If no matches remain to be simulated, mark the tournament as completed
         if (!tournamentMatchesRemaining) {
           print("Tournament ${tournament.name} completed.");
           tournament.status = TournamentStatus.Completed;
           completedTournaments.add(tournament);
-          // TODO: Award prizes based on final standings
-          // Reputation is updated after each match now, not just at the end.
         }
       }
     }
 
-    // Move completed tournaments from the active list to the completed list
     if (completedTournaments.isNotEmpty) {
-      _completedTournaments.addAll(completedTournaments); // Add to history
-      _activeTournaments.removeWhere((t) => completedTournaments.contains(t)); // Remove from active
+      _completedTournaments.addAll(completedTournaments);
+      _activeTournaments.removeWhere((t) => completedTournaments.contains(t));
       print("Moved ${completedTournaments.length} tournaments to history.");
-      // Consider notifying listeners if the UI needs to react to history changes immediately
-      // notifyListeners();
+    }
+
+    // --- Weekly Fatigue Recovery ---
+    _applyWeeklyFatigueRecovery();
+    // ---
+  }
+
+  // --- Player Stats & Fatigue Update Logic ---
+  void _updatePlayerStatsAndFatigue(Match match, List<Player> homeLineup, List<Player> awayLineup) {
+    if (!match.isSimulated) return;
+
+    Set<String> academyPlayersInMatch = {}; // Track who played
+
+    // Combine lineups for easier iteration
+    List<Player> allPlayersInMatch = [...homeLineup, ...awayLineup];
+
+    // Find academy players involved and update matches played + fatigue increase
+     for (var lineupPlayer in allPlayersInMatch) {
+       // Check if this player is from the academy using firstWhereOrNull
+       Player? academyPlayer = _academyPlayers.firstWhereOrNull((p) => p.id == lineupPlayer.id);
+
+       if (academyPlayer != null) {
+         academyPlayersInMatch.add(academyPlayer.id); // Mark as played
+         academyPlayer.matchesPlayed++;
+
+         // Fatigue increase - higher for lower stamina
+         double fatigueIncrease = 15.0 + ( (100 - academyPlayer.stamina) / 10.0 ); // Base 15, +0 for 100 stamina, +10 for 0 stamina
+         academyPlayer.fatigue = (academyPlayer.fatigue + fatigueIncrease).clamp(0.0, 100.0);
+
+         print("Player ${academyPlayer.name} played match ${match.id}. Matches: ${academyPlayer.matchesPlayed}, Fatigue: ${academyPlayer.fatigue.toStringAsFixed(1)}%");
+       }
+    }
+
+    // Update goals and assists from event log
+    for (var event in match.eventLog) {
+       // Check if this player is from the academy using firstWhereOrNull
+       Player? academyPlayer = _academyPlayers.firstWhereOrNull((p) => p.id == event.playerId);
+       if (academyPlayer != null) {
+         if (event.type == MatchEventType.Goal) {
+           academyPlayer.goalsScored++;
+           print("Player ${academyPlayer.name} scored! Total goals: ${academyPlayer.goalsScored}");
+         } else if (event.type == MatchEventType.Assist) { // Assuming Assist type exists
+           academyPlayer.assists++;
+            print("Player ${academyPlayer.name} assisted! Total assists: ${academyPlayer.assists}");
+         }
+       }
     }
   }
+
+  void _applyWeeklyFatigueRecovery() {
+     print("--- Applying Weekly Fatigue Recovery ---");
+     for (var player in _academyPlayers) {
+        // Base recovery - higher for higher stamina
+        double recoveryAmount = 5.0 + (player.stamina / 10.0); // Base 5, +0 for 0 stamina, +10 for 100 stamina
+        player.fatigue = (player.fatigue - recoveryAmount).clamp(0.0, 100.0);
+     }
+  }
+  // --- End Player Stats & Fatigue Update Logic ---
 
   // --- Player Training Logic ---
   void _handlePlayerTraining() {
     print("--- Handling Player Training ---");
     bool anyPlayerImproved = false;
-
-    // Create a map for quick player lookup by ID
     Map<String, Player> playerMap = { for (var p in _academyPlayers) p.id : p };
-
-    // Iterate through hired coaches
     final coaches = _hiredStaff.where((s) => s.role == StaffRole.Coach).toList();
 
     if (coaches.isEmpty) {
       print("No coaches hired. No specific player training applied this week.");
-      // Optional: Apply a very basic, low-chance training for unassigned players?
-      // For now, let's stick to coach-led training only.
       return;
     }
 
-    Set<String> trainedPlayerIds = {}; // Keep track of players already trained this week
+    Set<String> trainedPlayerIds = {};
 
     for (var coach in coaches) {
       print("Coach ${coach.name} (Skill: ${coach.skill}, Capacity: ${coach.assignedPlayerIds.length}/${coach.maxPlayersTrainable}) is training...");
-
-      // Iterate through players assigned to this coach
       for (var playerId in coach.assignedPlayerIds) {
-        // Check if player exists and hasn't been trained by another coach this week
         if (playerMap.containsKey(playerId) && !trainedPlayerIds.contains(playerId)) {
           Player player = playerMap[playerId]!;
-          trainedPlayerIds.add(playerId); // Mark as trained for this week
+          trainedPlayerIds.add(playerId);
 
           if (player.currentSkill < player.potentialSkill) {
-            // Calculate training chance based on coach skill and facility level
-            // Example: Base 5% + Coach Skill / 5 + Facility Level * 3
             int baseChance = 5;
-            int coachBonus = (coach.skill / 5).floor(); // Higher skill = higher bonus
-            int facilityBonus = (_trainingFacilityLevel * 3); // Facility bonus
-            int totalChance = baseChance + coachBonus + facilityBonus;
-            // Clamp the chance (e.g., 5% to 95%)
-            totalChance = totalChance.clamp(5, 95);
+            int coachBonus = (coach.skill / 5).floor();
+            int facilityBonus = (_trainingFacilityLevel * 3);
+            int totalChance = (baseChance + coachBonus + facilityBonus).clamp(5, 95);
 
             if (_random.nextInt(100) < totalChance) {
-              player.currentSkill++; // Increase skill by 1
+              int oldSkill = player.currentSkill;
+              player.currentSkill++;
               print("  -> Player ${player.name} (under ${coach.name}) improved skill to ${player.currentSkill}. Chance: $totalChance%");
               anyPlayerImproved = true;
-            } else {
-              // print("  -> Player ${player.name} (under ${coach.name}) did not improve this week. Chance: $totalChance%");
+              // --- Add Training News ---
+              _addNewsItem(NewsItem.create(
+                title: "Player Improved",
+                description: "${player.name} improved their skill from $oldSkill to ${player.currentSkill} under Coach ${coach.name}.",
+                type: NewsItemType.Training,
+                date: _currentDate,
+              ));
+              // --- End Training News ---
             }
-          } else {
-             // print("  -> Player ${player.name} (under ${coach.name}) is already at potential skill.");
           }
         } else if (!playerMap.containsKey(playerId)) {
            print("  -> Warning: Player ID $playerId assigned to coach ${coach.name} not found in academy players.");
-           // Consider removing invalid ID from coach.assignedPlayerIds here?
         }
       }
     }
 
-    // Check for players NOT assigned to any coach
-    int unassignedCount = 0;
-    for (var player in _academyPlayers) {
-      if (!trainedPlayerIds.contains(player.id)) {
-        unassignedCount++;
-        // print("Player ${player.name} is not assigned to any coach and did not receive specific training.");
-        // Optional: Apply a minimal base training chance here if desired.
-      }
-    }
+    int unassignedCount = _academyPlayers.where((p) => !trainedPlayerIds.contains(p.id)).length;
      if (unassignedCount > 0) {
         print("$unassignedCount players were not assigned to any coach this week.");
      }
-
     if (!anyPlayerImproved && coaches.isNotEmpty) {
       print("No players improved under coaching this week.");
     }
@@ -349,220 +442,184 @@ class GameStateManager with ChangeNotifier {
 
   // --- Staff Market Logic ---
   void _refreshAvailableStaff() {
-    // 1. Chance to remove existing available staff
-    // Example: 20% chance per staff member to leave the market each week
     int removedCount = 0;
     _availableStaff.removeWhere((staff) {
-      bool leaving = _random.nextDouble() < 0.20; // 20% chance
-      if (leaving) {
-        removedCount++;
-        print("Staff Market: ${staff.name} (${staff.roleString}) left the market.");
-      }
+      bool leaving = _random.nextDouble() < 0.20;
+      if (leaving) removedCount++;
       return leaving;
     });
 
-    // 2. Generate a few new staff members
-    // Example: Generate 1-3 new staff members each week
-    int newStaffCount = 1 + _random.nextInt(3); // 1, 2, or 3 new staff
+    int newStaffCount = 1 + _random.nextInt(3);
     int addedCount = 0;
     for (int i = 0; i < newStaffCount; i++) {
-      // Ensure a mix of roles, maybe slightly bias towards coaches/scouts?
       StaffRole role = StaffRole.values[_random.nextInt(StaffRole.values.length)];
-      // Simple bias: 50% chance to reroll if it's Physio/Manager
       if ((role == StaffRole.Physio || role == StaffRole.Manager) && _random.nextBool()) {
          role = StaffRole.values[_random.nextInt(StaffRole.values.length)];
       }
-
-      // Avoid adding too many staff if the pool is already large (optional)
-      if (_availableStaff.length < 15) { // Example cap
+      if (_availableStaff.length < 15) {
          Staff newStaff = Staff.randomStaff('staff_${_currentDate.millisecondsSinceEpoch}_$i', role);
          _availableStaff.add(newStaff);
          addedCount++;
-         print("Staff Market: New ${newStaff.roleString} ${newStaff.name} (Skill: ${newStaff.skill}) added.");
       }
     }
     print("Staff Market Refreshed: $removedCount removed, $addedCount added. Total available: ${_availableStaff.length}");
-    // No notifyListeners needed here, advanceWeek handles it at the end.
   }
   // --- End Staff Market Logic ---
 
   // --- Player-Coach Assignment Logic ---
-
-  // Assigns a player to a specific coach
   bool assignPlayerToCoach(String playerId, String coachId) {
-    // Find the coach
-    Staff? coach;
-    try {
-      coach = _hiredStaff.firstWhere((s) => s.id == coachId && s.role == StaffRole.Coach);
-    } catch (e) {
+    Staff? coach = _hiredStaff.firstWhereOrNull((s) => s.id == coachId && s.role == StaffRole.Coach);
+    if (coach == null) {
       print("Error: Coach with ID $coachId not found or is not a coach.");
       return false;
     }
-
-    // Find the player
-    Player? player;
-    try {
-      player = _academyPlayers.firstWhere((p) => p.id == playerId);
-    } catch (e) {
+    Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId);
+    if (player == null) {
       print("Error: Player with ID $playerId not found in academy.");
       return false;
     }
-
-    // Check if coach is already full
     if (coach.assignedPlayerIds.length >= coach.maxPlayersTrainable) {
       print("Error: Coach ${coach.name} is already at maximum capacity (${coach.maxPlayersTrainable}). Cannot assign ${player.name}.");
       return false;
     }
-
-    // Check if player is already assigned to this coach
     if (coach.assignedPlayerIds.contains(playerId)) {
       print("Info: Player ${player.name} is already assigned to coach ${coach.name}.");
-      return true; // No change needed, but not an error
+      return true;
     }
-
-    // Check if player is assigned to ANOTHER coach and unassign first
-    unassignPlayerFromAnyCoach(playerId); // Ensure player is free
-
-    // Assign player to the new coach
+    unassignPlayerFromAnyCoach(playerId);
     coach.assignedPlayerIds.add(playerId);
     print("Assigned player ${player.name} to coach ${coach.name}.");
-    notifyListeners(); // Notify UI about staff changes (assigned counts)
+    notifyListeners();
     return true;
   }
 
-  // Unassigns a player from a specific coach
   bool unassignPlayerFromCoach(String playerId, String coachId) {
-     // Find the coach
-    Staff? coach;
-    try {
-      coach = _hiredStaff.firstWhere((s) => s.id == coachId && s.role == StaffRole.Coach);
-    } catch (e) {
+    Staff? coach = _hiredStaff.firstWhereOrNull((s) => s.id == coachId && s.role == StaffRole.Coach);
+    if (coach == null) {
       print("Error: Coach with ID $coachId not found or is not a coach.");
       return false;
     }
-
-     // Find the player (optional, but good for logging the name)
-    Player? player;
-    try {
-      player = _academyPlayers.firstWhere((p) => p.id == playerId);
-    } catch (e) {
-      // Player not found, but we can still try to remove the ID if it exists in the coach's list
-      print("Info: Player with ID $playerId not found in academy, attempting removal from coach ${coach.name} anyway.");
-    }
-    String playerName = player?.name ?? 'ID: $playerId'; // Use ID if player object wasn't found
+    Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId);
+    String playerName = player?.name ?? 'ID: $playerId';
 
     bool removed = coach.assignedPlayerIds.remove(playerId);
     if (removed) {
       print("Unassigned player $playerName from coach ${coach.name}.");
-      notifyListeners(); // Notify UI about staff changes (assigned counts)
+      notifyListeners();
     } else {
        print("Info: Player $playerName was not assigned to coach ${coach.name}.");
     }
     return removed;
   }
 
-  // Unassigns a player from whichever coach they are currently assigned to
   void unassignPlayerFromAnyCoach(String playerId) {
     for (var coach in _hiredStaff.where((s) => s.role == StaffRole.Coach)) {
       if (coach.assignedPlayerIds.contains(playerId)) {
         unassignPlayerFromCoach(playerId, coach.id);
-        break; // Player can only be assigned to one coach at a time
+        break;
       }
     }
   }
 
-  // Helper to get the coach assigned to a player, if any
   Staff? getCoachForPlayer(String playerId) {
-     for (var coach in _hiredStaff.where((s) => s.role == StaffRole.Coach)) {
-      if (coach.assignedPlayerIds.contains(playerId)) {
-        return coach;
-      }
-    }
-    return null; // Not assigned to any coach
+     return _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Coach && s.assignedPlayerIds.contains(playerId));
   }
-
   // --- End Player-Coach Assignment Logic ---
 
-  // Calculates the skill level for a given team ID
-  int _getTeamSkill(String teamId) {
-    const String playerAcademyId = 'player_academy_1'; // Define player academy ID consistently
+  // Calculates the effective skill level for a given team ID, considering fatigue
+  int _getTeamSkill(String teamId, List<Player> selectedLineup) {
+    const String playerAcademyId = 'player_academy_1';
 
-    if (teamId == playerAcademyId) {
-      // Calculate actual academy skill based on average of current players
-      if (_academyPlayers.isEmpty) {
-        return 10; // Default low skill if no players
-      }
-      // Simple average for now. Could be weighted or based on best N players later.
-      double totalSkill = _academyPlayers.fold(0, (sum, player) => sum + player.currentSkill);
-      return (totalSkill / _academyPlayers.length).round();
-    } else {
-      // Look up AI club skill from the centralized map
-      final aiClub = _aiClubMap[teamId];
-      if (aiClub != null) {
-        return aiClub.skillLevel;
-      } else {
-        // Fallback if AI club not found (shouldn't happen ideally)
-        print("Warning: AI Club with ID '$teamId' not found in _aiClubMap. Returning default skill.");
-        return 30; // Default low skill for unknown AI clubs
-      }
+    if (selectedLineup.isEmpty) {
+       return 10; // Default low skill if no players in lineup
     }
+
+    // Calculate average effective skill of the selected lineup
+    double totalEffectiveSkill = 0;
+    for (var player in selectedLineup) {
+       // Apply fatigue penalty: 0% penalty at 0 fatigue, up to 50% penalty at 100 fatigue
+       double fatigueModifier = 1.0 - (player.fatigue / 200.0);
+       totalEffectiveSkill += player.currentSkill * fatigueModifier;
+    }
+
+    int averageEffectiveSkill = (totalEffectiveSkill / selectedLineup.length).round();
+
+    // If it's an AI team, use their base skill as a floor/influence?
+    if (teamId != playerAcademyId) {
+       int baseAISkill = _getBaseAIClubSkill(teamId);
+       // Example: Blend AI base skill and lineup effective skill
+       averageEffectiveSkill = ((averageEffectiveSkill * 0.7) + (baseAISkill * 0.3)).round();
+    }
+
+    return averageEffectiveSkill.clamp(1, 100); // Ensure skill stays within bounds
   }
 
-  // --- Team Selection Logic ---
+  // --- AI Club Skill Lookup (Original logic, might be used elsewhere) ---
+  int _getBaseAIClubSkill(String teamId) {
+     final aiClub = _aiClubMap[teamId];
+     if (aiClub != null) {
+       return aiClub.skillLevel;
+     } else {
+       print("Warning: AI Club with ID '$teamId' not found in _aiClubMap. Returning default skill.");
+       return 30;
+     }
+  }
+  // --- End AI Club Skill Lookup ---
 
-  // Selects the best N players for the player's academy based on skill
+  // --- Team Selection Logic ---
   List<Player> selectPlayerTeamForMatch(TournamentType type, {Staff? manager}) {
     int playersNeeded = _getPlayersNeededForType(type);
     if (_academyPlayers.length < playersNeeded) {
       print("Warning: Not enough players in academy (${_academyPlayers.length}) for a ${type.toString()} match (needs $playersNeeded). Selecting all available.");
-      // Return a copy to avoid modifying the original list directly
       return List<Player>.from(_academyPlayers);
     }
 
-    // Sort players by current skill (descending)
-    // Create a mutable copy before sorting
-    List<Player> sortedPlayers = List<Player>.from(_academyPlayers);
-    sortedPlayers.sort((a, b) => b.currentSkill.compareTo(a.currentSkill));
+    // Sort players primarily by skill, but consider fatigue
+    List<Player> availablePlayers = List<Player>.from(_academyPlayers);
+    availablePlayers.sort((a, b) {
+      double fatiguePenaltyA = a.fatigue > 75 ? 50 : (a.fatigue / 2);
+      double fatiguePenaltyB = b.fatigue > 75 ? 50 : (b.fatigue / 2);
+      double effectiveScoreA = a.currentSkill - fatiguePenaltyA;
+      double effectiveScoreB = b.currentSkill - fatiguePenaltyB;
+      return effectiveScoreB.compareTo(effectiveScoreA); // Descending by effective score
+    });
 
-    // TODO: Incorporate manager skill influence later?
-    // For now, just take the top N players
-    return sortedPlayers.sublist(0, playersNeeded);
+    return availablePlayers.sublist(0, playersNeeded);
   }
 
-  // Selects the best N players for an AI club based on skill
   List<Player> selectAITeamForMatch(TournamentType type, AIClub aiClub) {
      int playersNeeded = _getPlayersNeededForType(type);
      if (aiClub.players.length < playersNeeded) {
        print("Warning: Not enough players in AI club ${aiClub.name} (${aiClub.players.length}) for a ${type.toString()} match (needs $playersNeeded). Selecting all available.");
-       // Return a copy
        return List<Player>.from(aiClub.players);
      }
 
-     // Sort players by current skill (descending)
-     // Create a mutable copy before sorting
-     List<Player> sortedPlayers = List<Player>.from(aiClub.players);
-     sortedPlayers.sort((a, b) => b.currentSkill.compareTo(a.currentSkill));
+     // Sort AI players similarly (considering fatigue for their selection too)
+     List<Player> availablePlayers = List<Player>.from(aiClub.players);
+     availablePlayers.sort((a, b) {
+        double fatiguePenaltyA = a.fatigue > 75 ? 50 : (a.fatigue / 2); // AI also suffers fatigue
+        double fatiguePenaltyB = b.fatigue > 75 ? 50 : (b.fatigue / 2);
+        double effectiveScoreA = a.currentSkill - fatiguePenaltyA;
+        double effectiveScoreB = b.currentSkill - fatiguePenaltyB;
+        return effectiveScoreB.compareTo(effectiveScoreA);
+     });
 
-     // Take the top N players
-     return sortedPlayers.sublist(0, playersNeeded);
+     return availablePlayers.sublist(0, playersNeeded);
   }
 
-  // Helper to get the number of players required for a tournament type
   int _getPlayersNeededForType(TournamentType type) {
      switch (type) {
       case TournamentType.threeVthree: return 3;
       case TournamentType.fiveVfive: return 5;
       case TournamentType.sevenVseven: return 7;
       case TournamentType.elevenVeleven: return 11;
-      default: return 11; // Default to 11v11
+      default: return 11;
     }
   }
   // --- End Team Selection Logic ---
 
   // --- Reputation Update Logic ---
-
   void _updateReputationAfterMatch(Tournament tournament, Match match) {
-    // This method is now called after *every* simulated match within the week.
     if (!match.isSimulated || match.result == null) return;
 
     const String playerAcademyId = 'player_academy_1';
@@ -570,100 +627,77 @@ class GameStateManager with ChangeNotifier {
     int reputationChange = 0;
     int playerReputationChangeBase = 0;
 
-    // Base reputation change based on result (if player involved)
     if (playerInvolved) {
       bool playerWon = (match.homeTeamId == playerAcademyId && match.result == MatchResult.homeWin) ||
                        (match.awayTeamId == playerAcademyId && match.result == MatchResult.awayWin);
       bool playerDrew = match.result == MatchResult.draw;
 
       if (playerWon) {
-        reputationChange = 5; // Base win
-        playerReputationChangeBase = 3;
+        reputationChange = 5; playerReputationChangeBase = 3;
       } else if (playerDrew) {
-        reputationChange = 1; // Base draw
-        playerReputationChangeBase = 1;
+        reputationChange = 1; playerReputationChangeBase = 1;
       } else {
-        reputationChange = -3; // Base loss
-        playerReputationChangeBase = -1;
+        reputationChange = -3; playerReputationChangeBase = -1;
       }
-
-      // Modify change based on tournament importance (example)
-      // TODO: Add importance/level to Tournament model
-      // if (tournament.level > 1) {
-      //   reputationChange *= tournament.level;
-      //   playerReputationChangeBase *= tournament.level;
-      // }
-
       _academyReputation = max(0, _academyReputation + reputationChange);
       print("Academy reputation changed by $reputationChange to $_academyReputation after match ${match.id}");
     }
 
     // Update player reputation for goals/assists/playing
-    List<Player> participants = [];
+    // Get IDs of academy players who participated
+    Set<String> participatingPlayerIds = {};
     if (match.homeTeamId == playerAcademyId) {
-      participants.addAll(_academyPlayers.where((p) => match.homeLineup.contains(p.id)));
+        participatingPlayerIds.addAll(match.homeLineup); // homeLineup is already List<String>
     }
     if (match.awayTeamId == playerAcademyId) {
-      participants.addAll(_academyPlayers.where((p) => match.awayLineup.contains(p.id)));
+        participatingPlayerIds.addAll(match.awayLineup); // awayLineup is already List<String>
     }
 
-    for (var player in participants) {
-      int individualChange = playerReputationChangeBase; // Start with base change for playing
+    // Iterate through academy players who actually played
+    for (String playerId in participatingPlayerIds) {
+        Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId);
+        if (player == null) continue; // Should not happen if lineup IDs are correct
 
-      // Find goals for this player in the event log
-      int goals = 0;
-      for (var event in match.eventLog) {
-        if (event.type == MatchEventType.Goal && event.playerId == player.id) {
-          goals++;
+        int individualChange = playerReputationChangeBase; // Start with base change for playing
+
+        // Find goals/assists for this player in the event log
+        int goals = 0;
+        int assists = 0;
+        for (var event in match.eventLog) {
+            if (event.playerId == player.id) {
+                if (event.type == MatchEventType.Goal) goals++;
+                if (event.type == MatchEventType.Assist) assists++;
+            }
         }
-        // TODO: Add assist check when assists are implemented in MatchEvent
-      }
 
-      individualChange += goals * 5; // Bonus for goals
+        individualChange += goals * 5; // Bonus for goals
+        individualChange += assists * 3; // Bonus for assists
 
-      if (individualChange != 0) {
-         player.reputation = max(0, player.reputation + individualChange);
-         print("Player ${player.name} reputation changed by $individualChange to ${player.reputation}");
-      }
+        if (individualChange != 0) {
+            player.reputation = max(0, player.reputation + individualChange);
+            print("Player ${player.name} reputation changed by $individualChange to ${player.reputation}");
+        }
     }
   }
 
   void _updateReputationDecay() {
-    // Simple decay for academy
-    _academyReputation = max(0, _academyReputation - 1); // Lose 1 rep per week passively
-
-    // Decay for players who didn't participate significantly (can refine later)
-    // This is a placeholder - ideally track if player played in *any* match this week
+    _academyReputation = max(0, _academyReputation - 1);
     for (var player in _academyPlayers) {
-       // Simple check: if they weren't in the *last* simulated match's lineup (inaccurate but simple)
-       // A better approach needs tracking participation across all matches in the week.
-       // For now, let's just apply a small decay universally and rely on match gains.
-       player.reputation = max(0, player.reputation - 1); // Small decay
+       player.reputation = max(0, player.reputation - 1);
     }
      print("Applied weekly reputation decay. Academy: $_academyReputation");
   }
-
   // --- End Reputation Update Logic ---
 
   // --- Transfer Offer Logic (Basic) ---
-
   void _generateTransferOffers() {
-    _transferOffers.clear(); // Clear old offers
+    _transferOffers.clear();
     final random = Random();
-
-    // Simple chance for offers based on player reputation and academy reputation
     for (var player in _academyPlayers) {
-      // Higher chance for higher rep players and higher academy rep
-      double offerChance = (player.reputation / 500.0) + (_academyReputation / 1000.0);
-      offerChance = offerChance.clamp(0.0, 0.2); // Max 20% chance per player per week
-
+      double offerChance = ((player.reputation / 500.0) + (_academyReputation / 1000.0)).clamp(0.0, 0.2);
       if (random.nextDouble() < offerChance) {
-        // Generate a placeholder offer
-        // TODO: Use AIClub reputation/size later
         String offeringClubName = _allAICLubs[random.nextInt(_allAICLubs.length)].name;
-        // Simple fee based on skill and reputation
         int offerAmount = (player.currentSkill * 100) + (player.reputation * 50) + random.nextInt(5000);
-
         _transferOffers.add({
           'playerId': player.id,
           'playerName': player.name,
@@ -671,76 +705,71 @@ class GameStateManager with ChangeNotifier {
           'offerAmount': offerAmount,
         });
         print("Generated transfer offer for ${player.name} from $offeringClubName for $offerAmount");
+        // --- Add Transfer Offer News ---
+        _addNewsItem(NewsItem.create(
+          title: "Transfer Offer Received",
+          description: "$offeringClubName has made an offer of \$$offerAmount for ${player.name}.",
+          type: NewsItemType.TransferOffer,
+          date: _currentDate,
+        ));
+        // --- End Transfer Offer News ---
       }
     }
-    // No notifyListeners here, UI will pull data when viewed
   }
 
   void acceptTransferOffer(Map<String, dynamic> offer) {
     String playerId = offer['playerId'];
     int offerAmount = offer['offerAmount'];
+    Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId);
 
-    // Find player manually to avoid orElse issue
-    Player? player;
-    int playerIndex = -1;
-    for (int i = 0; i < _academyPlayers.length; i++) {
-        if (_academyPlayers[i].id == playerId) {
-            player = _academyPlayers[i];
-            playerIndex = i;
-            break;
-        }
-    }
-
-    if (player != null && playerIndex != -1) {
-      // --- Unassign player from coach BEFORE removing them ---
-      unassignPlayerFromAnyCoach(playerId);
-      // ---
-
+    if (player != null) {
+      unassignPlayerFromAnyCoach(playerId); // Unassign first
       _balance += offerAmount;
-      _academyPlayers.removeAt(playerIndex); // Remove by index
-      // _academyPlayers.remove(player); // removeAt is sufficient
-      _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove this offer
-      _calculateWeeklyWages(); // Recalculate wages
-      // TODO: Add reputation boost for successful transfer?
+      _academyPlayers.removeWhere((p) => p.id == playerId); // Remove player
+      _transferOffers.removeWhere((o) => o['playerId'] == playerId);
+      _calculateWeeklyWages();
       print("Accepted transfer offer for ${player.name}. Received $offerAmount. Balance: $_balance");
-      notifyListeners(); // Update UI (player list, balance)
+      // --- Add Transfer Decision News ---
+      _addNewsItem(NewsItem.create(
+        title: "Transfer Accepted",
+        description: "We accepted the offer of \$$offerAmount for ${player.name} from ${offer['offeringClubName']}.",
+        type: NewsItemType.TransferDecision,
+        date: _currentDate,
+      ));
+      // --- End Transfer Decision News ---
+      notifyListeners();
     }
   }
 
   void rejectTransferOffer(Map<String, dynamic> offer) {
      _transferOffers.removeWhere((o) => o['playerId'] == offer['playerId']);
-     // TODO: Potential small reputation hit for rejecting?
      print("Rejected transfer offer for ${offer['playerName']}");
-     notifyListeners(); // Update offer list UI
+     notifyListeners();
   }
-
   // --- End Transfer Offer Logic ---
 
   // --- Facility Upgrade Logic ---
-
-  // Helper to calculate upgrade cost (example formula)
   int _calculateFacilityUpgradeCost(int currentLevel) {
-    // Exponential increase: e.g., 10k, 25k, 50k, 85k, 130k...
     return (pow(currentLevel, 1.5) * 5000).toInt() + 10000;
   }
+  int getTrainingFacilityUpgradeCost() => _calculateFacilityUpgradeCost(_trainingFacilityLevel);
+  int getScoutingFacilityUpgradeCost() => _calculateFacilityUpgradeCost(_scoutingFacilityLevel);
 
-  // Method to get the cost for the *next* level upgrade
-  int getTrainingFacilityUpgradeCost() {
-    return _calculateFacilityUpgradeCost(_trainingFacilityLevel);
-  }
-
-  int getScoutingFacilityUpgradeCost() {
-    return _calculateFacilityUpgradeCost(_scoutingFacilityLevel);
-  }
-
-  // Attempt to upgrade the training facility
   bool upgradeTrainingFacility() {
     int cost = getTrainingFacilityUpgradeCost();
     if (_balance >= cost) {
       _balance -= cost;
       _trainingFacilityLevel++;
       print("Upgraded Training Facility to Level $_trainingFacilityLevel. Cost: $cost. Balance: $_balance");
-      notifyListeners(); // Update balance and facility level UI
+      // --- Add Facility News ---
+      _addNewsItem(NewsItem.create(
+        title: "Facility Upgraded",
+        description: "Training Facility upgraded to Level $_trainingFacilityLevel.",
+        type: NewsItemType.Facility,
+        date: _currentDate,
+      ));
+      // --- End Facility News ---
+      notifyListeners();
       return true;
     } else {
       print("Cannot upgrade Training Facility. Cost: $cost, Balance: $_balance");
@@ -748,21 +777,55 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
-  // Attempt to upgrade the scouting facility
   bool upgradeScoutingFacility() {
     int cost = getScoutingFacilityUpgradeCost();
     if (_balance >= cost) {
       _balance -= cost;
       _scoutingFacilityLevel++;
       print("Upgraded Scouting Facility to Level $_scoutingFacilityLevel. Cost: $cost. Balance: $_balance");
-      notifyListeners(); // Update balance and facility level UI
+      notifyListeners();
       return true;
     } else {
       print("Cannot upgrade Scouting Facility. Cost: $cost, Balance: $_balance");
       return false;
     }
   }
-
   // --- End Facility Upgrade Logic ---
 
+  // --- News Item Management ---
+
+  void markAllNewsAsRead() {
+    bool changed = false;
+    for (var item in _newsItems) {
+      if (!item.isRead) {
+        item.isRead = true;
+        changed = true;
+      }
+    }
+    if (changed) {
+      notifyListeners(); // Notify only if something actually changed
+    }
+  }
+
+  // Optional: Method to mark a single item as read (if needed later)
+  // void markNewsAsRead(String id) {
+  //   final index = _newsItems.indexWhere((item) => item.id == id);
+  //   if (index != -1 && !_newsItems[index].isRead) {
+  //     _newsItems[index].isRead = true;
+  //     notifyListeners();
+  //   }
+  // }
+
+  void _addNewsItem(NewsItem item) {
+    // Optional: Limit the number of news items stored
+    // if (_newsItems.length >= 50) {
+    //   _newsItems.removeAt(0); // Remove the oldest item
+    // }
+    _newsItems.add(item);
+    // No need to notifyListeners here, as news generation happens within
+    // other methods that already call notifyListeners (like advanceWeek).
+    // If adding news outside advanceWeek, call notifyListeners() after _addNewsItem.
+    print("News Added: ${item.title}");
+  }
+  // --- End News Item Management ---
 }
