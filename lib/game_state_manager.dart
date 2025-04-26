@@ -5,9 +5,11 @@ import 'models/player.dart'; // Import Player model
 import 'models/staff.dart'; // Import Staff model
 import 'models/ai_club.dart'; // Import AIClub model
 import 'models/match_event.dart'; // Import MatchEventType
-import 'models/news_item.dart'; // Import NewsItem model
-import 'dart:math'; // For random simulation
-import 'package:collection/collection.dart'; // Import collection package
+import 'models/news_item.dart';
+import 'models/difficulty.dart'; // Import Difficulty enum
+import 'dart:math';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart'; // Import for ThemeMode
 
 class GameStateManager with ChangeNotifier {
   // Core Game Time & State
@@ -44,7 +46,11 @@ class GameStateManager with ChangeNotifier {
   List<Map<String, dynamic>> _transferOffers = [];
 
   // --- News Feed ---
-  final List<NewsItem> _newsItems = []; // List to store news
+  final List<NewsItem> _newsItems = [];
+
+  // --- Settings ---
+  Difficulty _difficulty = Difficulty.Normal; // Default difficulty
+  ThemeMode _themeMode = ThemeMode.system; // Default theme
 
   // --- Getters ---
   DateTime get currentDate => _currentDate;
@@ -62,17 +68,19 @@ class GameStateManager with ChangeNotifier {
   int get scoutingFacilityLevel => _scoutingFacilityLevel; // Getter for scouting facility level
   int get academyReputation => _academyReputation; // Getter for academy reputation
   List<Map<String, dynamic>> get transferOffers => _transferOffers; // Getter for transfer offers
-  List<NewsItem> get newsItems => List.unmodifiable(_newsItems.reversed); // Getter for news (reversed for latest first)
+  List<NewsItem> get newsItems => List.unmodifiable(_newsItems.reversed);
+  Difficulty get difficulty => _difficulty; // Getter for difficulty
+  ThemeMode get themeMode => _themeMode; // Getter for theme mode
 
   GameStateManager() {
-    // Initialize game state on creation
+    // Initialize game state on creation - Apply initial difficulty settings
+    _applyDifficultySettings(); // Apply settings like starting balance
     _generateInitialAvailableStaff();
-    _populateAIClubMap(); // Populate AI club map
-    // _generateInitialAcademyPlayers(); // REMOVED: Temporary player generation
-    _calculateWeeklyWages(); // Calculate initial wages (should be 0 initially)
+    _populateAIClubMap();
+    _calculateWeeklyWages();
   }
 
-  // --- Initialization ---
+  // --- Initialization & Reset ---
   // REMOVED: Temporary player generation method
   // void _generateInitialAcademyPlayers() {
   //   // Add 8 random players for testing purposes
@@ -99,6 +107,71 @@ class GameStateManager with ChangeNotifier {
       _aiClubMap[club.id] = club;
     }
     print("Populated AI Club Map with ${_aiClubMap.length} clubs.");
+  }
+
+  // Method to apply settings based on current difficulty
+  void _applyDifficultySettings() {
+     switch (_difficulty) {
+       case Difficulty.Easy:
+         _balance = 75000.0; // Higher starting balance
+         _weeklyIncome = 1200;
+         break;
+       case Difficulty.Normal:
+         _balance = 50000.0;
+         _weeklyIncome = 1000;
+         break;
+       case Difficulty.Hard:
+         _balance = 30000.0; // Lower starting balance
+         _weeklyIncome = 800;
+         break;
+     }
+     // Note: Other difficulty effects are applied where relevant (AI skill, training, etc.)
+  }
+
+  // Method to reset the entire game state
+  void resetGame() {
+    print("--- RESETTING GAME STATE ---");
+    // Reset core state
+    _currentDate = DateTime(2025, 7, 1);
+    _difficulty = Difficulty.Normal; // Reset difficulty to default
+    _themeMode = ThemeMode.system; // Reset theme to default
+
+    // Reset player/staff state
+    _academyPlayers.clear();
+    _hiredStaff.clear();
+    _scoutedPlayers.clear();
+    _availableStaff.clear();
+
+    // Reset financial state (apply difficulty defaults)
+    _applyDifficultySettings(); // This resets balance and income
+    _totalWeeklyWages = 0;
+
+    // Reset tournament state
+    _activeTournaments.clear();
+    _completedTournaments.clear();
+
+    // AI Clubs are usually static, but regenerate if needed (or just repopulate map)
+    // _allAICLubs = List.generate(16, (index) => AIClub.placeholder(index)); // If regeneration needed
+    _aiClubMap.clear();
+    _populateAIClubMap(); // Repopulate map
+
+    // Reset facility state
+    _trainingFacilityLevel = 1;
+    _scoutingFacilityLevel = 1;
+
+    // Reset reputation
+    _academyReputation = 100;
+
+    // Reset transfers & news
+    _transferOffers.clear();
+    _newsItems.clear();
+
+    // Re-initialize necessary parts
+    _generateInitialAvailableStaff();
+    _calculateWeeklyWages(); // Recalculate (should be 0)
+
+    notifyListeners(); // Notify UI about the reset
+    print("--- GAME STATE RESET COMPLETE ---");
   }
 
   // --- Weekly Update Logic ---
@@ -404,10 +477,18 @@ class GameStateManager with ChangeNotifier {
           trainedPlayerIds.add(playerId);
 
           if (player.currentSkill < player.potentialSkill) {
-            int baseChance = 5;
-            int coachBonus = (coach.skill / 5).floor();
-            int facilityBonus = (_trainingFacilityLevel * 3);
-            int totalChance = (baseChance + coachBonus + facilityBonus).clamp(5, 95);
+            int baseChance = 5; // Base chance to improve
+            int coachBonus = (coach.skill / 5).floor(); // Bonus from coach skill
+            int facilityBonus = (_trainingFacilityLevel * 3); // Bonus from facility level
+            int difficultyModifier = 0; // Modifier based on difficulty
+
+            switch (_difficulty) {
+              case Difficulty.Easy: difficultyModifier = 5; break; // Easier to improve
+              case Difficulty.Normal: difficultyModifier = 0; break;
+              case Difficulty.Hard: difficultyModifier = -5; break; // Harder to improve
+            }
+
+            int totalChance = (baseChance + coachBonus + facilityBonus + difficultyModifier).clamp(1, 99); // Apply difficulty
 
             if (_random.nextInt(100) < totalChance) {
               int oldSkill = player.currentSkill;
@@ -554,11 +635,18 @@ class GameStateManager with ChangeNotifier {
     return averageEffectiveSkill.clamp(1, 100); // Ensure skill stays within bounds
   }
 
-  // --- AI Club Skill Lookup (Original logic, might be used elsewhere) ---
+  // --- AI Club Skill Lookup (Modified by Difficulty) ---
   int _getBaseAIClubSkill(String teamId) {
      final aiClub = _aiClubMap[teamId];
      if (aiClub != null) {
-       return aiClub.skillLevel;
+       int baseSkill = aiClub.skillLevel;
+       // Apply difficulty modifier
+       switch (_difficulty) {
+         case Difficulty.Easy: baseSkill = (baseSkill * 0.85).round().clamp(1, 100); break; // Lower AI skill
+         case Difficulty.Normal: break; // No change
+         case Difficulty.Hard: baseSkill = (baseSkill * 1.15).round().clamp(1, 100); break; // Higher AI skill
+       }
+       return baseSkill;
      } else {
        print("Warning: AI Club with ID '$teamId' not found in _aiClubMap. Returning default skill.");
        return 30;
@@ -828,4 +916,28 @@ class GameStateManager with ChangeNotifier {
     print("News Added: ${item.title}");
   }
   // --- End News Item Management ---
+
+  // --- Settings Management ---
+
+  void setDifficulty(Difficulty newDifficulty) {
+    if (_difficulty != newDifficulty) {
+      print("Changing difficulty from $_difficulty to $newDifficulty");
+      _difficulty = newDifficulty;
+      // Re-apply settings that depend on difficulty (e.g., starting balance if resetting, AI skill modifier)
+      // For now, we only adjust balance/income if the game were reset,
+      // but AI skill will be affected immediately in the next match simulation.
+      // If we wanted to change current income mid-game, we'd call _applyDifficultySettings here.
+      // _applyDifficultySettings(); // Uncomment if income/balance should change immediately
+      notifyListeners();
+    }
+  }
+
+  void setThemeMode(ThemeMode newThemeMode) {
+    if (_themeMode != newThemeMode) {
+      print("Changing theme mode from $_themeMode to $newThemeMode");
+      _themeMode = newThemeMode;
+      notifyListeners();
+    }
+  }
+  // --- End Settings Management ---
 }

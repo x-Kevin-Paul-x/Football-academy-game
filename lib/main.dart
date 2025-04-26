@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for SystemNavigator
 import 'package:provider/provider.dart'; // Import provider
 import 'Screens/Dashboard.dart';
 import 'game_state_manager.dart'; // Import the GameStateManager
+import 'models/difficulty.dart'; // Import Difficulty enum
+import 'Screens/SettingsScreen.dart'; // Import SettingsScreen
 
 void main() {
   runApp(
@@ -14,28 +17,42 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Youth Academy',
-      theme: ThemeData(
-        brightness: Brightness.dark, // Enable dark mode
-        primarySwatch: Colors.deepPurple, // Keep purple as primary
-        scaffoldBackgroundColor: Colors.grey[900], // Dark background
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.grey[850], // Slightly lighter AppBar
-          foregroundColor: Colors.white, // White title text
-        ),
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          backgroundColor: Colors.grey[850], // Match AppBar
-          selectedItemColor: Colors.deepPurpleAccent, // Brighter purple for selection
-          unselectedItemColor: Colors.grey[400], // Lighter grey for unselected
-          type: BottomNavigationBarType.fixed,
-        ),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Football Youth Academy'),
+    // Consume the GameStateManager to get the theme mode
+    return Consumer<GameStateManager>(
+      builder: (context, gameState, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Youth Academy',
+          theme: ThemeData( // Light Theme (Define if needed, or keep it simple)
+            brightness: Brightness.light,
+            primarySwatch: Colors.deepPurple,
+            useMaterial3: true,
+            // Add other light theme specific properties
+          ),
+          darkTheme: ThemeData( // Dark Theme
+            brightness: Brightness.dark,
+            primarySwatch: Colors.deepPurple,
+            scaffoldBackgroundColor: Colors.grey[900],
+            appBarTheme: AppBarTheme(
+              backgroundColor: Colors.grey[850],
+              foregroundColor: Colors.white,
+            ),
+            bottomNavigationBarTheme: BottomNavigationBarThemeData(
+              backgroundColor: Colors.grey[850],
+              selectedItemColor: Colors.deepPurpleAccent,
+              unselectedItemColor: Colors.grey[400],
+              type: BottomNavigationBarType.fixed,
+            ),
+            useMaterial3: true,
+            // Add other dark theme specific properties
+          ),
+          themeMode: gameState.themeMode, // Use themeMode from GameStateManager
+          home: const MyHomePage(title: 'Football Youth Academy'),
+        );
+      },
     );
   }
 }
@@ -103,10 +120,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
               ElevatedButton(
                 onPressed: () {
-                  // TODO: Implement Load Game functionality
+                  // Load Game Functionality (Placeholder)
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Load Game not implemented yet')),
+                    const SnackBar(content: Text('Load Game functionality is not yet implemented.')),
                   );
+                  // In a full implementation, this would trigger loading state from storage
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
@@ -122,12 +140,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
               const SizedBox(height: 15), // Spacing between buttons
 
-              ElevatedButton(
+              ElevatedButton( // Settings Button
                 onPressed: () {
-                  // TODO: Implement Quit Game functionality (e.g., SystemNavigator.pop())
-                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Quit Game not implemented yet')),
+                  Navigator.push( // Use push, not pushReplacement
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
                   );
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  textStyle: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  backgroundColor: Colors.blueGrey[600], // Different color for Settings
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text("Settings"),
+              ),
+
+              const SizedBox(height: 15), // Spacing between buttons
+
+              ElevatedButton( // Quit Button
+                onPressed: () {
+                  // Quit Game Functionality
+                  SystemNavigator.pop(); // Closes the application
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
