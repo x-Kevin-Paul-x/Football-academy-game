@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
 
+import '../models/staff.dart'; // Import Staff for type hint, though not directly used in card display now
+
 class PlayerCard extends StatelessWidget {
   final Player player;
   final bool showPotential; // Control whether to show potential skill
   final List<Widget> actions; // Buttons like Sign, Reject, Train, etc.
+  final VoidCallback? onTap; // Callback for tapping the card
 
   const PlayerCard({
     Key? key,
     required this.player,
     this.showPotential = false,
     this.actions = const [],
+    this.onTap, // Accept the tap callback
   }) : super(key: key);
 
   @override
@@ -19,9 +23,12 @@ class PlayerCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
       elevation: 3.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
+      child: InkWell( // Make the card tappable
+        onTap: onTap, // Use the provided callback
+        borderRadius: BorderRadius.circular(10.0), // Match card shape for ripple effect
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -72,6 +79,15 @@ class PlayerCard extends StatelessWidget {
                   ),
               ],
             ),
+            const SizedBox(height: 10), // Add spacing
+            // Display Fatigue and Stats
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Fatigue: ${player.fatigue.toStringAsFixed(1)}%', style: Theme.of(context).textTheme.bodyMedium),
+                Text('M: ${player.matchesPlayed} | G: ${player.goalsScored} | A: ${player.assists}', style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
             if (actions.isNotEmpty)
               const Divider(height: 20, thickness: 1),
             if (actions.isNotEmpty)
@@ -84,9 +100,10 @@ class PlayerCard extends StatelessWidget {
                 ),
               ),
           ],
-        ),
-      ),
-    );
+        ), // End Column
+       ), // End Padding
+      ), // End InkWell
+    ); // End Card
   }
 
   Widget _buildInfoChip(IconData icon, String text) {

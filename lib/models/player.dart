@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'player_status.dart'; // Import PlayerStatus
+import 'tournament.dart'; // Import TournamentType
 
 enum PlayerPosition { Goalkeeper, Defender, Midfielder, Forward }
 
@@ -21,6 +23,16 @@ class Player {
   // --- Reputation ---
   int reputation; // Player's reputation score
 
+  // --- New Detailed Attributes ---
+  int matchesPlayed;
+  int goalsScored; // Cumulative goals
+  int assists; // Cumulative assists
+  TournamentType preferredFormat; // e.g., 5v5 specialist
+  PlayerStatus status; // e.g., Starter, Bench, Injured
+  int stamina; // Base stamina attribute (e.g., 1-100)
+  double fatigue; // Current fatigue level (e.g., 0.0 to 100.0)
+  // --- End New Detailed Attributes ---
+
   Player({
     required this.id,
     required this.name,
@@ -31,6 +43,14 @@ class Player {
     required this.weeklyWage,
     this.isScouted = false,
     this.reputation = 0, // Initialize reputation in default constructor
+    // Initialize new fields with defaults
+    this.matchesPlayed = 0,
+    this.goalsScored = 0,
+    this.assists = 0,
+    this.preferredFormat = TournamentType.elevenVeleven, // Default
+    this.status = PlayerStatus.Reserve, // Default
+    this.stamina = 50, // Default
+    this.fatigue = 0.0, // Default
   });
 
   // Factory constructor for generating random scouted players
@@ -56,6 +76,10 @@ class Player {
       weeklyWage: weeklyWage,
       isScouted: true, // Mark as scouted initially
       reputation: 10 + random.nextInt(21), // Give scouted players some initial reputation (e.g., 10-30)
+      // Add random values for new fields in factory
+      stamina: random.nextInt(51) + 35, // Stamina between 35-85
+      preferredFormat: TournamentType.values[random.nextInt(TournamentType.values.length)], // Random preferred format
+      // Other new fields like matchesPlayed, goals, assists, fatigue, status keep their defaults (0, 0, 0, 0.0, Reserve)
     );
   }
 
