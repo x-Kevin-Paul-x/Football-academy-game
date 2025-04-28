@@ -1,18 +1,21 @@
 import 'dart:math'; // Import Random
 import 'package:flutter/material.dart';
-import 'dart:math'; // Ensure Random is imported
+import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
 import 'ai_club.dart'; // Assuming AIClub model exists
 import 'match_event.dart'; // Import the new MatchEvent model
 import 'player.dart'; // *** Ensure Player model is imported ***
 
+part 'match.g.dart'; // Added for generated code
+
 enum MatchResult { homeWin, awayWin, draw }
 
+@JsonSerializable(explicitToJson: true) // Added annotation, explicitToJson needed for List<MatchEvent>
 class Match {
   final String id;
   final String tournamentId; // Link back to the tournament
   final String homeTeamId; // Could be player's academy ID or AIClub ID
   final String awayTeamId; // Could be player's academy ID or AIClub ID
-  final DateTime matchDate;
+  final DateTime matchDate; // Needs standard format for JSON
   int homeScore;
   int awayScore;
   MatchResult? result;
@@ -43,8 +46,9 @@ class Match {
        this.awayLineup = awayLineup ?? [],
        this.eventLog = eventLog ?? [];
 
-
   // Method for detailed minute-by-minute simulation
+  // This method should NOT be part of the JSON serialization
+  @JsonKey(includeFromJson: false, includeToJson: false)
   void simulateDetailed(List<Player> homeTeamLineup, List<Player> awayTeamLineup) {
     if (isSimulated) return; // Don't re-simulate
 
@@ -68,10 +72,7 @@ class Match {
       // Reset other stats if added
     }
 
-
     final random = Random(); // Keep random generator
-
-    // --- Removed old simulation logic block ---
 
     const int matchDuration = 90; // Minutes
     const double homeAdvantageFactor = 1.05; // Define ONCE for detailed sim
@@ -87,12 +88,8 @@ class Match {
 
     for (int minute = 1; minute <= matchDuration; minute++) {
       // --- Event Generation Logic ---
-      // More sophisticated logic needed here, this is a basic placeholder
-
-      // Calculate chance of *any* significant event happening this minute
       double eventChance = 0.1 + ((avgHomeSkill + avgAwaySkill) / 2000); // Base chance + skill influence
       if (random.nextDouble() < eventChance) {
-        // Determine which team is more likely to initiate the event
         double totalSkill = avgHomeSkill + avgAwaySkill;
         double homeInitiativeChance = totalSkill > 0 ? avgHomeSkill / totalSkill : 0.5;
         bool homeInitiates = random.nextDouble() < homeInitiativeChance;
@@ -100,30 +97,21 @@ class Match {
         List<Player> initiatingLineup = homeInitiates ? homeTeamLineup : awayTeamLineup;
         List<Player> defendingLineup = homeInitiates ? awayTeamLineup : homeTeamLineup;
 
-        // Determine type of event (Goal chance, Foul, etc.)
         double goalAttemptChance = 0.3; // Chance the event is a goal attempt
-        // Add chances for other events (fouls, saves, etc.)
 
         if (random.nextDouble() < goalAttemptChance && initiatingLineup.isNotEmpty) {
-          // --- Goal Attempt ---
-          // Select attacker (e.g., higher skill = higher chance, or based on position)
           Player attacker = initiatingLineup[random.nextInt(initiatingLineup.length)]; // Simple random attacker
-
-          // Calculate goal probability based on attacker skill vs avg defender skill/GK skill
-          // Placeholder: Attacker skill vs average team skill
           double avgDefenderSkill = defendingLineup.isEmpty ? 10 : defendingLineup.fold(0.0, (sum, p) => sum + p.currentSkill) / defendingLineup.length;
           double goalProb = 0.1 + (attacker.currentSkill - avgDefenderSkill) / 200; // Basic skill difference influence
           goalProb = goalProb.clamp(0.05, 0.5); // Clamp probability
 
           if (random.nextDouble() < goalProb) {
-            // --- GOAL ---
             if (homeInitiates) {
               homeScore++;
             } else {
               awayScore++;
             }
             attacker.matchGoals++; // Increment scorer's goal count
-            // TODO: Select assisting player?
             eventLog.add(MatchEvent(
               minute: minute,
               type: MatchEventType.Goal,
@@ -131,21 +119,11 @@ class Match {
               playerId: attacker.id,
               description: "GOAL! ${attacker.name} scores for ${initiatingTeamId == homeTeamId ? 'Home' : 'Away'}!",
             ));
-          } else {
-            // Missed shot / Save - Add event?
-            // eventLog.add(MatchEvent(... type: MatchEventType.Save ...));
           }
-        } else {
-          // Other event types (Foul, Card, etc.) - Placeholder
-          // if (random.nextDouble() < 0.1) { // Chance of a foul
-          //   eventLog.add(MatchEvent(minute: minute, type: MatchEventType.Foul, ...));
-          // }
         }
       }
       // --- End Event Generation Logic ---
 
-
-      // Add HalfTime event
       if (minute == 45) {
         eventLog.add(MatchEvent(minute: 45, type: MatchEventType.HalfTime, teamId: '', description: "Half Time: $homeTeamId $homeScore - $awayScore $awayTeamId"));
       }
@@ -154,7 +132,6 @@ class Match {
     // --- 3. Finalization ---
     eventLog.add(MatchEvent(minute: 90, type: MatchEventType.FullTime, teamId: '', description: "Full Time: $homeTeamId $homeScore - $awayScore $awayTeamId"));
 
-    // Determine result
     if (homeScore > awayScore) {
       result = MatchResult.homeWin;
     } else if (awayScore > homeScore) {
@@ -164,14 +141,10 @@ class Match {
     }
 
     isSimulated = true;
-    // Removed skill printout as it's not directly used in the final score calculation anymore
     print("Match ${id} detailed simulation complete: ${homeTeamId} ${homeScore} - ${awayScore} ${awayTeamId}");
   }
-}
 
-// Placeholder for MatchEvent if needed later
-// class MatchEvent {
-//   final int minute;
-//   final String description;
-//   // e.g., Goal scored by Player X, Yellow card for Player Y
-// }
+  // Added methods for JSON serialization
+  factory Match.fromJson(Map<String, dynamic> json) => _$MatchFromJson(json);
+  Map<String, dynamic> toJson() => _$MatchToJson(this);
+}

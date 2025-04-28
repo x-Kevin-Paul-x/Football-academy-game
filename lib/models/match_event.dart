@@ -1,3 +1,7 @@
+import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
+
+part 'match_event.g.dart'; // Added for generated code
+
 // Represents a single event occurring during a match simulation.
 enum MatchEventType {
   KickOff,
@@ -13,6 +17,7 @@ enum MatchEventType {
   // Add more specific events like 'ShotOnTarget', 'Tackle', 'Pass', etc. for more detail
 }
 
+@JsonSerializable() // Added annotation
 class MatchEvent {
   final int minute; // Minute the event occurred (0-90+)
   final MatchEventType type;
@@ -32,4 +37,8 @@ class MatchEvent {
   String toString() {
     return "$minute': $description"; // Simple string representation for logging
   }
+
+  // Added methods for JSON serialization
+  factory MatchEvent.fromJson(Map<String, dynamic> json) => _$MatchEventFromJson(json);
+  Map<String, dynamic> toJson() => _$MatchEventToJson(this);
 }

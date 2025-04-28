@@ -1,7 +1,11 @@
 import 'dart:math';
+import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
+
+part 'staff.g.dart'; // Added for generated code
 
 enum StaffRole { Coach, Scout, Physio, Manager }
 
+@JsonSerializable() // Added annotation
 class Staff {
   final String id;
   String name;
@@ -10,6 +14,7 @@ class Staff {
   int weeklyWage;
 
   // Coach specific properties (only relevant if role is Coach)
+  // Ensure these are always included in JSON for simplicity, even if 0/empty for non-coaches
   int maxPlayersTrainable;
   List<String> assignedPlayerIds;
 
@@ -68,4 +73,8 @@ class Staff {
         return 'Manager';
     }
   }
+
+  // Added methods for JSON serialization
+  factory Staff.fromJson(Map<String, dynamic> json) => _$StaffFromJson(json);
+  Map<String, dynamic> toJson() => _$StaffToJson(this);
 }

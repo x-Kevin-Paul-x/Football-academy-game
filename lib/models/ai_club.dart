@@ -1,12 +1,25 @@
 import 'package:flutter/material.dart';
 import 'dart:math'; // Import Random
+import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
 import 'player.dart'; // Import the actual Player model
 
+part 'ai_club.g.dart'; // Added for generated code
+
+// Helper functions for Color serialization
+Color _colorFromJson(int json) => Color(json);
+int _colorToJson(Color color) => color.value;
+
+@JsonSerializable(explicitToJson: true) // Added annotation, explicitToJson needed for List<Player>
 class AIClub {
   final String id;
   final String name;
+
+  @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) // Added converter for Color
   final Color primaryColor; // For visual distinction
+
+  @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) // Added converter for Color
   final Color secondaryColor;
+
   final int skillLevel; // Simple representation of overall strength (e.g., 1-100)
   List<Player> players; // List of players in the AI club
 
@@ -16,24 +29,27 @@ class AIClub {
     required this.primaryColor,
     required this.secondaryColor,
     required this.skillLevel,
-    List<Player>? players, // Optional parameter
-    // required this.squad,
-  }) : this.players = players ?? _generatePlaceholderPlayers(id, skillLevel); // Initializer list
+    required this.players, // Made required, will be populated by fromJson or placeholder factory
+  });
 
   // Factory constructor for generating placeholder clubs
   factory AIClub.placeholder(int index) {
     List<String> names = ['Raptors', 'Sharks', 'Eagles', 'Lions', 'Wolves', 'Bears', 'Tigers', 'Cobras'];
     List<Color> colors = [Colors.red, Colors.blue, Colors.green, Colors.orange, Colors.purple, Colors.yellow, Colors.teal, Colors.pink];
+    int skillLevel = 50 + (index * 5) % 50; // Basic skill progression
+    String id = 'ai_club_$index';
+
     return AIClub(
-      id: 'ai_club_$index',
+      id: id,
       name: '${names[index % names.length]} FC',
       primaryColor: colors[index % colors.length],
       secondaryColor: colors[(index + 1) % colors.length].withOpacity(0.7),
-      skillLevel: 50 + (index * 5) % 50, // Basic skill progression
+      skillLevel: skillLevel,
+      players: _generatePlaceholderPlayers(id, skillLevel), // Generate players here
     );
   }
 
-  // Helper to generate placeholder players for an AI club
+  // Helper to generate placeholder players for an AI club (kept for placeholder factory)
   static List<Player> _generatePlaceholderPlayers(String clubId, int averageSkill) {
     final random = Random();
     // Generate enough players for 11v11 + some subs
@@ -53,7 +69,6 @@ class AIClub {
         id: '${clubId}_player_$i',
         name: 'AI Player ${i + 1}', // Simple name
         age: 16 + random.nextInt(10), // Random age
-        // nationality: 'AI', // Player model doesn't have nationality yet
         position: position, // Assign position
         currentSkill: currentSkill,
         potentialSkill: potentialSkill,
@@ -62,11 +77,8 @@ class AIClub {
       );
     });
   }
-}
 
-// Placeholder for AI Player if needed later
-// class AIPlayer {
-//   final String name;
-//   final int overallRating;
-//   // Add specific attributes as needed
-// }
+  // Added methods for JSON serialization
+  factory AIClub.fromJson(Map<String, dynamic> json) => _$AIClubFromJson(json);
+  Map<String, dynamic> toJson() => _$AIClubToJson(this);
+}

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
 // Potentially import Player and AIClub models later
 // import 'player.dart';
 // import 'ai_club.dart';
 import 'match.dart'; // Import Match model
+
+part 'tournament.g.dart'; // Added for generated code
 
 enum TournamentType {
   threeVthree,
@@ -13,6 +16,7 @@ enum TournamentType {
 
 enum TournamentStatus { Available, InProgress, Completed }
 
+@JsonSerializable(explicitToJson: true) // Added annotation, explicitToJson needed for List<Match>
 class Tournament {
   final String id; // Unique ID for this specific instance of the tournament
   final String? baseId; // Optional: ID of the template tournament this instance came from
@@ -45,6 +49,8 @@ class Tournament {
   });
 
   // Helper to get a display name for the type
+  // This getter should not be part of JSON
+  @JsonKey(includeFromJson: false, includeToJson: false)
   String get typeDisplay {
     switch (type) {
       case TournamentType.threeVthree:
@@ -59,4 +65,8 @@ class Tournament {
         return 'Unknown Tournament';
     }
   }
+
+  // Added methods for JSON serialization
+  factory Tournament.fromJson(Map<String, dynamic> json) => _$TournamentFromJson(json);
+  Map<String, dynamic> toJson() => _$TournamentToJson(this);
 }

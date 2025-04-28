@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/difficulty.dart'; // Import Difficulty enum
-import '../main.dart'; // Import main.dart to access MyHomePage
+import 'StartScreen.dart'; // Import StartScreen instead of main.dart
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -12,6 +11,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Access the GameStateManager
     final gameState = Provider.of<GameStateManager>(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context); // Capture context for SnackBars
 
     return Scaffold(
       appBar: AppBar(
@@ -69,10 +69,39 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(), // Separator
 
+            // --- Save Game Button ---
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.save),
+                label: const Text('Save Game'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  textStyle: const TextStyle(fontSize: 16),
+                  // Optional: Add specific styling
+                  // backgroundColor: Theme.of(context).colorScheme.primary,
+                  // foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                onPressed: () async { // Make onPressed async
+                  final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
+                  bool success = await gameStateManager.saveGame();
+                  scaffoldMessenger.showSnackBar( // Use captured context
+                    SnackBar(
+                      content: Text(success ? 'Game Saved!' : 'Error saving game.'),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const Divider(), // Separator
+
             // --- Reset Game Button ---
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: ElevatedButton(
+              padding: const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.warning_amber_rounded),
+                label: const Text('Reset Game Data'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.redAccent, // Warning color
                   foregroundColor: Colors.white,
@@ -104,21 +133,21 @@ class SettingsScreen extends StatelessWidget {
                     },
                   );
 
-                  // If confirmed, reset the game and navigate back to main menu
+                  // If confirmed, reset the game and navigate back to start screen
                   if (confirmReset == true) {
                     Provider.of<GameStateManager>(context, listen: false).resetGame();
-                    // Navigate back to the initial screen (MyHomePage)
+                    // Navigate back to the StartScreen
                     // Use pushAndRemoveUntil to clear the navigation stack
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Football Youth Academy')), // Assuming MyHomePage is your initial screen
+                      MaterialPageRoute(builder: (context) => const StartScreen()), // Navigate to StartScreen
                       (Route<dynamic> route) => false, // Remove all previous routes
                     );
-                     ScaffoldMessenger.of(context).showSnackBar(
+                     scaffoldMessenger.showSnackBar( // Use captured context
                        const SnackBar(content: Text('Game Reset Successfully!')),
                      );
                   }
                 },
-                child: const Text('Reset Game Data', style: TextStyle(fontSize: 16)),
+                // child: const Text('Reset Game Data', style: TextStyle(fontSize: 16)), // Label is now in ElevatedButton.icon
               ),
             ),
           ],

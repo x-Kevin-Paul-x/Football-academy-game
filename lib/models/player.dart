@@ -1,9 +1,13 @@
 import 'dart:math';
+import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
 import 'player_status.dart'; // Import PlayerStatus
 import 'tournament.dart'; // Import TournamentType
 
+part 'player.g.dart'; // Added for generated code
+
 enum PlayerPosition { Goalkeeper, Defender, Midfielder, Forward }
 
+@JsonSerializable() // Added annotation
 class Player {
   final String id;
   String name;
@@ -15,7 +19,9 @@ class Player {
   bool isScouted; // Flag to differentiate between academy players and scouted prospects
 
   // --- In-Match Stats (can be reset per match) ---
+  @JsonKey(includeFromJson: false, includeToJson: false) // Exclude from serialization
   int matchGoals = 0;
+  @JsonKey(includeFromJson: false, includeToJson: false) // Exclude from serialization
   int matchAssists = 0;
   // Add more stats: shots, tackles, saves (if GK), etc.
   // ---
@@ -58,7 +64,7 @@ class Player {
     final random = Random();
     List<String> firstNames = ['Alex', 'Ben', 'Chris', 'David', 'Ethan', 'Finn', 'George', 'Harry', 'Ian', 'Jack'];
     List<String> lastNames = ['Smith', 'Jones', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson'];
-    
+
     String name = '${firstNames[random.nextInt(firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
     int age = 15 + random.nextInt(4); // Young players: 15-18
     PlayerPosition position = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
@@ -95,4 +101,8 @@ class Player {
         return 'FWD';
     }
   }
+
+  // Added methods for JSON serialization
+  factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
+  Map<String, dynamic> toJson() => _$PlayerToJson(this);
 }
