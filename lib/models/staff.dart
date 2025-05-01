@@ -1,22 +1,31 @@
+import 'package:json_annotation/json_annotation.dart';
 import 'dart:math';
-import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
+import 'package:uuid/uuid.dart';
 
-part 'staff.g.dart'; // Added for generated code
+part 'staff.g.dart';
 
-enum StaffRole { Coach, Scout, Physio, Manager }
+enum StaffRole {
+  Manager,
+  Coach,
+  Scout,
+  Physio,
+}
 
-@JsonSerializable() // Added annotation
+@JsonSerializable(explicitToJson: true)
 class Staff {
   final String id;
-  String name;
-  StaffRole role;
-  int skill; // General skill/effectiveness rating (e.g., scouting radius, coaching bonus)
+  final String name;
+  final StaffRole role;
+  int skill; // 1-100
   int weeklyWage;
+  int loyalty; // 1-100, affects likelihood of leaving/demanding raises
+  int potential; // 1-100, max skill they can reach naturally
+  // final TacticalStyle preferredTacticalStyle; // Removed
+  int age;
 
-  // Coach specific properties (only relevant if role is Coach)
-  // Ensure these are always included in JSON for simplicity, even if 0/empty for non-coaches
-  int maxPlayersTrainable;
-  List<String> assignedPlayerIds;
+  // Coach specific
+  List<String> assignedPlayerIds; // IDs of players assigned to this coach
+  int maxPlayersTrainable; // How many players this coach can handle
 
   Staff({
     required this.id,
@@ -24,57 +33,46 @@ class Staff {
     required this.role,
     required this.skill,
     required this.weeklyWage,
-    // Initialize coach properties - make them required for now
-    required this.maxPlayersTrainable,
-    required this.assignedPlayerIds,
-  });
+    required this.loyalty,
+    required this.potential,
+    // required this.preferredTacticalStyle, // Removed
+    required this.age,
+    List<String>? assignedPlayerIds,
+    int? maxPlayersTrainable,
+  }) : assignedPlayerIds = assignedPlayerIds ?? [],
+       maxPlayersTrainable = maxPlayersTrainable ?? 5; // Default max trainable
 
-  // Factory constructor for generating random staff members
+  // Factory for generating random staff
   factory Staff.randomStaff(String id, StaffRole role) {
     final random = Random();
-    List<String> firstNames = ['Liam', 'Olivia', 'Noah', 'Emma', 'Oliver', 'Ava', 'Elijah', 'Charlotte', 'William', 'Sophia'];
-    List<String> lastNames = ['Johnson', 'Martinez', 'Garcia', 'Rodriguez', 'Hernandez', 'Lopez', 'Gonzalez', 'Perez', 'Sanchez', 'Ramirez'];
-
-    String name = '${firstNames[random.nextInt(firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
-    int skill = 40 + random.nextInt(51); // Skill between 40-90
-    int weeklyWage = 150 + random.nextInt(351); // Wage between 150-500
-
-    // --- Coach Specific Initialization ---
-    // Base capacity + bonus based on skill (e.g., 1 extra player per 15 skill points over 50)
-    int maxPlayersTrainable = 3 + max(0, ((skill - 50) / 15).floor());
-    List<String> assignedPlayerIds = []; // Start with no assigned players
-
-    // Only apply coach properties if the role is actually Coach
-    if (role != StaffRole.Coach) {
-      maxPlayersTrainable = 0; // Non-coaches can't train
-    }
-    // --- End Coach Specific Initialization ---
+    int potential = 30 + random.nextInt(61); // 30-90 potential
+    int skill = (potential * (0.4 + random.nextDouble() * 0.5)).clamp(10, 95).toInt(); // 40-90% of potential, min 10
+    int age = 25 + random.nextInt(36); // 25-60 age
+    int wage = 100 + (skill * 5) + (potential * 2) + random.nextInt(100); // Wage based on skill/potential
+    int loyalty = 40 + random.nextInt(51); // 40-90 loyalty
+    int maxTrainable = 3 + (skill ~/ 20); // Coach specific: 3 base + 1 per 20 skill
 
     return Staff(
       id: id,
-      name: name,
+      name: _generateRandomName(random),
       role: role,
       skill: skill,
-      weeklyWage: weeklyWage,
-      maxPlayersTrainable: maxPlayersTrainable, // Pass value
-      assignedPlayerIds: assignedPlayerIds,   // Pass empty list
+      weeklyWage: wage,
+      loyalty: loyalty,
+      potential: potential,
+      // preferredTacticalStyle: TacticalStyle.values[random.nextInt(TacticalStyle.values.length)], // Removed
+      age: age,
+      maxPlayersTrainable: (role == StaffRole.Coach) ? maxTrainable : 0,
     );
   }
 
-  String get roleString {
-     switch (role) {
-      case StaffRole.Coach:
-        return 'Coach';
-      case StaffRole.Scout:
-        return 'Scout';
-      case StaffRole.Physio:
-        return 'Physio';
-      case StaffRole.Manager:
-        return 'Manager';
-    }
+  static String _generateRandomName(Random random) {
+    const List<String> firstNames = ['Alex', 'Ben', 'Chris', 'David', 'Ethan', 'Frank', 'George', 'Harry', 'Ian', 'Jack', 'Kevin', 'Liam', 'Mike', 'Noah', 'Owen', 'Paul', 'Quinn', 'Ryan', 'Sam', 'Tom', 'Vince', 'Will'];
+    const List<String> lastNames = ['Smith', 'Jones', 'Taylor', 'Brown', 'Williams', 'Wilson', 'Evans', 'Thomas', 'Roberts', 'Johnson', 'Lewis', 'Walker', 'Robinson', 'Wood', 'Thompson', 'White', 'Watson', 'Jackson', 'Wright'];
+    return '${firstNames[random.nextInt(firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
   }
 
-  // Added methods for JSON serialization
+
   factory Staff.fromJson(Map<String, dynamic> json) => _$StaffFromJson(json);
   Map<String, dynamic> toJson() => _$StaffToJson(this);
 }

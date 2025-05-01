@@ -35,5 +35,6 @@ const _$NewsItemTypeEnumMap = {
   NewsItemType.Finance: 'Finance',
   NewsItemType.Facility: 'Facility',
   NewsItemType.PlayerSigned: 'PlayerSigned',
+  NewsItemType.Tournament: 'Tournament',
   NewsItemType.Generic: 'Generic',
 };

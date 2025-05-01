@@ -57,7 +57,28 @@ class FacilitiesScreen extends StatelessWidget {
                    }
                 },
               ),
-              // TODO: Add more facilities later (e.g., Medical, Youth Academy)
+              const SizedBox(height: 16), // Spacing
+              _buildFacilityCard( // <-- ADDED MEDICAL BAY
+                context: context,
+                icon: Icons.medical_services_outlined, // Medical icon
+                title: 'Medical Bay',
+                currentLevel: gameStateManager.medicalBayLevel,
+                description: 'Reduces player injury recovery time and severity.',
+                upgradeCost: gameStateManager.getMedicalBayUpgradeCost(),
+                canAfford: gameStateManager.balance >= gameStateManager.getMedicalBayUpgradeCost(),
+                onUpgrade: () {
+                   bool success = gameStateManager.upgradeMedicalBay();
+                   if (context.mounted) { // Check if widget is still in the tree
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(
+                         content: Text(success ? 'Medical Bay upgraded!' : 'Insufficient funds!'),
+                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
+                       ),
+                     );
+                   }
+                },
+              ),
+              // Removed the TODO comment
             ],
           );
         },

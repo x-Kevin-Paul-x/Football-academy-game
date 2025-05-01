@@ -10,6 +10,7 @@ SerializableGameState _$SerializableGameStateFromJson(
         Map<String, dynamic> json) =>
     SerializableGameState(
       currentDate: DateTime.parse(json['currentDate'] as String),
+      academyName: json['academyName'] as String,
       academyPlayers: (json['academyPlayers'] as List<dynamic>)
           .map((e) => Player.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -27,18 +28,24 @@ SerializableGameState _$SerializableGameStateFromJson(
           .toList(),
       trainingFacilityLevel: (json['trainingFacilityLevel'] as num).toInt(),
       scoutingFacilityLevel: (json['scoutingFacilityLevel'] as num).toInt(),
+      medicalBayLevel: (json['medicalBayLevel'] as num).toInt(),
       academyReputation: (json['academyReputation'] as num).toInt(),
       newsItems: (json['newsItems'] as List<dynamic>)
           .map((e) => NewsItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       difficulty: $enumDecode(_$DifficultyEnumMap, json['difficulty']),
-      themeMode: _themeModeFromJson(json['themeMode'] as String),
+      themeMode:
+          SerializableGameState._themeModeFromJson(json['themeMode'] as String),
+      rivalAcademies: (json['rivalAcademies'] as List<dynamic>)
+          .map((e) => RivalAcademy.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$SerializableGameStateToJson(
         SerializableGameState instance) =>
     <String, dynamic>{
       'currentDate': instance.currentDate.toIso8601String(),
+      'academyName': instance.academyName,
       'academyPlayers': instance.academyPlayers.map((e) => e.toJson()).toList(),
       'hiredStaff': instance.hiredStaff.map((e) => e.toJson()).toList(),
       'balance': instance.balance,
@@ -50,14 +57,17 @@ Map<String, dynamic> _$SerializableGameStateToJson(
           instance.completedTournaments.map((e) => e.toJson()).toList(),
       'trainingFacilityLevel': instance.trainingFacilityLevel,
       'scoutingFacilityLevel': instance.scoutingFacilityLevel,
+      'medicalBayLevel': instance.medicalBayLevel,
       'academyReputation': instance.academyReputation,
       'newsItems': instance.newsItems.map((e) => e.toJson()).toList(),
       'difficulty': _$DifficultyEnumMap[instance.difficulty]!,
-      'themeMode': _themeModeToJson(instance.themeMode),
+      'themeMode': SerializableGameState._themeModeToJson(instance.themeMode),
+      'rivalAcademies': instance.rivalAcademies.map((e) => e.toJson()).toList(),
     };
 
 const _$DifficultyEnumMap = {
   Difficulty.Easy: 'Easy',
   Difficulty.Normal: 'Normal',
   Difficulty.Hard: 'Hard',
+  Difficulty.Hardcore: 'Hardcore',
 };

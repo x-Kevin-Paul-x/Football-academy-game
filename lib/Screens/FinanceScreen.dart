@@ -191,7 +191,7 @@ class FinanceScreen extends StatelessWidget {
             ? [const ListTile(title: Text('No staff hired.'))]
             : hiredStaff.map((staff) => ListTile( // Use the passed list
                   title: Text(staff.name),
-                  subtitle: Text(staff.roleString),
+                  subtitle: Text(staff.role.name),
                   trailing: Text(currencyFormat.format(staff.weeklyWage)),
                 )).toList(),
       ),

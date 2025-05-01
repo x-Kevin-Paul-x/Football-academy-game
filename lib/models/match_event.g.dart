@@ -7,31 +7,29 @@ part of 'match_event.dart';
 // **************************************************************************
 
 MatchEvent _$MatchEventFromJson(Map<String, dynamic> json) => MatchEvent(
-      minute: (json['minute'] as num).toInt(),
-      type: $enumDecode(_$MatchEventTypeEnumMap, json['type']),
+      playerId: json['playerId'] as String,
       teamId: json['teamId'] as String,
-      playerId: json['playerId'] as String?,
+      type: $enumDecode(_$MatchEventTypeEnumMap, json['type']),
+      minute: (json['minute'] as num).toInt(),
       description: json['description'] as String,
+      assistedByPlayerId: json['assistedByPlayerId'] as String?,
     );
 
 Map<String, dynamic> _$MatchEventToJson(MatchEvent instance) =>
     <String, dynamic>{
-      'minute': instance.minute,
-      'type': _$MatchEventTypeEnumMap[instance.type]!,
-      'teamId': instance.teamId,
       'playerId': instance.playerId,
+      'teamId': instance.teamId,
+      'type': _$MatchEventTypeEnumMap[instance.type]!,
+      'minute': instance.minute,
       'description': instance.description,
+      'assistedByPlayerId': instance.assistedByPlayerId,
     };
 
 const _$MatchEventTypeEnumMap = {
-  MatchEventType.KickOff: 'KickOff',
   MatchEventType.Goal: 'Goal',
   MatchEventType.Assist: 'Assist',
-  MatchEventType.Save: 'Save',
-  MatchEventType.Foul: 'Foul',
   MatchEventType.YellowCard: 'YellowCard',
   MatchEventType.RedCard: 'RedCard',
   MatchEventType.Substitution: 'Substitution',
-  MatchEventType.HalfTime: 'HalfTime',
-  MatchEventType.FullTime: 'FullTime',
+  MatchEventType.Info: 'Info',
 };

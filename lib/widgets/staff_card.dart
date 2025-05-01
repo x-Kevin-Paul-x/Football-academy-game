@@ -33,7 +33,7 @@ class StaffCard extends StatelessWidget {
                   ),
                 ),
                 Chip(
-                  label: Text(staff.roleString),
+                  label: Text(staff.role.name),
                   backgroundColor: _getRoleColor(staff.role).withOpacity(0.2),
                   labelStyle: TextStyle(color: _getRoleColor(staff.role), fontWeight: FontWeight.bold),
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),

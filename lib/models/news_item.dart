@@ -14,6 +14,7 @@ enum NewsItemType {
   Finance, // e.g., weekly summary, low balance warning
   Facility,
   PlayerSigned, // A scouted player was signed to the academy
+  Tournament, // Added for tournament-related news (scheduled, started, finished, cancelled)
   Generic, // Default
 }
 

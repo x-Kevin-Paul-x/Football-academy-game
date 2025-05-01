@@ -1,17 +1,12 @@
-enum Difficulty {
-  Easy,
-  Normal,
-  Hard,
-}
+import 'package:json_annotation/json_annotation.dart';
 
-// Optional: Helper for display names
-String difficultyToString(Difficulty difficulty) {
-  switch (difficulty) {
-    case Difficulty.Easy:
-      return 'Easy';
-    case Difficulty.Normal:
-      return 'Normal';
-    case Difficulty.Hard:
-      return 'Hard';
-  }
+@JsonEnum(valueField: 'name')
+enum Difficulty {
+  Easy('Easy'),
+  Normal('Normal'),
+  Hard('Hard'),
+  Hardcore('Hardcore'); // <-- ADDED
+
+  const Difficulty(this.name);
+  final String name;
 }

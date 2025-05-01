@@ -102,6 +102,44 @@ class Player {
     }
   }
 
+  // --- ADDED: Calculate Market Value ---
+  int calculateMarketValue() {
+    // Base value primarily on current skill
+    double baseValue = pow(currentSkill, 2.5) * 10;
+
+    // Age modifier: Higher value for younger players, peaks around 24-27, then declines
+    double ageModifier;
+    if (age <= 20) {
+      ageModifier = 1.5 - (age - 15) * 0.05; // Higher for very young
+    } else if (age <= 27) {
+      ageModifier = 1.25 - (age - 21) * 0.03; // Peak value range
+    } else if (age <= 32) {
+      ageModifier = 1.0 - (age - 28) * 0.08; // Gradual decline
+    } else {
+      ageModifier = 0.6 - (age - 33) * 0.1; // Steeper decline for older players
+    }
+    ageModifier = ageModifier.clamp(0.1, 1.5); // Ensure modifier stays within bounds
+
+    // Potential modifier: Adds value, especially significant for younger players
+    double potentialGap = (potentialSkill - currentSkill).toDouble();
+    double potentialModifier = 1.0 + (potentialGap / 100.0) * (30 / max(18, age)); // More impact when young
+    potentialModifier = potentialModifier.clamp(1.0, 1.8); // Clamp potential boost
+
+    // Reputation modifier
+    double reputationModifier = 1.0 + (reputation / 200.0); // e.g., 100 rep = 1.5x modifier
+    reputationModifier = reputationModifier.clamp(1.0, 2.0);
+
+    // Combine modifiers
+    double finalValue = baseValue * ageModifier * potentialModifier * reputationModifier;
+
+    // Add a small random factor
+    finalValue *= (1.0 + (Random().nextDouble() * 0.1 - 0.05)); // +/- 5% randomness
+
+    // Ensure minimum value
+    return max(500, finalValue.toInt()); // Minimum value of 500
+  }
+  // --- END: Calculate Market Value ---
+
   // Added methods for JSON serialization
   factory Player.fromJson(Map<String, dynamic> json) => _$PlayerFromJson(json);
   Map<String, dynamic> toJson() => _$PlayerToJson(this);

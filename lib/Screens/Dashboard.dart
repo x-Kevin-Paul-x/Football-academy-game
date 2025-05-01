@@ -44,7 +44,7 @@ class _DashboardState extends State<Dashboard> {
   void _hireStaff(Staff staffToHire) {
     Provider.of<GameStateManager>(context, listen: false).hireStaff(staffToHire);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Hired ${staffToHire.name} (${staffToHire.roleString})')),
+      SnackBar(content: Text('Hired ${staffToHire.name} (${staffToHire.role.name})')),
     );
   }
 

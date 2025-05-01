@@ -1,44 +1,34 @@
-import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
+import 'package:json_annotation/json_annotation.dart';
 
-part 'match_event.g.dart'; // Added for generated code
+part 'match_event.g.dart';
 
-// Represents a single event occurring during a match simulation.
 enum MatchEventType {
-  KickOff,
   Goal,
-  Assist, // Optional: Could be linked to a Goal event
-  Save,   // Optional
-  Foul,   // Optional
-  YellowCard, // Optional
-  RedCard,    // Optional
-  Substitution, // Optional
-  HalfTime,
-  FullTime,
-  // Add more specific events like 'ShotOnTarget', 'Tackle', 'Pass', etc. for more detail
+  Assist,
+  YellowCard, // Future use
+  RedCard,    // Future use
+  Substitution, // Future use
+  Info,       // General info (e.g., forfeit)
 }
 
-@JsonSerializable() // Added annotation
+@JsonSerializable()
 class MatchEvent {
-  final int minute; // Minute the event occurred (0-90+)
+  final String playerId; // ID of the player involved (can be empty for Info)
+  final String teamId;   // ID of the team involved (can be empty for Info)
   final MatchEventType type;
-  final String teamId; // ID of the team involved (or null if neutral like HalfTime)
-  final String? playerId; // ID of the player primarily involved (if applicable)
-  final String description; // Text description (e.g., "Goal scored by Player X!")
+  final int minute;
+  final String description;
+  final String? assistedByPlayerId; // NEW: ID of the assisting player for goals
 
   MatchEvent({
-    required this.minute,
-    required this.type,
+    required this.playerId,
     required this.teamId,
-    this.playerId,
+    required this.type,
+    required this.minute,
     required this.description,
+    this.assistedByPlayerId, // Added to constructor
   });
 
-  @override
-  String toString() {
-    return "$minute': $description"; // Simple string representation for logging
-  }
-
-  // Added methods for JSON serialization
   factory MatchEvent.fromJson(Map<String, dynamic> json) => _$MatchEventFromJson(json);
   Map<String, dynamic> toJson() => _$MatchEventToJson(this);
 }

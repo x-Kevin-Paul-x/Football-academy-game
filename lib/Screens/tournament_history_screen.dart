@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for formatting
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/tournament.dart';
-import 'TournamentDetailsScreen.dart'; // To potentially reuse details view
+import 'TournamentDetailsScreen.dart'; // Import the details screen (updated name)
+import 'package:intl/intl.dart'; // For currency formatting
 
 class TournamentHistoryScreen extends StatelessWidget {
-  const TournamentHistoryScreen({Key? key}) : super(key: key);
+  const TournamentHistoryScreen({super.key}); // Use super parameters
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$'); // Formatter
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tournament History'),
@@ -35,21 +33,30 @@ class TournamentHistoryScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               // Display tournaments in reverse chronological order (newest first)
               final tournament = completedTournaments[completedTournaments.length - 1 - index];
-              String winnerText = 'Winner: N/A';
+              final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
+
+              String winnerText = 'Winner: Unknown';
               if (tournament.winnerId != null) {
-                 winnerText = 'Winner: ${gameStateManager.rivalAcademyMap[tournament.winnerId]?.name ?? (tournament.winnerId == GameStateManager.playerAcademyId ? gameStateManager.academyName : 'Unknown')}';
+                if (tournament.winnerId == GameStateManager.playerAcademyId) {
+                  winnerText = 'Winner: ${gameStateManager.academyName} (You!)';
+                } else {
+                  winnerText = 'Winner: ${gameStateManager.rivalAcademyMap[tournament.winnerId]?.name ?? tournament.winnerId}';
+                }
+              } else if (tournament.status == TournamentStatus.Cancelled) {
+                 winnerText = 'Status: Cancelled';
               }
+
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
-                  leading: Icon(_getTournamentIcon(tournament.type)), // Reuse icon logic
+                  leading: Icon(_getTournamentIcon(tournament.type)),
                   title: Text(tournament.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  // Use tournament.status.toString() and prizeMoneyBase
-                  subtitle: Text('Status: ${tournament.status.toString().split('.').last}\nPrize: ${currencyFormat.format(tournament.prizeMoneyBase)}\n$winnerText'), // Use prizeMoneyBase and add winner
-                  isThreeLine: true,
+                  // Display status, winner, and prize money
+                  subtitle: Text('${tournament.status == TournamentStatus.Cancelled ? 'Cancelled' : winnerText}\nPrize: ${currencyFormat.format(tournament.prizeMoneyBase)}'),
+                  isThreeLine: true, // Keep as true if winner text makes it long
                   onTap: () {
-                     // Navigate to TournamentDetailsScreen using only the ID
+                     // Navigate using the tournament ID
                      Navigator.push(
                        context,
                        MaterialPageRoute(

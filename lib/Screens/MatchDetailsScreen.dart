@@ -1,111 +1,273 @@
 import 'package:flutter/material.dart';
-import '../models/match.dart';
+import 'package:provider/provider.dart';
+import '../game_state_manager.dart';
+import '../models/match.dart' hide GameStateManager; // Hide dummy GameStateManager
+import '../models/tournament.dart'; // Import Tournament for context if needed
+import '../models/player.dart';
+import '../models/rival_academy.dart'; // Import RivalAcademy
 import '../models/match_event.dart';
-import '../models/ai_club.dart'; // To get team names/colors
-import '../models/player.dart'; // To potentially get player names from IDs later
+import 'package:intl/intl.dart'; // For date formatting
+import 'package:collection/collection.dart'; // For firstWhereOrNull
 
 class MatchDetailsScreen extends StatelessWidget {
-  final Match match;
-  final Map<String, AIClub> aiClubMap; // To look up AI club names/colors
-  final String playerAcademyId; // To identify player's academy
-  // TODO: Pass player map if needed to show player names for events
+  final String tournamentId;
+  final String matchId;
 
   const MatchDetailsScreen({
-    Key? key,
-    required this.match,
-    required this.aiClubMap,
-    required this.playerAcademyId,
-  }) : super(key: key);
-
-  // Helper to get team name
-  String _getTeamName(String teamId) {
-    if (teamId == playerAcademyId) {
-      // TODO: Get actual academy name from GameStateManager or settings
-      return "My Academy";
-    }
-    return aiClubMap[teamId]?.name ?? 'Unknown Club';
-  }
-
-  // Helper to get team color (optional)
-  Color _getTeamColor(String teamId) {
-    if (teamId == playerAcademyId) {
-      // TODO: Get actual academy color
-      return Colors.blue; // Placeholder
-    }
-    return aiClubMap[teamId]?.primaryColor ?? Colors.grey;
-  }
+    super.key,
+    required this.tournamentId,
+    required this.matchId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    String homeTeamName = _getTeamName(match.homeTeamId);
-    String awayTeamName = _getTeamName(match.awayTeamId);
+    final gameState = Provider.of<GameStateManager>(context);
+    // Find the tournament
+     final tournament = gameState.activeTournaments.firstWhereOrNull((t) => t.id == tournamentId) ??
+                       gameState.completedTournaments.firstWhereOrNull((t) => t.id == tournamentId);
+    // Find the match within the tournament
+    final match = tournament?.matches.firstWhereOrNull((m) => m.id == matchId);
+
+    if (tournament == null || match == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: const Center(child: Text('Match or Tournament not found.')),
+      );
+    }
+
+    String homeTeamName = _getTeamName(match.homeTeamId, gameState);
+    String awayTeamName = _getTeamName(match.awayTeamId, gameState);
 
     return Scaffold(
       appBar: AppBar(
         title: Text('$homeTeamName vs $awayTeamName'),
-        // Display final score in AppBar subtitle
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(30.0),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              'Final Score: ${match.homeScore} - ${match.awayScore}',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).appBarTheme.foregroundColor?.withOpacity(0.8) ?? Colors.white70,
-              ),
-            ),
-          ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildMatchInfo(context, match, homeTeamName, awayTeamName),
+            const SizedBox(height: 20),
+            Text('Events:', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 10),
+            _buildEventLog(context, match, gameState),
+            const SizedBox(height: 20),
+            Text('Lineups:', style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 10),
+            _buildLineups(context, match, gameState, homeTeamName, awayTeamName),
+          ],
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(10.0),
-        itemCount: match.eventLog.length,
-        itemBuilder: (context, index) {
-          final event = match.eventLog[index];
-          return _buildEventTile(context, event);
-        },
+    );
+  }
+
+  String _getTeamName(String teamId, GameStateManager gameState) {
+    if (teamId == GameStateManager.playerAcademyId) {
+      return gameState.academyName;
+    } else {
+      return gameState.rivalAcademyMap[teamId]?.name ?? teamId; // Use rivalAcademyMap
+    }
+  }
+
+  Widget _buildMatchInfo(BuildContext context, Match match, String homeTeamName, String awayTeamName) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${match.isSimulated ? "Final Score" : "Scheduled"}',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                match.isSimulated
+                    ? '$homeTeamName ${match.homeScore} - ${match.awayScore} $awayTeamName'
+                    : '$homeTeamName vs $awayTeamName',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text('Date: ${DateFormat.yMd().add_jm().format(match.matchDate)}'),
+            Text('Round: ${match.round}'),
+            if (match.isSimulated)
+              Text('Result: ${match.result?.name ?? 'N/A'}'),
+            if (!match.isSimulated)
+              const Text('Status: Pending Simulation'),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEventTile(BuildContext context, MatchEvent event) {
-    IconData icon = Icons.info_outline; // Default icon
-    Color? iconColor = Theme.of(context).colorScheme.secondary;
-    String title = event.description;
-    String subtitle = "${event.minute}'";
-
-    switch (event.type) {
-      case MatchEventType.KickOff:
-        icon = Icons.sports_soccer;
-        iconColor = Colors.green;
-        break;
-      case MatchEventType.Goal:
-        icon = Icons.sports_soccer; // Could use a specific goal icon
-        iconColor = _getTeamColor(event.teamId); // Color based on scoring team
-        // TODO: If playerId is available, look up player name
-        break;
-      case MatchEventType.HalfTime:
-        icon = Icons.timer;
-        iconColor = Colors.orange;
-        break;
-      case MatchEventType.FullTime:
-        icon = Icons.timer_off;
-        iconColor = Colors.red;
-        break;
-      // Add cases for other event types (Save, Foul, Card, etc.)
-      default:
-        break;
+  Widget _buildEventLog(BuildContext context, Match match, GameStateManager gameState) {
+    if (!match.isSimulated || match.eventLog.isEmpty) {
+      return const Text('No events recorded yet.');
     }
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: ListTile(
-        leading: Icon(icon, color: iconColor, size: 30),
-        title: Text(title),
-        trailing: Text(subtitle, style: const TextStyle(color: Colors.grey)),
-      ),
+    // Sort events by minute
+    final sortedEvents = List<MatchEvent>.from(match.eventLog)..sort((a, b) => a.minute.compareTo(b.minute));
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: sortedEvents.length,
+      itemBuilder: (context, index) {
+        final event = sortedEvents[index];
+        String playerName = 'Unknown Player';
+        String teamName = _getTeamName(event.teamId, gameState); // Get team name for context
+
+        // Find player name (check player academy first, then rivals)
+        Player? player = gameState.academyPlayers.firstWhereOrNull((p) => p.id == event.playerId);
+        if (player == null) {
+          RivalAcademy? rivalAcademy = gameState.rivalAcademyMap[event.teamId];
+          player = rivalAcademy?.players.firstWhereOrNull((p) => p.id == event.playerId);
+        }
+        playerName = player?.name ?? (event.playerId ?? 'Unknown Player'); // Use player ID if name not found
+
+        IconData icon = Icons.info_outline; // Default icon
+        Color iconColor = Colors.grey;
+        String description = event.description; // Use the description from the event by default
+
+        switch (event.type) {
+          case MatchEventType.Goal:
+            icon = Icons.sports_soccer;
+            iconColor = Colors.green;
+            description = 'Goal! ($teamName)'; // Add team context
+            break;
+          case MatchEventType.Assist:
+            icon = Icons.assistant;
+            iconColor = Colors.blue;
+             description = 'Assist ($teamName)';
+            break;
+          case MatchEventType.YellowCard:
+            icon = Icons.style; // Represents a card
+            iconColor = Colors.yellow.shade700;
+             description = 'Yellow Card ($teamName)';
+            break;
+          case MatchEventType.RedCard:
+            icon = Icons.style;
+            iconColor = Colors.red;
+             description = 'Red Card ($teamName)';
+            break;
+          case MatchEventType.Substitution:
+            icon = Icons.swap_horiz;
+            iconColor = Colors.orange;
+             description = 'Substitution ($teamName)'; // Description might need more detail from event data
+            break;
+          // --- Cases for event types NOT currently defined in MatchEventType enum ---
+          // case MatchEventType.Injury:
+          //    icon = Icons.local_hospital;
+          //    iconColor = Colors.redAccent;
+          //    description = 'Injury ($teamName)';
+          //    break;
+          // case MatchEventType.KickOff:
+          //    icon = Icons.timer;
+          //    iconColor = Colors.blueGrey;
+          //    description = 'Kick Off';
+          //    break;
+          // case MatchEventType.HalfTime:
+          //    icon = Icons.schedule; // Corrected icon again
+          //    iconColor = Colors.blueGrey;
+          //    description = 'Half Time';
+          //    break;
+          // case MatchEventType.FullTime:
+          //    icon = Icons.timer_off;
+          //    iconColor = Colors.blueGrey;
+          //    description = 'Full Time';
+          //    break;
+          // case MatchEventType.Save:
+          //    icon = Icons.shield;
+          //    iconColor = Colors.lightBlue;
+          //    description = 'Save ($teamName)';
+          //    break;
+          // case MatchEventType.Foul:
+          //    icon = Icons.warning_amber_rounded;
+          //    iconColor = Colors.orangeAccent;
+          //    description = 'Foul ($teamName)';
+          //    break;
+          // case MatchEventType.ChanceMissed:
+          //    icon = Icons.cancel_outlined;
+          //    iconColor = Colors.grey;
+          //    description = 'Chance Missed ($teamName)';
+          //    break;
+          // --- End undefined cases ---
+          case MatchEventType.Info: // Keep default icon/color
+            break;
+          // No default needed if all cases are handled
+        }
+
+        return ListTile(
+          leading: Icon(icon, color: iconColor),
+          title: Text("${event.minute}' - $description"),
+          subtitle: Text(playerName), // Show player name in subtitle
+        );
+      },
     );
   }
+
+   Widget _buildLineups(BuildContext context, Match match, GameStateManager gameState, String homeTeamName, String awayTeamName) {
+     // Show lineups even if not simulated, if available (e.g., if pre-set)
+     // Use match.homeLineup and match.awayLineup which store IDs
+     if (match.homeLineup.isEmpty || match.awayLineup.isEmpty) {
+       return const Text('Lineups not available.');
+     }
+
+     List<Player> homePlayers = _resolvePlayers(match.homeLineup, match.homeTeamId, gameState);
+     List<Player> awayPlayers = _resolvePlayers(match.awayLineup, match.awayTeamId, gameState);
+
+     return Row(
+       crossAxisAlignment: CrossAxisAlignment.start,
+       children: [
+         Expanded(
+           child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Text(homeTeamName, style: Theme.of(context).textTheme.titleMedium),
+               const Divider(),
+               if (homePlayers.isNotEmpty)
+                 ...homePlayers.map((p) => Text('${p.name} (Skill: ${p.currentSkill})')).toList()
+               else
+                 const Text('Lineup unavailable'), // Indicate if players couldn't be resolved
+             ],
+           ),
+         ),
+         const SizedBox(width: 16), // Spacer
+         Expanded(
+           child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+               Text(awayTeamName, style: Theme.of(context).textTheme.titleMedium),
+               const Divider(),
+                if (awayPlayers.isNotEmpty)
+                 ...awayPlayers.map((p) => Text('${p.name} (Skill: ${p.currentSkill})')).toList()
+               else
+                 const Text('Lineup unavailable'), // Indicate if players couldn't be resolved
+             ],
+           ),
+         ),
+       ],
+     );
+   }
+
+   // Helper to get full Player objects from IDs stored in the match lineup
+   List<Player> _resolvePlayers(List<String> playerIds, String teamId, GameStateManager gameState) {
+     List<Player> players = [];
+     if (teamId == GameStateManager.playerAcademyId) {
+       players = gameState.academyPlayers.where((p) => playerIds.contains(p.id)).toList();
+     } else {
+       RivalAcademy? academy = gameState.rivalAcademyMap[teamId];
+       if (academy != null) {
+         players = academy.players.where((p) => playerIds.contains(p.id)).toList();
+       }
+     }
+     // Sort players alphabetically by name for consistent display
+     players.sort((a, b) => a.name.compareTo(b.name));
+     return players;
+   }
 }
