@@ -78,6 +78,7 @@ class Tournament {
   List<Match> matches;
   String? winnerId; // ID of the winning academy
   int currentRound; // Track current round for knockout
+  String? currentByeTeamId; // Tracks the team getting a bye in the *current* round being generated
   Map<String, LeagueStanding> leagueStandings; // For league format
   Map<int, List<String>> roundByes; // Tracks teams that received a bye in a specific round
 
@@ -101,6 +102,7 @@ class Tournament {
     this.currentRound = 1, // Default to round 1
     Map<String, LeagueStanding>? standings,
     Map<int, List<String>>? byes,
+    this.currentByeTeamId, // Add constructor parameter
   }) : minTeamsToStart = minTeams ?? (numberOfTeams ~/ 2).clamp(2, numberOfTeams),
        leagueStandings = standings ?? {},
        roundByes = byes ?? {}; // Initialize byes map
@@ -207,6 +209,7 @@ class Tournament {
     matches.clear();
     currentRound = 1; // Reset round counter
     roundByes.clear(); // Clear any previous bye data
+    currentByeTeamId = null; // Reset current bye team ID
 
     if (format == TournamentFormat.Knockout) {
       _generateKnockoutRound(List.from(teamIds), currentRound);
@@ -231,13 +234,16 @@ class Tournament {
 
     print("Generating matches for Round $roundNumber (${roundTeams.length} teams) starting around $matchDate");
 
-    // Ensure the map entry exists for the current round
+    // Reset current bye ID for this generation attempt
+    currentByeTeamId = null;
+    // Ensure the map entry exists for the current round in the historical record
     roundByes[roundNumber] = [];
+
     if (roundTeams.length % 2 != 0) {
       // Handle bye for odd number of teams
-      String byeTeam = roundTeams.removeLast();
-      roundByes[roundNumber]!.add(byeTeam); // Record the bye
-      print("Info: $byeTeam gets a bye in Round $roundNumber.");
+      currentByeTeamId = roundTeams.removeLast(); // Assign to the instance field
+      roundByes[roundNumber]!.add(currentByeTeamId!); // Record the bye historically
+      print("Info: $currentByeTeamId gets a bye in Round $roundNumber.");
     }
 
     for (int i = 0; i < roundTeams.length; i += 2) {

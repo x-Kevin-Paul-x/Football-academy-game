@@ -29,6 +29,10 @@ class Match {
   List<String> homeLineup; // List of player IDs
   List<String> awayLineup; // List of player IDs
 
+  // --- NEW: Penalty Shootout Scores ---
+  int? homePenaltyScore;
+  int? awayPenaltyScore;
+
   Match({
     required this.id,
     required this.tournamentId,
@@ -43,6 +47,8 @@ class Match {
     List<MatchEvent>? eventLog,
     List<String>? homeLineup, // Added to constructor
     List<String>? awayLineup, // Added to constructor
+    this.homePenaltyScore, // Added to constructor
+    this.awayPenaltyScore, // Added to constructor
   }) : eventLog = eventLog ?? [],
        homeLineup = homeLineup ?? [], // Initialize
        awayLineup = awayLineup ?? []; // Initialize
@@ -57,14 +63,20 @@ class Match {
       case MatchResult.awayWin:
         return awayTeamId;
       case MatchResult.draw:
-        return null; // No winner on draw
+        // If a shootout occurred, determine winner from that
+        if (homePenaltyScore != null && awayPenaltyScore != null) {
+          if (homePenaltyScore! > awayPenaltyScore!) return homeTeamId;
+          if (awayPenaltyScore! > homePenaltyScore!) return awayTeamId;
+        }
+        // Otherwise (non-knockout draw or error), return null
+        return null;
     }
   }
   // --- END NEW ---
 
-
   // Detailed Simulation Logic
-  void simulateDetailed(List<Player> homePlayers, List<Player> awayPlayers, {Staff? playerManager}) {
+  // Added isKnockout parameter
+  void simulateDetailed(List<Player> homePlayers, List<Player> awayPlayers, {required bool isKnockout, Staff? playerManager}) {
     if (isSimulated) return; // Don't re-simulate
 
     // --- Store Lineups ---
@@ -72,10 +84,11 @@ class Match {
     awayLineup = awayPlayers.map((p) => p.id).toList();
     // --- End Store Lineups ---
 
-
     eventLog.clear(); // Clear previous log if any
     homeScore = 0;
     awayScore = 0;
+    homePenaltyScore = null; // Reset penalty scores
+    awayPenaltyScore = null;
 
     if (homePlayers.isEmpty || awayPlayers.isEmpty) {
       print("Warning: Cannot simulate match ${id} due to empty lineup(s).");
@@ -90,13 +103,14 @@ class Match {
          eventLog.add(MatchEvent(playerId: '', teamId: homeTeamId, type: MatchEventType.Info, minute: 0, description: "Away team forfeited."));
       } else {
         // Both empty? Draw 0-0 or cancel? Let's call it a 0-0 draw.
+        // If knockout, this scenario should ideally be prevented earlier.
+        // But if it happens, force a winner randomly? Or stick to draw? Let's stick to draw for now.
         result = MatchResult.draw;
          eventLog.add(MatchEvent(playerId: '', teamId: '', type: MatchEventType.Info, minute: 0, description: "Both teams forfeited. Match drawn 0-0."));
       }
       isSimulated = true;
       return;
     }
-
 
     // 1. Calculate Effective Team Skills (considering fatigue, manager)
     int homeSkill = _calculateEffectiveTeamSkill(homePlayers, playerManager: homeTeamId == GameStateManager.playerAcademyId ? playerManager : null);
@@ -122,18 +136,122 @@ class Match {
     // 5. Sort Event Log by Minute
     eventLog.sort((a, b) => a.minute.compareTo(b.minute));
 
-    // 6. Determine Match Result
+    // --- 6. Knockout Draw Resolution ---
+    String? shootoutWinnerId;
+    if (isKnockout && homeScore == awayScore) {
+      print("Knockout match ${id} ended in a draw ($homeScore-$awayScore). Proceeding to penalty shootout...");
+      // Simulate shootout
+      shootoutWinnerId = _simulatePenaltyShootout(homePlayers, awayPlayers, random);
+
+      String winnerName = shootoutWinnerId == homeTeamId ? "Home" : "Away";
+      String eventDescription = "$winnerName team wins penalty shootout ($homePenaltyScore - $awayPenaltyScore).";
+      eventLog.add(MatchEvent(playerId: '', teamId: shootoutWinnerId, type: MatchEventType.Info, minute: 91, description: eventDescription)); // Minute 91 indicates shootout result
+      print(" -> Penalty shootout completed. Winner: $shootoutWinnerId ($homePenaltyScore - $awayPenaltyScore)");
+    }
+    // --- End Knockout Draw Resolution ---
+
+    // 7. Determine Final Match Result
     if (homeScore > awayScore) {
       result = MatchResult.homeWin;
     } else if (awayScore > homeScore) {
       result = MatchResult.awayWin;
     } else {
-      result = MatchResult.draw;
+      // Draw occurred
+      if (isKnockout && shootoutWinnerId != null) {
+        // If knockout draw resolved by shootout, set winner based on shootout
+        result = (shootoutWinnerId == homeTeamId) ? MatchResult.homeWin : MatchResult.awayWin;
+        // Note: We keep the original homeScore/awayScore from regular time,
+        // but the 'result' and 'winnerId' getter reflect the shootout outcome.
+      } else {
+        // Regular draw (non-knockout or shootout failed somehow)
+        result = MatchResult.draw;
+      }
     }
 
     isSimulated = true;
     // print("Match ${id} simulated: $homeTeamId $homeScore - $awayScore $awayTeamId"); // Less verbose
   }
+
+  // --- NEW: Penalty Shootout Simulation ---
+  String _simulatePenaltyShootout(List<Player> homePlayers, List<Player> awayPlayers, Random random) {
+    homePenaltyScore = 0;
+    awayPenaltyScore = 0;
+    int round = 1;
+    int homeTaken = 0;
+    int awayTaken = 0;
+
+    // Use copies of player lists to track who has taken a penalty
+    List<Player> homeTakers = List.from(homePlayers);
+    List<Player> awayTakers = List.from(awayPlayers);
+    homeTakers.shuffle(random); // Shuffle to vary order
+    awayTakers.shuffle(random);
+
+    while (true) {
+      bool homeScores = false;
+      bool awayScores = false;
+
+      // Home team takes penalty (if available)
+      if (homeTaken < homeTakers.length) {
+        Player taker = homeTakers[homeTaken];
+        double chance = (0.7 + (taker.currentSkill / 400.0) - (taker.fatigue / 500.0)).clamp(0.5, 0.95); // Base 70%, skill up, fatigue down
+        homeScores = random.nextDouble() < chance;
+        if (homeScores) homePenaltyScore = (homePenaltyScore ?? 0) + 1;
+        eventLog.add(MatchEvent(playerId: taker.id, teamId: homeTeamId, type: MatchEventType.PenaltyShootout, minute: 90 + round, description: "Penalty ${homeScores ? 'scored' : 'missed'} by ${taker.name} ($homePenaltyScore-$awayPenaltyScore)"));
+        homeTaken++;
+      } else if (round > 5) {
+          // Ran out of unique takers in sudden death? Should be rare. Award loss? Let's assume enough players.
+          print("Warning: Ran out of home penalty takers in shootout for match $id");
+      }
+
+
+      // Check for early win condition after home takes (only after round 3)
+      if (round >= 3) {
+         int homeRemaining = (round <= 5 ? 5 : round) - homeTaken;
+         int awayRemaining = (round <= 5 ? 5 : round) - awayTaken;
+         if ((homePenaltyScore ?? 0) > (awayPenaltyScore ?? 0) + awayRemaining) return homeTeamId; // Home wins
+         if ((awayPenaltyScore ?? 0) > (homePenaltyScore ?? 0) + homeRemaining) return awayTeamId; // Away wins (checked after away takes)
+      }
+
+      // Away team takes penalty (if available)
+      if (awayTaken < awayTakers.length) {
+        Player taker = awayTakers[awayTaken];
+        double chance = (0.7 + (taker.currentSkill / 400.0) - (taker.fatigue / 500.0)).clamp(0.5, 0.95);
+        awayScores = random.nextDouble() < chance;
+        if (awayScores) awayPenaltyScore = (awayPenaltyScore ?? 0) + 1;
+        eventLog.add(MatchEvent(playerId: taker.id, teamId: awayTeamId, type: MatchEventType.PenaltyShootout, minute: 90 + round, description: "Penalty ${awayScores ? 'scored' : 'missed'} by ${taker.name} ($homePenaltyScore-$awayPenaltyScore)"));
+        awayTaken++;
+      } else if (round > 5) {
+          print("Warning: Ran out of away penalty takers in shootout for match $id");
+      }
+
+      // Check win condition after both have taken (or should have taken)
+      if (round >= 5) {
+        if (homeTaken == awayTaken && (homePenaltyScore ?? 0) != (awayPenaltyScore ?? 0)) {
+          // End of standard 5 rounds or sudden death round with different scores
+          return (homePenaltyScore ?? 0) > (awayPenaltyScore ?? 0) ? homeTeamId : awayTeamId;
+        }
+      }
+       // Check for early win condition after away takes (only after round 3)
+      if (round >= 3) {
+         int homeRemaining = (round <= 5 ? 5 : round) - homeTaken;
+         int awayRemaining = (round <= 5 ? 5 : round) - awayTaken;
+         if ((awayPenaltyScore ?? 0) > (homePenaltyScore ?? 0) + homeRemaining) return awayTeamId; // Away wins
+      }
+
+
+      // Reset takers list if everyone has taken once in sudden death
+      if (round > 5 && homeTaken >= homeTakers.length && awayTaken >= awayTakers.length) {
+          homeTaken = 0;
+          awayTaken = 0;
+          homeTakers.shuffle(random); // Reshuffle for next cycle
+          awayTakers.shuffle(random);
+      }
+
+      round++;
+    }
+  }
+  // --- End Penalty Shootout Simulation ---
+
 
   // Helper for Poisson calculation
   int _getPoisson(double lambda, Random random) {
@@ -220,15 +338,20 @@ class Match {
 
   // Helper to select player based on weighted skill
   Player _selectPlayerWeighted(List<Player> players, double totalSkill, Random random) {
+    if (players.isEmpty) throw Exception("Cannot select player from empty list"); // Added safety check
+    if (totalSkill <= 0) totalSkill = players.length.toDouble(); // Fallback if total skill is 0
+
     double roll = random.nextDouble() * totalSkill;
     double cumulative = 0;
     for (var player in players) {
-      cumulative += player.currentSkill;
+      // Use currentSkill, ensure it's at least a small positive value for weighting
+      double weight = max(1.0, player.currentSkill.toDouble());
+      cumulative += weight;
       if (roll <= cumulative) {
         return player;
       }
     }
-    // Fallback (shouldn't happen with valid totalSkill)
+    // Fallback (should only happen with rounding errors or zero totalSkill)
     return players.last;
   }
 

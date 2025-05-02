@@ -8,6 +8,7 @@ enum MatchEventType {
   YellowCard, // Future use
   RedCard,    // Future use
   Substitution, // Future use
+  PenaltyShootout, // Added for shootout events
   Info,       // General info (e.g., forfeit)
 }
 

@@ -39,6 +39,9 @@ SerializableGameState _$SerializableGameStateFromJson(
       rivalAcademies: (json['rivalAcademies'] as List<dynamic>)
           .map((e) => RivalAcademy.fromJson(e as Map<String, dynamic>))
           .toList(),
+      aiClubs: (json['aiClubs'] as List<dynamic>)
+          .map((e) => AIClub.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$SerializableGameStateToJson(
@@ -63,6 +66,7 @@ Map<String, dynamic> _$SerializableGameStateToJson(
       'difficulty': _$DifficultyEnumMap[instance.difficulty]!,
       'themeMode': SerializableGameState._themeModeToJson(instance.themeMode),
       'rivalAcademies': instance.rivalAcademies.map((e) => e.toJson()).toList(),
+      'aiClubs': instance.aiClubs.map((e) => e.toJson()).toList(),
     };
 
 const _$DifficultyEnumMap = {

@@ -50,6 +50,7 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
       winnerId: json['winnerId'] as String?,
       baseId: json['baseId'] as String?,
       currentRound: (json['currentRound'] as num?)?.toInt() ?? 1,
+      currentByeTeamId: json['currentByeTeamId'] as String?,
     )
       ..leagueStandings = (json['leagueStandings'] as Map<String, dynamic>).map(
         (k, e) =>
@@ -78,6 +79,7 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'matches': instance.matches.map((e) => e.toJson()).toList(),
       'winnerId': instance.winnerId,
       'currentRound': instance.currentRound,
+      'currentByeTeamId': instance.currentByeTeamId,
       'leagueStandings':
           instance.leagueStandings.map((k, e) => MapEntry(k, e.toJson())),
       'roundByes': instance.roundByes.map((k, e) => MapEntry(k.toString(), e)),

@@ -26,6 +26,8 @@ Match _$MatchFromJson(Map<String, dynamic> json) => Match(
       awayLineup: (json['awayLineup'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      homePenaltyScore: (json['homePenaltyScore'] as num?)?.toInt(),
+      awayPenaltyScore: (json['awayPenaltyScore'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
@@ -42,6 +44,8 @@ Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
       'eventLog': instance.eventLog.map((e) => e.toJson()).toList(),
       'homeLineup': instance.homeLineup,
       'awayLineup': instance.awayLineup,
+      'homePenaltyScore': instance.homePenaltyScore,
+      'awayPenaltyScore': instance.awayPenaltyScore,
     };
 
 const _$MatchResultEnumMap = {

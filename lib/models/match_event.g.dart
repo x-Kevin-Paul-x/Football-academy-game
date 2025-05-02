@@ -31,5 +31,6 @@ const _$MatchEventTypeEnumMap = {
   MatchEventType.YellowCard: 'YellowCard',
   MatchEventType.RedCard: 'RedCard',
   MatchEventType.Substitution: 'Substitution',
+  MatchEventType.PenaltyShootout: 'PenaltyShootout',
   MatchEventType.Info: 'Info',
 };

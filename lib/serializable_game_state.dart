@@ -1,3 +1,4 @@
+import 'package:football_academy_game/models/ai_club.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter/material.dart'; // Import for ThemeMode
 import 'models/player.dart';
@@ -5,9 +6,10 @@ import 'models/staff.dart';
 import 'models/tournament.dart';
 import 'models/news_item.dart';
 import 'models/difficulty.dart';
-import 'models/rival_academy.dart'; // <-- ADDED Import
+import 'models/rival_academy.dart';
+import 'models/ai_club.dart'; // <-- ADDED Import for AIClub
 
-part 'serializable_game_state.g.dart'; // Link to the generated file
+part 'serializable_game_state.g.dart';
 
 @JsonSerializable(explicitToJson: true) // Important for nested objects
 class SerializableGameState {
@@ -26,9 +28,10 @@ class SerializableGameState {
   final int academyReputation;
   final List<NewsItem> newsItems;
   final Difficulty difficulty;
-  @JsonKey(toJson: _themeModeToJson, fromJson: _themeModeFromJson) // Custom converter for ThemeMode
+  @JsonKey(toJson: _themeModeToJson, fromJson: _themeModeFromJson)
   final ThemeMode themeMode;
-  final List<RivalAcademy> rivalAcademies; // <-- ADDED Field
+  final List<RivalAcademy> rivalAcademies;
+  final List<AIClub> aiClubs; // <-- ADDED AI Clubs Field Declaration
 
   SerializableGameState({
     required this.currentDate,
@@ -47,7 +50,8 @@ class SerializableGameState {
     required this.newsItems,
     required this.difficulty,
     required this.themeMode,
-    required this.rivalAcademies, // <-- ADDED to constructor
+    required this.rivalAcademies,
+    required this.aiClubs, // <-- ADDED AI Clubs to constructor
   });
 
   // Connect to the generated functions

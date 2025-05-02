@@ -4,6 +4,7 @@ import 'models/match.dart';
 import 'models/player.dart'; // Import Player model
 import 'models/staff.dart'; // Import Staff model
 import 'models/rival_academy.dart'; // Correct Import Path
+import 'models/ai_club.dart'; // <-- ADD: Import AIClub
 import 'models/match_event.dart'; // Import MatchEventType
 import 'models/news_item.dart';
 import 'models/difficulty.dart'; // Import Difficulty enum
@@ -11,6 +12,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart'; // Import for ThemeMode
 import 'package:intl/intl.dart'; // Import for number formatting
+import 'utils/name_generator.dart'; // <-- Import NameGenerator
 
 // Imports for Save/Load
 import 'dart:convert';
@@ -71,11 +73,15 @@ class GameStateManager with ChangeNotifier {
   List<Tournament> _completedTournaments = []; // Tournaments that have finished
   List<Tournament> _availableTournamentTemplates = []; // Templates for new tournaments
 
-  // Rival Academy Data
-  List<RivalAcademy> _rivalAcademies = []; // List of all rival academies
-  Map<String, RivalAcademy> _rivalAcademyMap = {}; // Map for quick lookup by ID
+      // Rival Academy Data
+      List<RivalAcademy> _rivalAcademies = []; // List of all rival academies
+      Map<String, RivalAcademy> _rivalAcademyMap = {}; // Map for quick lookup by ID
 
-  // Facility State (Basic)
+      // AI Club Data (Separate from Rivals/Academies)
+      List<AIClub> _aiClubs = []; // List of all AI professional clubs
+      Map<String, AIClub> _aiClubMap = {}; // Map for quick lookup by ID
+
+      // Facility State (Basic)
   int _trainingFacilityLevel = 1;
   int _scoutingFacilityLevel = 1;
   int _medicalBayLevel = 1;
@@ -206,6 +212,50 @@ class GameStateManager with ChangeNotifier {
     print("Populated Rival Academy Map with ${_rivalAcademyMap.length} academies.");
   }
 
+  // --- ADD: Populate AI Clubs ---
+  void _populateAIClubs() {
+    _aiClubs.clear();
+    _aiClubMap.clear();
+    // Generate AI clubs across tiers (e.g., 10 per tier for 3 tiers)
+    int clubsPerTier = 10;
+    int numberOfTiers = 3;
+    int totalAIClubs = clubsPerTier * numberOfTiers;
+
+    for (int i = 0; i < totalAIClubs; i++) {
+        int tier = (i ~/ clubsPerTier) + 1; // Assign tier based on index (1, 2, 3)
+        _aiClubs.add(AIClub.initial(i, initialTier: tier));
+    }
+
+    // Populate the map
+    for (var club in _aiClubs) {
+      _aiClubMap[club.id] = club;
+      // Generate initial players for AI clubs (similar to rivals, maybe more established?)
+      int initialPlayerCount = 15 + _random.nextInt(11); // 15-25 players
+      for (int i = 0; i < initialPlayerCount; i++) {
+        int potentialSkill = (club.skillLevel * 1.8).toInt() + _random.nextInt(21); // Higher base potential
+        potentialSkill = potentialSkill.clamp(40, 99); // Clamp potential
+        int currentSkill = (potentialSkill * (0.6 + _random.nextDouble() * 0.3)).toInt(); // 60-90% of potential
+        currentSkill = currentSkill.clamp(30, potentialSkill); // Clamp current skill
+
+        club.players.add(
+          Player(
+            id: '${club.id}_player_$i',
+            name: NameGenerator.generatePlayerName(), // <-- Use NameGenerator
+            age: 18 + _random.nextInt(10), // Wider age range (18-27)
+            position: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)],
+            currentSkill: currentSkill,
+            potentialSkill: potentialSkill,
+            weeklyWage: 200 + _random.nextInt(801), // Higher wages (200-1000)
+            reputation: club.reputation ~/ 2 + _random.nextInt(20), // Reputation based on club
+            stamina: 50 + _random.nextInt(41), // 50-90 stamina
+          )
+        );
+      }
+    }
+    print("Populated AI Club Map with ${_aiClubMap.length} clubs.");
+  }
+  // --- END ADD ---
+
   // Generate Tournament Templates
   void _generateInitialTournamentTemplates() {
     _availableTournamentTemplates.clear();
@@ -314,7 +364,10 @@ class GameStateManager with ChangeNotifier {
     _availableTournamentTemplates.clear(); // Clear templates
     _rivalAcademyMap.clear(); // Clear rival map
     _rivalAcademies.clear(); // Clear rival list
+    _aiClubMap.clear(); // <-- ADD: Clear AI Club map
+    _aiClubs.clear(); // <-- ADD: Clear AI Club list
     _populateRivalAcademyMap(); // Repopulate rivals based on current difficulty
+    _populateAIClubs(); // <-- ADD: Repopulate AI Clubs
     _generateInitialTournamentTemplates(); // Regenerate templates
     _trainingFacilityLevel = 1;
     _scoutingFacilityLevel = 1;
@@ -395,7 +448,10 @@ class GameStateManager with ChangeNotifier {
     // 7. Rival Academy Weekly Actions
     _handleRivalAcademyActions();
 
-    // 8. Other weekly events (Player Finance Summary)
+    // 8. AI Club Weekly Actions (NEW)
+    _handleAIClubActions();
+
+    // 9. Other weekly events (Player Finance Summary)
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
     _addNewsItem(NewsItem.create(title: "Weekly Finances", description: "Income: ${currencyFormat.format(_weeklyIncome)}, Wages: ${currencyFormat.format(_totalWeeklyWages)}. Net: ${currencyFormat.format(weeklyNet)}. Balance: ${currencyFormat.format(_balance)}", type: NewsItemType.Finance, date: _currentDate));
 
@@ -569,6 +625,61 @@ class GameStateManager with ChangeNotifier {
       academy.reputation = max(10, academy.reputation - 1); // Min reputation 10
     }
   }
+  // --- END Rival Academy Actions ---
+
+  // --- NEW: Handle AI Club Actions ---
+  void _handleAIClubActions() {
+    // print("--- Handling AI Club Weekly Actions ---"); // Less verbose
+    // List<Match> matchesThisWeek = _getMatchesPlayedThisWeek(); // Helper needed
+
+    for (var club in _aiClubs) {
+      // 1. Financial Simulation (Income/Expenses)
+      double matchdayIncome = 0;
+      // TODO: Calculate matchday income based on home games this week, fans, ticket price
+      // int homeGamesThisWeek = matchesThisWeek.where((m) => m.homeTeamId == club.id && !m.matchDate.isAfter(_currentDate)).length;
+      // matchdayIncome = homeGamesThisWeek * club.fanCount * club.ticketPrice * 0.5; // Example: 50% attendance
+
+      // Placeholder income/sponsorship
+      double baseWeeklyIncome = (club.reputation * 10) + (club.skillLevel * 20) + (club.tier == 1 ? 5000 : (club.tier == 2 ? 2000 : 500));
+      double aiWeeklyWages = club.players.fold(0.0, (sum, p) => sum + p.weeklyWage);
+
+      club.balance += baseWeeklyIncome + matchdayIncome;
+      club.balance -= aiWeeklyWages;
+      club.balance = max(0, club.balance); // Prevent negative balance for now
+
+      // 2. Fan Count Fluctuation
+      // TODO: Adjust fan count based on results, reputation, league position
+
+      // 3. Transfer Logic (Offers for Players)
+      // TODO: AI identifies transfer targets (player academy, rivals, other AI)
+      // TODO: AI decides offer amount based on value and budget
+      // TODO: AI makes offers (add to a central offer list or handle directly?)
+
+      // 4. Transfer Logic (Responding to Offers)
+      // TODO: AI decides whether to accept/reject offers for their own players
+
+      // 5. Player Training/Development (Simplified)
+      // TODO: Basic skill improvement chance for AI players (similar to rivals?)
+      double trainingEffectiveness = (club.skillLevel / 100.0); // Simple skill-based training
+      for (var player in club.players) {
+        if (player.currentSkill < player.potentialSkill) {
+          double improveChance = 0.015 * trainingEffectiveness; // Lower base chance than rivals?
+          if (_random.nextDouble() < improveChance) {
+            player.currentSkill++;
+          }
+        }
+        // Simple fatigue recovery for AI club players
+        player.fatigue = (player.fatigue - (5.0 + (player.stamina / 15.0))).clamp(0.0, 100.0);
+      }
+
+
+      // 6. Recalculate Skill Level periodically
+      if (_currentDate.weekday == DateTime.monday) { // Example: Recalculate weekly
+          club.updateSkillLevel();
+      }
+    }
+  }
+  // --- END AI Club Actions ---
 
   // --- State Modification Methods ---
   void _calculateWeeklyWages() {
@@ -763,8 +874,13 @@ class GameStateManager with ChangeNotifier {
             }
 
             Staff? playerManager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
-            // Simulate the match
-            match.simulateDetailed(homeLineup, awayLineup, playerManager: (match.homeTeamId == playerAcademyId || match.awayTeamId == playerAcademyId) ? playerManager : null);
+            // Simulate the match, passing whether it's a knockout game
+            match.simulateDetailed(
+              homeLineup,
+              awayLineup,
+              isKnockout: tournament.format == TournamentFormat.Knockout, // Pass knockout status
+              playerManager: (match.homeTeamId == playerAcademyId || match.awayTeamId == playerAcademyId) ? playerManager : null
+            );
 
             _updatePlayerStatsAndFatigue(match, homeLineup, awayLineup); // Updates player academy players
             _updateRivalFatigue(match, homeLineup, awayLineup); // Update rival fatigue
@@ -806,26 +922,9 @@ class GameStateManager with ChangeNotifier {
                 }
             }
         }
+        // --- Premature Completion Check REMOVED ---
+        // The logic below in "Generate Next Knockout Rounds" handles completion correctly.
 
-        // --- Check for Tournament Completion (All matches simulated) ---
-        // Explicitly type 'm' as Match
-        bool allMatchesSimulated = tournament.matches.every((Match m) => m.isSimulated);
-        if (allMatchesSimulated) {
-          print("All matches for tournament ${tournament.name} are simulated.");
-          // If knockout, the winner might already be set by generateNextKnockoutRound
-          if (tournament.status != TournamentStatus.Completed) { // Avoid double completion
-             tournament.status = TournamentStatus.Completed;
-             completedOrCancelledTournamentsThisWeek.add(tournament);
-             // Remove tournament ID from participating rivals
-             for (var participantId in tournament.teamIds) {
-                if (participantId != playerAcademyId) {
-                   _rivalAcademyMap[participantId]?.activeTournamentIds.remove(tournament.id);
-                }
-             }
-             // Award prize money etc.
-             _handleTournamentCompletion(tournament);
-          }
-        }
       } // End if InProgress
     } // End tournament loop
 
@@ -1304,90 +1403,196 @@ class GameStateManager with ChangeNotifier {
 
   // Generate Transfer Offers
   void _generateTransferOffers() {
+    print("--- DEBUG: Starting _generateTransferOffers ---");
     _transferOffers.clear(); // Clear previous offers
     // Only generate offers if not in Hardcore mode? Or make them rarer/lower value?
     // For now, let's keep generating them but maybe rivals can also bid later.
     if (_difficulty == Difficulty.Hardcore) {
-        // print("Transfer offers disabled in Hardcore mode (for now)."); // Less verbose
+        print("--- DEBUG: Skipping transfer offers due to Hardcore difficulty. ---");
         return; // Skip offer generation in Hardcore for simplicity initially
     }
 
     final random = Random();
+    print("--- DEBUG: Iterating through ${_academyPlayers.length} academy players for offers ---");
     for (var player in _academyPlayers) {
-      // Chance based on player rep and academy rep
-      double offerChance = ((player.reputation / 500.0) + (_academyReputation / 1000.0)).clamp(0.0, 0.2); // Max 20% chance per player per week
-      if (random.nextDouble() < offerChance) {
-        // Offer comes from a random rival academy
-        if (_rivalAcademies.isEmpty) continue; // No rivals to make offers
-        RivalAcademy offeringAcademy = _rivalAcademies[random.nextInt(_rivalAcademies.length)];
+      print("--- DEBUG: Considering player ${player.name} (ID: ${player.id}) ---");
+      // --- NEW Offer Chance Calculation ---
+      double baseChance = 0.01; // Small base chance
+      // Skill Factor (higher skill = much higher chance)
+      double skillFactor = pow(player.currentSkill / 100.0, 2) * 0.45; // Exponential based on skill, up to 0.45
+      // Potential Factor (higher potential = higher chance)
+      double potentialFactor = pow(player.potentialSkill / 100.0, 2) * 0.23; // Exponential based on potential, up to 0.23
+      // Age Factor (huge bonus for young players 15-18)
+      double ageFactor = 0.0;
+      if (player.age <= 18) {
+        ageFactor = (19 - player.age) * 0.05; // Up to 0.6 bonus for 15yo (19-15)*0.05
+      } else if (player.age <= 21) {
+        ageFactor = (22 - player.age) * 0.015; // Smaller bonus for 19-21yo
+      }
+      // Reputation Multiplier (modest impact)
+      double repMultiplier = (player.reputation / 500.0) * (1.0 + _academyReputation / 1000.0);
+      repMultiplier = repMultiplier.clamp(0.0, 1.5); // Clamp multiplier effect
 
-        int marketValue = player.calculateMarketValue();
-        double offerMultiplier = 0.7 + random.nextDouble() * 0.5; // Offer between 70% and 120% of market value
+      // Combine factors
+      double combinedChance = (baseChance + skillFactor + potentialFactor + ageFactor) * repMultiplier;
+      // Clamp final chance (e.g., max 50% per week for exceptional talents)
+      double offerChance = combinedChance.clamp(0.005, 0.50); // Min 0.5%, Max 50%
+
+      // --- END NEW Offer Chance Calculation ---
+
+      if (random.nextDouble() < offerChance) {
+        int marketValue = player.calculateMarketValue(); // Calculate value needed for filtering/weighting
+
+        // --- MODIFIED: Weighted Selection of Offering AI Club ---
+        List<AIClub> potentialBidders = _aiClubs.where((club) {
+          // Filter: Must be able to afford minimum offer (70% market value)
+          // Filter: Club tier should be appropriate (e.g., higher tier clubs bid for better players)
+          // Filter: Club reputation vs player reputation
+          bool canAfford = club.balance >= marketValue * 0.7;
+          // Simple tier logic: Higher tier clubs are more likely interested in higher skill players
+          bool tierMatch = (club.tier == 1 && player.currentSkill > 60) ||
+                           (club.tier == 2 && player.currentSkill > 45) ||
+                           (club.tier == 3 && player.currentSkill > 30);
+          // Reputation logic: Club rep should generally be higher than player rep
+          bool repMatch = club.reputation > player.reputation - 20;
+
+          return canAfford && tierMatch && repMatch;
+        }).toList();
+
+        if (potentialBidders.isEmpty) {
+            // print("--- DEBUG: No suitable AI club bidders found for ${player.name} ---"); // Verbose
+            continue; // No AI clubs meet criteria
+        }
+
+        // Calculate weights based on tier, reputation, and balance
+        Map<AIClub, double> bidderWeights = {};
+        double totalWeight = 0;
+        for (var club in potentialBidders) {
+          // Weight: Higher tier = higher weight, Reputation bonus, Balance bonus (relative to 1M)
+          double tierWeight = (4 - club.tier) * 50.0; // Tier 1=150, Tier 2=100, Tier 3=50
+          double repWeight = club.reputation * 0.5;
+          double balanceWeight = (club.balance / 1000000.0).clamp(0.1, 1.0) * 50.0; // Up to 50 bonus based on balance
+          double weight = tierWeight + repWeight + balanceWeight;
+          weight = max(1.0, weight); // Ensure minimum weight
+          bidderWeights[club] = weight;
+          totalWeight += weight;
+        }
+
+        if (totalWeight <= 0) continue; // Avoid division by zero
+
+        // Select bidder based on weight
+        double roll = random.nextDouble() * totalWeight;
+        double cumulativeWeight = 0;
+        AIClub? selectedBidder; // Use nullable type
+
+        for (var entry in bidderWeights.entries) {
+          cumulativeWeight += entry.value;
+          if (roll <= cumulativeWeight) {
+            selectedBidder = entry.key;
+            break;
+          }
+        }
+        selectedBidder ??= potentialBidders.last; // Fallback
+
+        AIClub offeringClub = selectedBidder;
+        // --- END: Weighted Selection ---
+
+        // Offer Amount Calculation (similar, but maybe AI clubs offer slightly more?)
+        double offerMultiplier = 0.75 + random.nextDouble() * 0.6; // Offer between 75% and 135% of market value
         int offerAmount = (marketValue * offerMultiplier).round();
         offerAmount = max(100, offerAmount); // Ensure minimum offer
 
-        // Check if the offering academy can afford it (simple check)
-        if (offeringAcademy.balance >= offerAmount) {
+        // Check if the offering club can *still* afford it (redundant check, but safe)
+        if (offeringClub.balance >= offerAmount) {
             _transferOffers.add({
                 'playerId': player.id,
                 'playerName': player.name,
-                'offeringClubName': offeringAcademy.name, // Use academy name
-                'offeringClubId': offeringAcademy.id, // Store ID for potential future logic
+                'offeringClubName': offeringClub.name, // Use AI club name
+                'offeringClubId': offeringClub.id, // Store AI club ID
                 'offerAmount': offerAmount,
+                'isAIClubOffer': true, // Flag to distinguish from potential future rival offers
             });
-            // print("Generated transfer offer for ${player.name} (Value: $marketValue) from ${offeringAcademy.name} for $offerAmount"); // Less verbose
-            _addNewsItem(NewsItem.create(title: "Transfer Offer Received", description: "${offeringAcademy.name} has made an offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name}.", type: NewsItemType.TransferOffer, date: _currentDate));
+            // print("Generated transfer offer for ${player.name} (Value: $marketValue) from AI Club ${offeringClub.name} for $offerAmount"); // Less verbose
+            _addNewsItem(NewsItem.create(title: "Transfer Offer Received", description: "${offeringClub.name} has made an offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name}.", type: NewsItemType.TransferOffer, date: _currentDate));
         } else {
-             // print(" -> ${offeringAcademy.name} wanted to bid for ${player.name} but couldn't afford \$${offerAmount}."); // Verbose
+             // print(" -> AI Club ${offeringClub.name} wanted to bid for ${player.name} but couldn't afford \$${offerAmount}."); // Verbose
         }
       }
     }
+     print("--- DEBUG: Finished _generateTransferOffers. Found ${_transferOffers.length} offers. ---");
   }
 
-  // Accept Transfer Offer
+  // Accept Transfer Offer (MODIFIED to handle AI Clubs)
   void acceptTransferOffer(Map<String, dynamic> offer) {
-    String playerId = offer['playerId']; int offerAmount = offer['offerAmount'];
-    String offeringClubId = offer['offeringClubId']; // Get the rival ID
+    String playerId = offer['playerId'];
+    int offerAmount = offer['offerAmount'];
+    String offeringClubId = offer['offeringClubId'];
+    bool isAIClubOffer = offer['isAIClubOffer'] ?? false; // Check if it's an AI club
 
     Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId);
-    RivalAcademy? buyingAcademy = _rivalAcademyMap[offeringClubId];
 
-    if (player != null && buyingAcademy != null) {
-      // Check if buyer can still afford it (in case their balance changed)
-      if (buyingAcademy.balance >= offerAmount) {
-          unassignPlayerFromAnyCoach(playerId); // Unassign from player's coach
-
-          // Player academy gains money
-          _balance += offerAmount;
-
-          // Buying academy loses money and gains player
-          buyingAcademy.balance -= offerAmount;
-          // IMPORTANT: Create a *copy* or adjust ID if needed, or handle potential ID conflicts.
-          // For now, just add the player object. Consider implications if player IDs aren't globally unique.
-          // Let's assume player IDs are unique for now.
-          buyingAcademy.players.add(player);
-
-          // Remove player from player's academy
-          _academyPlayers.removeWhere((p) => p.id == playerId);
-
-          _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove this offer
-          _calculateWeeklyWages(); // Recalculate player wages
-
-          print("Accepted transfer offer for ${player.name}. Received $offerAmount. Balance: $_balance");
-          print(" -> ${buyingAcademy.name} signed ${player.name}. New Balance: ${buyingAcademy.balance}. Player Count: ${buyingAcademy.players.length}");
-
-          _addNewsItem(NewsItem.create(title: "Transfer Accepted", description: "We accepted the offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name} from ${offer['offeringClubName']}.", type: NewsItemType.TransferDecision, date: _currentDate));
-          notifyListeners();
-      } else {
-          print("Error: ${buyingAcademy.name} can no longer afford the offer of $offerAmount for ${player.name}. Rejecting offer.");
-          rejectTransferOffer(offer); // Reject if they can't afford it anymore
-      }
-    } else {
-        print("Error accepting transfer: Player or Buying Academy not found.");
-         _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove invalid offer
-         notifyListeners();
+    if (player == null) {
+        print("Error accepting transfer: Player $playerId not found.");
+        _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove invalid offer
+        notifyListeners();
+        return;
     }
-  }
+
+    dynamic buyingEntity; // Can be RivalAcademy or AIClub
+    bool canAfford = false;
+    String buyerName = "Unknown Buyer";
+
+    if (isAIClubOffer) {
+        AIClub? buyingClub = _aiClubMap[offeringClubId];
+        if (buyingClub != null) {
+            buyingEntity = buyingClub;
+            canAfford = buyingClub.balance >= offerAmount;
+            buyerName = buyingClub.name;
+        }
+    } else {
+        // Handle Rival Academy offers (if re-enabled later)
+        RivalAcademy? buyingAcademy = _rivalAcademyMap[offeringClubId];
+         if (buyingAcademy != null) {
+            buyingEntity = buyingAcademy;
+            canAfford = buyingAcademy.balance >= offerAmount;
+            buyerName = buyingAcademy.name;
+        }
+    }
+
+    if (buyingEntity == null) {
+        print("Error accepting transfer: Buying entity $offeringClubId not found (isAIClubOffer: $isAIClubOffer).");
+        _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove invalid offer
+        notifyListeners();
+        return;
+    }
+
+    if (canAfford) {
+        unassignPlayerFromAnyCoach(playerId); // Unassign from player's coach
+
+        // Player academy gains money
+        _balance += offerAmount;
+
+        // Buying entity loses money and gains player
+        buyingEntity.balance -= offerAmount;
+        // IMPORTANT: Add player to the correct list
+        buyingEntity.players.add(player);
+
+        // Remove player from player's academy
+        _academyPlayers.removeWhere((p) => p.id == playerId);
+
+        _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove this offer
+        _calculateWeeklyWages(); // Recalculate player wages
+
+        print("Accepted transfer offer for ${player.name}. Received $offerAmount. Balance: $_balance");
+        print(" -> $buyerName signed ${player.name}. New Balance: ${buyingEntity.balance}. Player Count: ${buyingEntity.players.length}");
+
+        _addNewsItem(NewsItem.create(title: "Transfer Accepted", description: "We accepted the offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name} from $buyerName.", type: NewsItemType.TransferDecision, date: _currentDate));
+        notifyListeners();
+    } else {
+        print("Error: $buyerName can no longer afford the offer of $offerAmount for ${player.name}. Rejecting offer.");
+        rejectTransferOffer(offer); // Reject if they can't afford it anymore
+    }
+  } // <-- ADD THIS MISSING BRACE
 
   void rejectTransferOffer(Map<String, dynamic> offer) {
      _transferOffers.removeWhere((o) => o['playerId'] == offer['playerId']);
@@ -1499,6 +1704,7 @@ class GameStateManager with ChangeNotifier {
         difficulty: _difficulty,
         themeMode: _themeMode,
         rivalAcademies: _rivalAcademies, // Save Rivals
+        aiClubs: _aiClubs, // <-- Add missing required argument
       );
       final jsonMap = gameStateToSave.toJson();
       final jsonString = jsonEncode(jsonMap);
@@ -1595,16 +1801,21 @@ class GameStateManager with ChangeNotifier {
       _difficulty = loadedState.difficulty;
       _themeMode = loadedState.themeMode;
       _rivalAcademies = loadedState.rivalAcademies; // Load Rivals
+      _aiClubs = loadedState.aiClubs; // <-- ADD: Load AI Clubs (This was missing)
 
       // Regenerate/reset transient state
       _scoutedPlayers.clear();
       _transferOffers.clear();
       _generateInitialAvailableStaff(); // Regenerate available staff pool
       _generateInitialTournamentTemplates(); // Regenerate templates
-      // Repopulate map from loaded list
+      // Repopulate maps from loaded lists
       _rivalAcademyMap.clear();
       for (var academy in _rivalAcademies) { _rivalAcademyMap[academy.id] = academy; }
-      _updateStaffCapsFromFacilities(); // Recalculate caps based on loaded levels
+      _aiClubMap.clear(); // <-- ADD: Clear AI Club map before repopulating
+      for (var club in _aiClubs) { // <-- ADD: Repopulate AI Club map
+           _aiClubMap[club.id] = club;
+      }
+      _updateStaffCapsFromFacilities();
 
       print("--- GAME STATE LOADED successfully ---");
       notifyListeners();

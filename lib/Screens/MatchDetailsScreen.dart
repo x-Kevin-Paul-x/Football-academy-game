@@ -197,6 +197,14 @@ class MatchDetailsScreen extends StatelessWidget {
           //    description = 'Chance Missed ($teamName)';
           //    break;
           // --- End undefined cases ---
+          case MatchEventType.PenaltyShootout: // Added case
+            icon = Icons.sports_soccer; // Use soccer ball icon
+            // Color based on outcome (assuming description contains 'scored' or 'missed')
+            iconColor = event.description.toLowerCase().contains('scored')
+                ? Colors.green.shade600
+                : Colors.red.shade600;
+            description = event.description; // Use the full description from the event
+            break;
           case MatchEventType.Info: // Keep default icon/color
             break;
           // No default needed if all cases are handled

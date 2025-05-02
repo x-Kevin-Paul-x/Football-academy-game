@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:math';
 import 'package:uuid/uuid.dart';
+import '../utils/name_generator.dart'; // <-- Import NameGenerator
 
 part 'staff.g.dart';
 
@@ -54,7 +55,7 @@ class Staff {
 
     return Staff(
       id: id,
-      name: _generateRandomName(random),
+      name: NameGenerator.generatePlayerName(), // <-- Use NameGenerator
       role: role,
       skill: skill,
       weeklyWage: wage,
@@ -66,11 +67,6 @@ class Staff {
     );
   }
 
-  static String _generateRandomName(Random random) {
-    const List<String> firstNames = ['Alex', 'Ben', 'Chris', 'David', 'Ethan', 'Frank', 'George', 'Harry', 'Ian', 'Jack', 'Kevin', 'Liam', 'Mike', 'Noah', 'Owen', 'Paul', 'Quinn', 'Ryan', 'Sam', 'Tom', 'Vince', 'Will'];
-    const List<String> lastNames = ['Smith', 'Jones', 'Taylor', 'Brown', 'Williams', 'Wilson', 'Evans', 'Thomas', 'Roberts', 'Johnson', 'Lewis', 'Walker', 'Robinson', 'Wood', 'Thompson', 'White', 'Watson', 'Jackson', 'Wright'];
-    return '${firstNames[random.nextInt(firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
-  }
 
 
   factory Staff.fromJson(Map<String, dynamic> json) => _$StaffFromJson(json);

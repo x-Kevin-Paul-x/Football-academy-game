@@ -8,6 +8,8 @@ import '../models/match.dart' hide GameStateManager; // Hide dummy GameStateMana
 import '../models/rival_academy.dart'; // Use RivalAcademy instead of AIClub
 import '../models/player.dart'; // Import Player
 import 'MatchDetailsScreen.dart'; // Import the new screen
+import 'dart:math' as math;
+
 
 class TournamentDetailsScreen extends StatelessWidget {
   // Removed constructor arguments that are now fetched via Provider
@@ -174,7 +176,8 @@ class TournamentDetailsScreen extends StatelessWidget {
                    padding: EdgeInsets.all(16.0),
                    child: Text("Knockout Bracket display coming soon!", style: TextStyle(fontStyle: FontStyle.italic)),
                  )),
-                 // Optionally, still show matches grouped by round here later
+                 // Replace placeholder with the actual bracket widget
+                 _buildKnockoutBracket(context, tournament, gameStateManager),
               ],
               // --- End Conditional ---
 
@@ -184,6 +187,172 @@ class TournamentDetailsScreen extends StatelessWidget {
       },
     );
   }
+
+  // --- Knockout Bracket Visualization ---
+
+  Widget _buildKnockoutBracket(BuildContext context, Tournament tournament, GameStateManager gameState) {
+    final matchesByRound = groupBy(tournament.matches, (Match match) => match.round);
+    // Find the highest round number, default to 0 if no matches
+    // Use math.max explicitly
+    final maxRound = matchesByRound.keys.isNotEmpty ? matchesByRound.keys.reduce(math.max) : 0;
+    final List<Widget> roundColumns = [];
+
+    // Add title for each round column
+    List<Widget> buildRoundColumn(int round, List<Match> roundMatches) {
+        final List<Widget> matchWidgets = [];
+        matchWidgets.add(
+            Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Text('Round $round', style: Theme.of(context).textTheme.titleMedium),
+            )
+        );
+
+        // Get byes specifically for *this* round from the historical map
+        List<String> byesInThisRound = tournament.roundByes[round] ?? [];
+        for (String byeTeamId in byesInThisRound) {
+           matchWidgets.add(_buildByeCard(context, byeTeamId, gameState));
+           matchWidgets.add(const SizedBox(height: 16)); // Spacing after bye
+        }
+
+        // Add match cards
+        for (var match in roundMatches) {
+            matchWidgets.add(_buildMatchCard(context, match, gameState));
+            matchWidgets.add(const SizedBox(height: 16)); // Spacing between matches
+        }
+        return matchWidgets;
+    }
+
+
+    for (int round = 1; round <= maxRound; round++) {
+      final roundMatches = matchesByRound[round] ?? [];
+      roundColumns.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0), // Spacing between rounds
+          // Using IntrinsicWidth might be needed if column widths vary too much, but can be less performant.
+          // Let's try without it first.
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            // Use MainAxisAlignment.spaceAround or similar if vertical alignment is off
+            children: buildRoundColumn(round, roundMatches),
+          ),
+        )
+      );
+    }
+
+    // Handle case where no matches are generated yet (e.g., tournament just scheduled)
+    if (maxRound == 0 && tournament.status != TournamentStatus.Completed) {
+        return const Center(child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text("Matches will be generated when the tournament starts.", style: TextStyle(fontStyle: FontStyle.italic)),
+        ));
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start, // Align tops of round columns
+          children: roundColumns,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMatchCard(BuildContext context, Match match, GameStateManager gameState) {
+    final homeTeamName = _getTeamName(context, match.homeTeamId, gameState);
+    final awayTeamName = _getTeamName(context, match.awayTeamId, gameState);
+    final bool isPlayerHome = match.homeTeamId == GameStateManager.playerAcademyId;
+    final bool isPlayerAway = match.awayTeamId == GameStateManager.playerAcademyId;
+    final winnerId = match.winnerId; // Get winner ID
+
+    // Determine winner name if match is simulated and winner exists
+    String winnerText = '';
+    if (match.isSimulated && winnerId != null) {
+      winnerText = 'Winner: ${_getTeamName(context, winnerId, gameState)}';
+    } else if (match.isSimulated && winnerId == null && match.result == MatchResult.draw) {
+        // Handle draws if they are possible in knockout (though typically they shouldn't decide progression)
+        winnerText = 'Draw'; // Or handle penalty shootout logic if implemented
+    }
+
+    return InkWell( // Wrap card in InkWell for navigation
+      onTap: match.isSimulated ? () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MatchDetailsScreen(
+              tournamentId: match.tournamentId, // Use match.tournamentId
+              matchId: match.id,
+            ),
+          ),
+        );
+      } : null,
+      child: Card(
+        elevation: 2,
+        margin: EdgeInsets.zero, // Remove card's default margin
+        child: Container(
+          width: 180, // Fixed width for cards
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Make column take minimum space
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text(homeTeamName, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: isPlayerHome ? FontWeight.bold : FontWeight.normal))),
+                  Text(match.isSimulated ? '${match.homeScore}' : '-', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 4), // Reduced spacing
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(child: Text(awayTeamName, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: isPlayerAway ? FontWeight.bold : FontWeight.normal))),
+                  Text(match.isSimulated ? '${match.awayScore}' : '-', style: const TextStyle(fontWeight: FontWeight.bold)),
+                ],
+              ),
+              if (winnerText.isNotEmpty)
+                 Padding(
+                   padding: const EdgeInsets.only(top: 6.0),
+                   child: Text(
+                     winnerText,
+                     style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.grey[700]),
+                     overflow: TextOverflow.ellipsis,
+                     textAlign: TextAlign.center,
+                   ),
+                 )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildByeCard(BuildContext context, String teamId, GameStateManager gameState) {
+      final teamName = _getTeamName(context, teamId, gameState);
+      final bool isPlayer = teamId == GameStateManager.playerAcademyId;
+      return Card(
+          elevation: 1,
+          margin: EdgeInsets.zero,
+          // Use theme color instead of hardcoded grey
+          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+          child: Container(
+              width: 180,
+              height: 60, // Give it some minimum height
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                  child: Text(
+                      '$teamName (Bye)',
+                      style: TextStyle(fontStyle: FontStyle.italic, fontWeight: isPlayer ? FontWeight.bold : FontWeight.normal),
+                      overflow: TextOverflow.ellipsis,
+                  )
+              ),
+          ),
+      );
+  }
+
+  // --- End Knockout Bracket ---
+
 
   // Calculate and build standings table
   Widget _buildStandingsTable(BuildContext context, Tournament tournament, List<Match> matches, GameStateManager gameState) { // Accept context, tournament, matches, gameState

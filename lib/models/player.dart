@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:json_annotation/json_annotation.dart'; // Added for JSON serialization
 import 'player_status.dart'; // Import PlayerStatus
 import 'tournament.dart'; // Import TournamentType
+import '../utils/name_generator.dart'; // <-- Import the name generator
 
 part 'player.g.dart'; // Added for generated code
 
@@ -62,10 +63,10 @@ class Player {
   // Factory constructor for generating random scouted players
   factory Player.randomScoutedPlayer(String id) {
     final random = Random();
-    List<String> firstNames = ['Alex', 'Ben', 'Chris', 'David', 'Ethan', 'Finn', 'George', 'Harry', 'Ian', 'Jack'];
-    List<String> lastNames = ['Smith', 'Jones', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson'];
+    // List<String> firstNames = ['Alex', 'Ben', 'Chris', 'David', 'Ethan', 'Finn', 'George', 'Harry', 'Ian', 'Jack']; // Removed old lists
+    // List<String> lastNames = ['Smith', 'Jones', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson']; // Removed old lists
 
-    String name = '${firstNames[random.nextInt(firstNames.length)]} ${lastNames[random.nextInt(lastNames.length)]}';
+    String name = NameGenerator.generatePlayerName(); // <-- Use NameGenerator
     int age = 15 + random.nextInt(4); // Young players: 15-18
     PlayerPosition position = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
     int potentialSkill = 50 + random.nextInt(41); // Potential between 50-90
@@ -105,7 +106,7 @@ class Player {
   // --- ADDED: Calculate Market Value ---
   int calculateMarketValue() {
     // Base value primarily on current skill
-    double baseValue = pow(currentSkill, 2.5) * 10;
+    double baseValue = pow(currentSkill, 2) * 10;
 
     // Age modifier: Higher value for younger players, peaks around 24-27, then declines
     double ageModifier;
@@ -118,7 +119,7 @@ class Player {
     } else {
       ageModifier = 0.6 - (age - 33) * 0.1; // Steeper decline for older players
     }
-    ageModifier = ageModifier.clamp(0.1, 1.5); // Ensure modifier stays within bounds
+    ageModifier = ageModifier.clamp(0.1, 1.3); // Ensure modifier stays within bounds
 
     // Potential modifier: Adds value, especially significant for younger players
     double potentialGap = (potentialSkill - currentSkill).toDouble();
