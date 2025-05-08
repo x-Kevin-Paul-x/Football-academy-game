@@ -15,6 +15,7 @@ enum NewsItemType {
   Facility,
   PlayerSigned, // A scouted player was signed to the academy
   Tournament, // Added for tournament-related news (scheduled, started, finished, cancelled)
+  LeagueUpdate, // Promotion/Relegation news
   Generic, // Default
 }
 

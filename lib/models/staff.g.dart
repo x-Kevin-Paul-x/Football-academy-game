@@ -19,6 +19,13 @@ Staff _$StaffFromJson(Map<String, dynamic> json) => Staff(
           ?.map((e) => e as String)
           .toList(),
       maxPlayersTrainable: (json['maxPlayersTrainable'] as num?)?.toInt(),
+      knownFormations: (json['knownFormations'] as List<dynamic>?)
+          ?.map((e) => $enumDecode(_$FormationTypeEnumMap, e))
+          .toList(),
+      preferredFormation: json['preferredFormation'] == null
+          ? null
+          : Formation.fromJson(
+              json['preferredFormation'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
@@ -32,6 +39,10 @@ Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
       'age': instance.age,
       'assignedPlayerIds': instance.assignedPlayerIds,
       'maxPlayersTrainable': instance.maxPlayersTrainable,
+      'knownFormations': instance.knownFormations
+          .map((e) => _$FormationTypeEnumMap[e]!)
+          .toList(),
+      'preferredFormation': instance.preferredFormation?.toJson(),
     };
 
 const _$StaffRoleEnumMap = {
@@ -39,4 +50,22 @@ const _$StaffRoleEnumMap = {
   StaffRole.Coach: 'Coach',
   StaffRole.Scout: 'Scout',
   StaffRole.Physio: 'Physio',
+};
+
+const _$FormationTypeEnumMap = {
+  FormationType.F442: 'F442',
+  FormationType.F433: 'F433',
+  FormationType.F352: 'F352',
+  FormationType.F532: 'F532',
+  FormationType.F4231: 'F4231',
+  FormationType.F4141: 'F4141',
+  FormationType.F231: 'F231',
+  FormationType.F321: 'F321',
+  FormationType.F132: 'F132',
+  FormationType.F121: 'F121',
+  FormationType.F211: 'F211',
+  FormationType.F112: 'F112',
+  FormationType.F111: 'F111',
+  FormationType.F21: 'F21',
+  FormationType.F12: 'F12',
 };

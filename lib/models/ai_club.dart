@@ -15,6 +15,7 @@ class AIClub {
   int tier; // League tier (e.g., 1 = top, 2 = middle, 3 = bottom)
   int fanCount;
   double ticketPrice;
+  List<String> activeTournamentIds; // NEW: Track active tournaments
 
   AIClub({
     required this.id,
@@ -26,7 +27,8 @@ class AIClub {
     required this.tier,
     required this.fanCount,
     required this.ticketPrice,
-  });
+    List<String>? activeTournamentIds, // Optional parameter
+  }) : this.activeTournamentIds = activeTournamentIds ?? []; // Initialize with empty list if null
 
   // Factory constructor for JSON deserialization
   factory AIClub.fromJson(Map<String, dynamic> json) => _$AIClubFromJson(json);
@@ -39,7 +41,7 @@ class AIClub {
     final random = Random();
     String generatedName = _generateClubName(index, random);
     // Tier influences initial stats significantly
-    int baseReputation = 50 + (3 - initialTier) * 50 + random.nextInt(51); // Tier 1: 150-200, Tier 2: 100-150, Tier 3: 50-100
+    int baseReputation = 150 + (3 - initialTier) * 50 + random.nextInt(51); // Tier 1: 150-200, Tier 2: 100-150, Tier 3: 50-100
     double initialBalance = 100000.0 + (3 - initialTier) * 200000.0 + random.nextDouble() * 100000.0; // Tier 1: 300k-400k, Tier 2: 200k-300k, Tier 3: 100k-200k
     int initialSkill = 30 + (3 - initialTier) * 20 + random.nextInt(21); // Tier 1: 70-90, Tier 2: 50-70, Tier 3: 30-50
     int initialFanCount = 1000 + (3 - initialTier) * 5000 + random.nextInt(2001); // Tier 1: 11k-13k, Tier 2: 6k-8k, Tier 3: 1k-3k
@@ -55,6 +57,7 @@ class AIClub {
       tier: initialTier,
       fanCount: initialFanCount.clamp(500, 50000), // Clamp fan count
       ticketPrice: initialTicketPrice.clamp(5.0, 100.0), // Clamp ticket price
+      activeTournamentIds: [], // Initialize as empty list
     );
   }
 

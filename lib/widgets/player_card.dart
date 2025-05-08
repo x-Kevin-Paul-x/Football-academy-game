@@ -43,8 +43,8 @@ class PlayerCard extends StatelessWidget {
                 ),
                 Chip(
                   label: Text(player.positionString),
-                  backgroundColor: _getPositionColor(player.position).withOpacity(0.2),
-                  labelStyle: TextStyle(color: _getPositionColor(player.position), fontWeight: FontWeight.bold),
+                  backgroundColor: _getPositionColor(player.naturalPosition).withOpacity(0.2),
+                  labelStyle: TextStyle(color: _getPositionColor(player.naturalPosition), fontWeight: FontWeight.bold),
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   visualDensity: VisualDensity.compact,
                 ),

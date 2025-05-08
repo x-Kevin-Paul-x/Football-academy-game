@@ -5,7 +5,6 @@ import 'package:provider/provider.dart'; // Import Provider
 import '../game_state_manager.dart'; // Import GameStateManager
 import '../models/tournament.dart';
 import '../models/match.dart' hide GameStateManager; // Hide dummy GameStateManager
-import '../models/rival_academy.dart'; // Use RivalAcademy instead of AIClub
 import '../models/player.dart'; // Import Player
 import 'MatchDetailsScreen.dart'; // Import the new screen
 import 'dart:math' as math;
@@ -24,10 +23,12 @@ class TournamentDetailsScreen extends StatelessWidget {
   String _getTeamName(BuildContext context, String teamId, GameStateManager gameState) {
     if (teamId == GameStateManager.playerAcademyId) {
       return gameState.academyName;
-    } else {
-      // Use rivalAcademyMap from GameStateManager
-      return gameState.rivalAcademyMap[teamId]?.name ?? 'Unknown Rival';
     }
+    // --- MODIFIED: Check AI Clubs as well ---
+    return gameState.rivalAcademyMap[teamId]?.name ??
+           gameState.aiClubMap[teamId]?.name ?? // Check AI Club map
+           'Unknown Team'; // Fallback
+    // --- END MODIFIED ---
   }
 
   @override
@@ -355,12 +356,16 @@ class TournamentDetailsScreen extends StatelessWidget {
 
 
   // Calculate and build standings table
+  // Calculate and build standings table
   Widget _buildStandingsTable(BuildContext context, Tournament tournament, List<Match> matches, GameStateManager gameState) { // Accept context, tournament, matches, gameState
     // Calculate points: 3 for win, 1 for draw, 0 for loss
     Map<String, int> points = {};
     Map<String, int> goalsFor = {};
     Map<String, int> goalsAgainst = {};
     Map<String, int> matchesPlayed = {};
+    Map<String, int> wins = {}; // Declare Wins map
+    Map<String, int> draws = {}; // Declare Draws map
+    Map<String, int> losses = {}; // Declare Losses map
 
     // Initialize maps for all unique participants to avoid issues with potential duplicates in the source list
     Set<String> uniqueParticipants = tournament.teamIds.toSet(); // Use teamIds, Ensure uniqueness
@@ -369,6 +374,9 @@ class TournamentDetailsScreen extends StatelessWidget {
       goalsFor[teamId] = 0;
       goalsAgainst[teamId] = 0;
       matchesPlayed[teamId] = 0;
+      wins[teamId] = 0; // Initialize Wins
+      draws[teamId] = 0; // Initialize Draws
+      losses[teamId] = 0; // Initialize Losses
     }
 
     // Tally results from matches
@@ -383,7 +391,6 @@ class TournamentDetailsScreen extends StatelessWidget {
         matchesPlayed[match.awayTeamId] = matchesPlayed[match.awayTeamId]! + 1;
       }
 
-
       // Add goals (safety check)
       if (goalsFor.containsKey(match.homeTeamId)) {
         goalsFor[match.homeTeamId] = goalsFor[match.homeTeamId]! + match.homeScore;
@@ -394,25 +401,34 @@ class TournamentDetailsScreen extends StatelessWidget {
         goalsAgainst[match.awayTeamId] = goalsAgainst[match.awayTeamId]! + match.homeScore;
       }
 
-
-      // Award points (safety check)
+      // Award points and W/D/L (safety check)
       switch (match.result!) {
         case MatchResult.homeWin:
           if (points.containsKey(match.homeTeamId)) {
             points[match.homeTeamId] = points[match.homeTeamId]! + 3;
+            wins[match.homeTeamId] = wins[match.homeTeamId]! + 1; // Increment Home Wins
+          }
+          if (losses.containsKey(match.awayTeamId)) {
+            losses[match.awayTeamId] = losses[match.awayTeamId]! + 1; // Increment Away Losses
           }
           break;
         case MatchResult.awayWin:
            if (points.containsKey(match.awayTeamId)) {
             points[match.awayTeamId] = points[match.awayTeamId]! + 3;
+            wins[match.awayTeamId] = wins[match.awayTeamId]! + 1; // Increment Away Wins
+           }
+           if (losses.containsKey(match.homeTeamId)) {
+             losses[match.homeTeamId] = losses[match.homeTeamId]! + 1; // Increment Home Losses
            }
           break;
         case MatchResult.draw:
           if (points.containsKey(match.homeTeamId)) {
             points[match.homeTeamId] = points[match.homeTeamId]! + 1;
+            draws[match.homeTeamId] = draws[match.homeTeamId]! + 1; // Increment Home Draws
           }
-          if (points.containsKey(match.awayTeamId)) {
+          if (points.containsKey(match.awayTeamId)) { // Check points map, but increment draws map
             points[match.awayTeamId] = points[match.awayTeamId]! + 1;
+            draws[match.awayTeamId] = draws[match.awayTeamId]! + 1; // Increment Away Draws
           }
           break;
       }
@@ -434,21 +450,27 @@ class TournamentDetailsScreen extends StatelessWidget {
 
     // Build the table widget
     return DataTable(
-      columnSpacing: 15.0, // Adjust spacing
+      columnSpacing: 108.0, // Adjust spacing slightly
       columns: const [
-        DataColumn(label: Text('Pos')),
+        DataColumn(label: Text('Pos'), numeric: true),
         DataColumn(label: Text('Team')),
-        DataColumn(label: Text('MP')),
-        DataColumn(label: Text('GF')),
-        DataColumn(label: Text('GA')),
-        DataColumn(label: Text('GD')),
-        DataColumn(label: Text('Pts')),
+        DataColumn(label: Text('MP'), numeric: true),
+        DataColumn(label: Text('W'), numeric: true),  // Wins Column
+        DataColumn(label: Text('D'), numeric: true),  // Draws Column
+        DataColumn(label: Text('L'), numeric: true),  // Losses Column
+        DataColumn(label: Text('GF'), numeric: true),
+        DataColumn(label: Text('GA'), numeric: true),
+        DataColumn(label: Text('GD'), numeric: true),
+        DataColumn(label: Text('Pts'), numeric: true),
       ],
       rows: sortedTeamIds.asMap().entries.map((entry) {
         int index = entry.key;
         String teamId = entry.value;
         String teamName = _getTeamName(context, teamId, gameState); // Pass gameState
         int mp = matchesPlayed[teamId] ?? 0;
+        int w = wins[teamId] ?? 0; // Get Wins
+        int d = draws[teamId] ?? 0; // Get Draws
+        int l = losses[teamId] ?? 0; // Get Losses
         int gf = goalsFor[teamId] ?? 0;
         int ga = goalsAgainst[teamId] ?? 0;
         int gd = gf - ga;
@@ -462,13 +484,16 @@ class TournamentDetailsScreen extends StatelessWidget {
             },
           ),
           cells: [
-            DataCell(Text('${index + 1}')),
-            DataCell(Text(teamName, overflow: TextOverflow.ellipsis)),
-            DataCell(Text('$mp')),
-            DataCell(Text('$gf')),
-            DataCell(Text('$ga')),
-            DataCell(Text('$gd')),
-            DataCell(Text('$pts', style: const TextStyle(fontWeight: FontWeight.bold))),
+            DataCell(Text('${index + 1}')), // Pos
+            DataCell(Text(teamName, overflow: TextOverflow.ellipsis)), // Team
+            DataCell(Text('$mp')), // MP
+            DataCell(Text('$w')), // W Cell
+            DataCell(Text('$d')), // D Cell
+            DataCell(Text('$l')), // L Cell
+            DataCell(Text('$gf')), // GF
+            DataCell(Text('$ga')), // GA
+            DataCell(Text('$gd')), // GD
+            DataCell(Text('$pts', style: const TextStyle(fontWeight: FontWeight.bold))), // Pts
           ],
         );
       }).toList(),

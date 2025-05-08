@@ -5,11 +5,12 @@ import 'models/player.dart'; // Import Player model
 import 'models/staff.dart'; // Import Staff model
 import 'models/rival_academy.dart'; // Correct Import Path
 import 'models/ai_club.dart'; // <-- ADD: Import AIClub
+import 'models/formation.dart'; // <-- ADD: Import Formation
 import 'models/match_event.dart'; // Import MatchEventType
 import 'models/news_item.dart';
 import 'models/difficulty.dart'; // Import Difficulty enum
 import 'dart:math';
-import 'package:collection/collection.dart';
+import 'package:collection/collection.dart'; // <-- ADD: Import collection
 import 'package:flutter/material.dart'; // Import for ThemeMode
 import 'package:intl/intl.dart'; // Import for number formatting
 import 'utils/name_generator.dart'; // <-- Import NameGenerator
@@ -50,9 +51,19 @@ class File {
 */
 // --- End Stubs ---
 
+// --- Helper Class for Team Selection ---
+class MatchTeamSelection {
+  final Formation formation;
+  final List<Player> starters;
+  final List<Player> bench;
+
+  MatchTeamSelection({required this.formation, required this.starters, required this.bench});
+}
+// --- End Helper Class ---
+
 class GameStateManager with ChangeNotifier {
   // Core Game Time & State
-  DateTime _currentDate = DateTime(2025, 7, 1); // Starting date of the game
+  DateTime _currentDate = DateTime(2025, 1, 1); // Starting date of the game
   final Random _random = Random(); // Random number generator
   String _academyName = "My Academy";
   static const String playerAcademyId = 'player_academy_1'; // Unique ID for the player's academy
@@ -104,6 +115,7 @@ class GameStateManager with ChangeNotifier {
   // Settings
   Difficulty _difficulty = Difficulty.Normal;
   ThemeMode _themeMode = ThemeMode.system;
+  int _playerAcademyTier = 0; // 0 = Unranked, 1-3 = Tier
 
   // --- Getters ---
   DateTime get currentDate => _currentDate;
@@ -121,6 +133,10 @@ class GameStateManager with ChangeNotifier {
   // Rival Academy Getters
   List<RivalAcademy> get rivalAcademies => List<RivalAcademy>.unmodifiable(_rivalAcademies);
   Map<String, RivalAcademy> get rivalAcademyMap => Map<String, RivalAcademy>.unmodifiable(_rivalAcademyMap);
+  // AI Club Getters
+  List<AIClub> get aiClubs => List<AIClub>.unmodifiable(_aiClubs);
+  Map<String, AIClub> get aiClubMap => Map<String, AIClub>.unmodifiable(_aiClubMap); // <-- ADDED GETTER
+  // Facility Getters
   int get trainingFacilityLevel => _trainingFacilityLevel;
   int get scoutingFacilityLevel => _scoutingFacilityLevel;
   int get medicalBayLevel => _medicalBayLevel;
@@ -132,6 +148,7 @@ class GameStateManager with ChangeNotifier {
   List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
+  int get playerAcademyTier => _playerAcademyTier;
 
   // --- Save File Name / Key ---
   static const String _saveFileName = 'academy_save.json'; // Used for non-web
@@ -141,7 +158,9 @@ class GameStateManager with ChangeNotifier {
     _applyDifficultySettings(); // Apply difficulty first
     _generateInitialAvailableStaff();
     _populateRivalAcademyMap(); // Populate rivals based on difficulty
+    _populateAIClubs(); // <-- ADD: Populate AI Clubs
     _generateInitialTournamentTemplates(); // Generate tournament templates
+    _scheduleInitialProLeagues(); // <-- ADD: Schedule initial leagues
     _calculateWeeklyWages();
     _updateStaffCapsFromFacilities();
   }
@@ -198,12 +217,13 @@ class GameStateManager with ChangeNotifier {
             id: '${academy.id}_player_$i',
             name: 'Rival Player ${academy.id.split('_').last}-$i', // Simple generated name
             age: 15 + _random.nextInt(4),
-            position: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)],
-            currentSkill: currentSkill,
+            naturalPosition: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)], // Changed from position
+            // currentSkill: currentSkill, // Removed
             potentialSkill: potentialSkill,
             weeklyWage: 50 + _random.nextInt(101), // Low wages
             reputation: academy.reputation ~/ 5 + _random.nextInt(10), // Reputation based on academy
             stamina: 40 + _random.nextInt(41), // 40-80 stamina
+            preferredPositions: [PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]], // Add default preferred position
           )
         );
       }
@@ -230,24 +250,28 @@ class GameStateManager with ChangeNotifier {
     for (var club in _aiClubs) {
       _aiClubMap[club.id] = club;
       // Generate initial players for AI clubs (similar to rivals, maybe more established?)
-      int initialPlayerCount = 15 + _random.nextInt(11); // 15-25 players
+      // --- INCREASED PLAYER COUNT: Ensure enough for 11v11 (18 players needed) ---
+      int initialPlayerCount = 18 + _random.nextInt(11); // 18-28 players
+      // --- END INCREASE ---
       for (int i = 0; i < initialPlayerCount; i++) {
         int potentialSkill = (club.skillLevel * 1.8).toInt() + _random.nextInt(21); // Higher base potential
         potentialSkill = potentialSkill.clamp(40, 99); // Clamp potential
         int currentSkill = (potentialSkill * (0.6 + _random.nextDouble() * 0.3)).toInt(); // 60-90% of potential
         currentSkill = currentSkill.clamp(30, potentialSkill); // Clamp current skill
+        PlayerPosition position = PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]; // Define position
 
         club.players.add(
           Player(
             id: '${club.id}_player_$i',
             name: NameGenerator.generatePlayerName(), // <-- Use NameGenerator
             age: 18 + _random.nextInt(10), // Wider age range (18-27)
-            position: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)],
-            currentSkill: currentSkill,
+            naturalPosition: position, // Changed from position, use defined position variable
+            // currentSkill: currentSkill, // Removed
             potentialSkill: potentialSkill,
             weeklyWage: 200 + _random.nextInt(801), // Higher wages (200-1000)
             reputation: club.reputation ~/ 2 + _random.nextInt(20), // Reputation based on club
             stamina: 50 + _random.nextInt(41), // 50-90 stamina
+            preferredPositions: [position], // Add default preferred position
           )
         );
       }
@@ -317,6 +341,44 @@ class GameStateManager with ChangeNotifier {
       minTeamsToStart: 10, // Must have exactly 10 teams
       // rounds: 0, // Ignored for league
     ));
+
+    // --- NEW: AI Club Focused Leagues ---
+    _availableTournamentTemplates.add(Tournament.createTemplate(
+      name: "Pro Youth League - Tier 3",
+      type: TournamentType.elevenVeleven,
+      format: TournamentFormat.League,
+      requiredReputation: 150, // Base rep for AI clubs
+      youthRepReq: 250, // Higher rep for youth academies to join
+      entryFee: 3000,
+      prizeMoneyBase: 20000,
+      numberOfTeams: 20,
+      minTeamsToStart: 8, // Allow slightly fewer teams if needed
+      isAIClubFocused: true, // Mark as AI Club focused
+    ));
+    _availableTournamentTemplates.add(Tournament.createTemplate(
+      name: "Pro Youth League - Tier 2",
+      type: TournamentType.elevenVeleven,
+      format: TournamentFormat.League,
+      requiredReputation: 250, // Base rep for AI clubs
+      youthRepReq: 400, // Higher rep for youth academies to join
+      entryFee: 6000,
+      prizeMoneyBase: 40000,
+      numberOfTeams: 10,
+      minTeamsToStart: 8,
+      isAIClubFocused: true,
+    ));
+    _availableTournamentTemplates.add(Tournament.createTemplate(
+      name: "Pro Youth League - Tier 1",
+      type: TournamentType.elevenVeleven,
+      format: TournamentFormat.League,
+      requiredReputation: 400, // Base rep for AI clubs
+      youthRepReq: 600, // Very high rep for youth academies to join
+      entryFee: 10000,
+      prizeMoneyBase: 75000,
+      numberOfTeams: 10,
+      minTeamsToStart: 8,
+      isAIClubFocused: true,
+    ));
     // --- END NEW ---
 
     print("Generated ${_availableTournamentTemplates.length} tournament templates.");
@@ -349,7 +411,7 @@ class GameStateManager with ChangeNotifier {
   // Reset Game
   void resetGame() {
     print("--- RESETTING GAME STATE ---");
-    _currentDate = DateTime(2025, 7, 1);
+    _currentDate = DateTime(2025, 1, 1);
     _academyName = "My Academy";
     // _difficulty = Difficulty.Normal; // Keep selected difficulty or reset? Let's keep it.
     _themeMode = ThemeMode.system;
@@ -369,6 +431,7 @@ class GameStateManager with ChangeNotifier {
     _populateRivalAcademyMap(); // Repopulate rivals based on current difficulty
     _populateAIClubs(); // <-- ADD: Repopulate AI Clubs
     _generateInitialTournamentTemplates(); // Regenerate templates
+    _scheduleInitialProLeagues(); // <-- ADD: Schedule initial leagues on reset
     _trainingFacilityLevel = 1;
     _scoutingFacilityLevel = 1;
     _medicalBayLevel = 1;
@@ -376,6 +439,7 @@ class GameStateManager with ChangeNotifier {
     // _academyReputation is set in _applyDifficultySettings
     _transferOffers.clear();
     _newsItems.clear();
+    _playerAcademyTier = 0; // Reset player tier
     _generateInitialAvailableStaff();
     _calculateWeeklyWages();
 
@@ -402,9 +466,23 @@ class GameStateManager with ChangeNotifier {
     _currentDate = _currentDate.add(const Duration(days: 7));
     print("Advancing week to: $_currentDate");
 
-    // 0. Check for new Tournaments being scheduled (only in first week of month)
+    // 0a. Schedule Annual Pro Leagues (e.g., last week of May)
+    // Check if it's May and the day is 22nd or later (covering the last ~10 days)
+    if (_currentDate.month == 5 && _currentDate.day >= 22) {
+        // Check if leagues for the *current* year have already been scheduled to avoid duplicates
+        bool alreadyScheduledThisYear = _activeTournaments.any((t) =>
+            t.name.startsWith("Pro Youth League") &&
+            t.status == TournamentStatus.Scheduled &&
+            t.startDate.year == _currentDate.year);
+
+        if (!alreadyScheduledThisYear) {
+            _scheduleAnnualLeagues(_currentDate.year);
+        }
+    }
+
+    // 0b. Check for new *non-Pro League* Tournaments being scheduled (only in first week of month)
     if (_currentDate.day <= 7) {
-      _checkForNewTournaments();
+      _checkForNewTournaments(); // This function will now ignore Pro Leagues
     }
 
     // 1. Update Finances (Player)
@@ -472,6 +550,13 @@ class GameStateManager with ChangeNotifier {
     List<Tournament> shuffledTemplates = List.from(_availableTournamentTemplates)..shuffle(_random);
 
     for (var template in shuffledTemplates) {
+      // --- NEW: Skip Pro Leagues in this check ---
+      if (template.name.startsWith("Pro Youth League")) {
+        // print(" -> Skipping ${template.name} (handled by annual scheduling)."); // Optional verbose print
+        continue;
+      }
+      // --- END NEW ---
+
       // Check if an instance of this template is already scheduled or in progress
       bool alreadyActive = _activeTournaments.any((t) => t.baseId == template.id && (t.status == TournamentStatus.Scheduled || t.status == TournamentStatus.InProgress));
       if (alreadyActive) {
@@ -504,55 +589,174 @@ class GameStateManager with ChangeNotifier {
       if (_random.nextDouble() < startChance) {
         print(" -> Considering scheduling ${template.name} (Chance: ${startChance.toStringAsFixed(2)})...");
 
-        // Find potential rival participants
-        List<RivalAcademy> potentialRivals = _rivalAcademies.where((rival) =>
-            rival.reputation >= template.requiredReputation &&
-            rival.balance >= template.entryFee &&
-            rival.players.length >= template.requiredPlayers &&
-            !rival.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId)) // Not already in an active one
-        ).toList();
-        potentialRivals.shuffle(_random);
-
         List<String> participants = [];
-        // Try to fill up to numberOfTeams, but require at least minTeamsToStart
-        for (var rival in potentialRivals) {
-          if (participants.length >= template.numberOfTeams) break;
-          // Ask rival if they want to join
-          if (rival.shouldEnterTournament(template, _currentDate.year, _currentDate.month)) {
-            participants.add(rival.id);
-            // print(" -> ${rival.name} wants to join."); // Less verbose
+        bool enoughParticipantsFound = false;
+
+        // --- NEW: AI Club Focused League Logic ---
+        if (template.isAIClubFocusedLeague) {
+          print(" -> Applying AI Club Focused Logic for ${template.name}");
+
+          // 1. Gather Eligible AI Clubs (Based on CURRENT TIER for T1/T2)
+          int leagueTier = template.getLeagueTier(); // Helper method needed in Tournament model
+          List<AIClub> eligibleAIClubs;
+
+          if (leagueTier == 1 || leagueTier == 2) {
+            // For Tier 1 & 2, only clubs *currently* in that tier are eligible
+            eligibleAIClubs = _aiClubs.where((club) =>
+                club.tier == leagueTier && // MUST be in the correct tier
+                club.balance >= template.entryFee &&
+                club.players.length >= template.requiredPlayers &&
+                !club.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
+            ).toList();
+            print(" -> Tier $leagueTier League: Filtering for clubs currently in Tier $leagueTier.");
+          } else {
+            // For Tier 3 (or if tier unknown), use reputation as the primary filter (entry point)
+            eligibleAIClubs = _aiClubs.where((club) =>
+                (club.tier == 3 || club.tier == 0) && // Allow Tier 3 or unassigned tier
+                club.reputation >= template.requiredReputation &&
+                club.balance >= template.entryFee &&
+                club.players.length >= template.requiredPlayers &&
+                !club.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
+            ).toList();
+             print(" -> Tier 3 League: Filtering for Tier 3/unassigned clubs meeting reputation req.");
+          }
+
+          eligibleAIClubs.sort((a, b) => b.reputation.compareTo(a.reputation)); // Sort by reputation desc
+
+          // 2. Gather Eligible Youth Academies (Rivals + Player) - Only for Tier 3? Or allow based on high rep?
+          // For now, let's restrict Youth Academies primarily to Tier 3 league, unless their rep is very high for T2. T1 is AI Pro only.
+          List<dynamic> eligibleYouthAcademies = []; // Use dynamic list
+          bool playerEligible = false;
+          int youthRepReq = template.youthAcademyMinReputation ?? template.requiredReputation; // Use specific youth req if available
+
+          if (leagueTier == 3 || (leagueTier == 2 && youthRepReq >= 400)) { // Allow high-rep youth in T2
+             // Rivals
+             eligibleYouthAcademies.addAll(_rivalAcademies.where((rival) =>
+                 rival.reputation >= youthRepReq &&
+                 rival.balance >= template.entryFee &&
+                 rival.players.length >= template.requiredPlayers &&
+                 !rival.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
+             ));
+
+             // Player (Check eligibility but don't add yet)
+             playerEligible = _academyReputation >= youthRepReq &&
+                                   _balance >= template.entryFee &&
+                                   _academyPlayers.length >= template.requiredPlayers &&
+                                   !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
+
+             eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation)); // Sort by reputation desc
+             print(" -> Found ${eligibleAIClubs.length} eligible AI Clubs and ${eligibleYouthAcademies.length} eligible Youth Academies (Player eligible: $playerEligible) for Tier $leagueTier League.");
+          } else if (leagueTier == 1) {
+             print(" -> Tier 1 League: Only AI Clubs are eligible.");
+             // eligibleYouthAcademies remains empty, playerEligible remains false
+          } else {
+             print(" -> Tier $leagueTier League: Youth academies not eligible based on current rules.");
+             // eligibleYouthAcademies remains empty, playerEligible remains false
+          }
+
+          // 3. Fill Slots (Prioritize AI Clubs)
+          int slotsToFill = template.numberOfTeams;
+          if (playerEligible) {
+            slotsToFill--; // Reserve a slot for the player if they are eligible
+          }
+
+          // Add top AI Clubs first
+          for (var club in eligibleAIClubs) {
+            if (participants.length >= slotsToFill) break;
+            participants.add(club.id);
+          }
+          print(" -> Added ${participants.length} AI Clubs.");
+
+          // Add top Youth Academies if slots remain
+          int aiClubsAdded = participants.length;
+          for (var academy in eligibleYouthAcademies) {
+            if (participants.length >= slotsToFill) break;
+            // Ask rival if they want to join (AI clubs join automatically if selected)
+            if (academy is RivalAcademy && academy.shouldEnterTournament(template, _currentDate.year, _currentDate.month)) {
+               participants.add(academy.id);
+            }
+            // Player doesn't get added here, only eligibility is checked
+          }
+          print(" -> Added ${participants.length - aiClubsAdded} Youth Academies.");
+
+          // 4. Check if minimum met (considering potential player join)
+          int minRequired = template.minTeamsToStart;
+          if (playerEligible) minRequired--; // Player can potentially fill one slot
+
+          if (participants.length >= minRequired) {
+            enoughParticipantsFound = true;
+          } else {
+             print(" -> Not enough participants (${participants.length}) for AI Focused League ${template.name}. Min required (allowing for player): $minRequired");
+          }
+
+        }
+        // --- END AI Club Focused Logic ---
+        // --- ELSE: Standard Tournament Logic (Rivals Only Initially) ---
+        else {
+          // Find potential rival participants
+          List<RivalAcademy> potentialRivals = _rivalAcademies.where((rival) =>
+              rival.reputation >= template.requiredReputation &&
+              rival.balance >= template.entryFee &&
+              rival.players.length >= template.requiredPlayers &&
+              !rival.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId)) // Not already in an active one
+          ).toList();
+          potentialRivals.shuffle(_random);
+
+          // Try to fill up to numberOfTeams, but require at least minTeamsToStart
+          for (var rival in potentialRivals) {
+            if (participants.length >= template.numberOfTeams) break;
+            // Ask rival if they want to join
+            if (rival.shouldEnterTournament(template, _currentDate.year, _currentDate.month)) {
+              participants.add(rival.id);
+            }
+          }
+
+          // Check if minimum met (considering potential player join)
+          int minRequired = template.minTeamsToStart;
+          // Player eligibility check for standard tournaments
+          bool playerEligible = _academyReputation >= template.requiredReputation &&
+                                _balance >= template.entryFee &&
+                                _academyPlayers.length >= template.requiredPlayers &&
+                                !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
+
+          if (playerEligible) minRequired--; // Player can potentially fill one slot
+
+          if (participants.length >= minRequired) {
+            enoughParticipantsFound = true;
+          } else {
+            print(" -> Not enough potential participants (${participants.length}) for Standard Tournament ${template.name}. Min required (allowing for player): $minRequired");
           }
         }
+        // --- END Standard Tournament Logic ---
 
-        // Use minTeamsToStart from template
-        // For Leagues, require EXACTLY numberOfTeams (including player if they join later)
-        bool canStartPotentially = (template.format == TournamentFormat.League)
-            ? (participants.length >= template.minTeamsToStart - 1) // Allow space for player
-            : (participants.length >= template.minTeamsToStart -1); // Allow space for player
-
-        if (canStartPotentially) {
-          // Create the instance but DON'T add the player yet
+        // --- Create Instance if Enough Participants Found ---
+        if (enoughParticipantsFound) {
           Tournament newTournament = Tournament.fromTemplate(template, participants, _currentDate);
           addActiveTournament(newTournament); // Adds to _activeTournaments with Scheduled status
-          // Mark rivals as participating
+
+          // Mark participants as active in this tournament
           for (var participantId in participants) {
+            if (_rivalAcademyMap.containsKey(participantId)) {
               _rivalAcademyMap[participantId]?.activeTournamentIds.add(newTournament.id);
-           }
-           // *** MODIFIED News Item: Reflect start date ***
-           String joinWindow = (template.format == TournamentFormat.League)
-               ? "You have until the end of the season to join." // Leagues start next season
-               : "You have until next week to join."; // Knockouts start in 2 weeks
-           _addNewsItem(NewsItem.create(
-               title: "New Tournament Scheduled",
-               description: "The ${newTournament.name} is scheduled to start on ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams confirmed so far. $joinWindow",
-               type: NewsItemType.Tournament,
-               date: _currentDate
-           ));
-           tournamentsScheduledThisMonth++;
-           print(" -> Scheduled ${newTournament.name} (ID: ${newTournament.id}) starting ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
-        } else {
-          print(" -> Not enough potential participants (${participants.length}) for ${template.name}. Min required (allowing for player): ${template.minTeamsToStart -1}");
+            } else if (_aiClubMap.containsKey(participantId)) {
+              _aiClubMap[participantId]?.activeTournamentIds.add(newTournament.id);
+            }
+          }
+
+          String joinWindow = (template.format == TournamentFormat.League)
+              ? "You have until the end of the season to join."
+              : "You have until next week to join.";
+          _addNewsItem(NewsItem.create(
+              title: "New Tournament Scheduled",
+              description: "The ${newTournament.name} is scheduled to start on ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams confirmed so far. $joinWindow",
+              type: NewsItemType.Tournament,
+              date: _currentDate
+          ));
+          tournamentsScheduledThisMonth++;
+          print(" -> Scheduled ${newTournament.name} (ID: ${newTournament.id}) starting ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
         }
+        // --- END Create Instance ---
+
       } else {
          print(" -> Skipping ${template.name} this month (Rolled < ${startChance.toStringAsFixed(2)} chance).");
       }
@@ -593,12 +797,15 @@ class GameStateManager with ChangeNotifier {
       // 2. Player Training (Simplified)
       double trainingEffectiveness = (academy.trainingFacilityLevel * 0.5) + (academy.skillLevel / 100.0); // Based on facility and skill
       for (var player in academy.players) {
-        if (player.currentSkill < player.potentialSkill) {
-          double improveChance = 0.02 * trainingEffectiveness; // Low base chance, modified by effectiveness
-          if (_random.nextDouble() < improveChance) {
-            player.currentSkill++;
-            // print(" -> ${academy.name}'s player ${player.name} improved skill to ${player.currentSkill}"); // Maybe too verbose
-          }
+        // Rival player training uses the new train method
+        // Simplified chance for rivals: if random < effectiveness, try to train.
+        // The train() method itself handles if an attribute can be improved.
+        if (player.currentSkill < player.potentialSkill) { // Check if there's room to improve overall
+            double improveChance = 0.02 * trainingEffectiveness; // Low base chance
+            if (_random.nextDouble() < improveChance) {
+                player.train(); // Call the train method
+                // No direct print here, train() doesn't return skill, but updates affinities
+            }
         }
         // Simple fatigue recovery for rivals
         player.fatigue = (player.fatigue - (5.0 + (player.stamina / 15.0))).clamp(0.0, 100.0);
@@ -639,8 +846,11 @@ class GameStateManager with ChangeNotifier {
       // int homeGamesThisWeek = matchesThisWeek.where((m) => m.homeTeamId == club.id && !m.matchDate.isAfter(_currentDate)).length;
       // matchdayIncome = homeGamesThisWeek * club.fanCount * club.ticketPrice * 0.5; // Example: 50% attendance
 
-      // Placeholder income/sponsorship
-      double baseWeeklyIncome = (club.reputation * 10) + (club.skillLevel * 20) + (club.tier == 1 ? 5000 : (club.tier == 2 ? 2000 : 500));
+      // Placeholder income/sponsorship - INCREASED VALUES SIGNIFICANTLY
+      // Increased base multiplier and tier bonuses to better cover wages
+      double baseWeeklyIncome = (club.reputation * 50) // Increased from 10
+                              + (club.skillLevel * 100) // Increased from 20
+                              + (club.tier == 1 ? 20000 : (club.tier == 2 ? 10000 : 5000)); // Increased tier bonuses
       double aiWeeklyWages = club.players.fold(0.0, (sum, p) => sum + p.weeklyWage);
 
       club.balance += baseWeeklyIncome + matchdayIncome;
@@ -662,16 +872,16 @@ class GameStateManager with ChangeNotifier {
       // TODO: Basic skill improvement chance for AI players (similar to rivals?)
       double trainingEffectiveness = (club.skillLevel / 100.0); // Simple skill-based training
       for (var player in club.players) {
-        if (player.currentSkill < player.potentialSkill) {
-          double improveChance = 0.015 * trainingEffectiveness; // Lower base chance than rivals?
-          if (_random.nextDouble() < improveChance) {
-            player.currentSkill++;
-          }
+        // AI club player training uses the new train method
+        if (player.currentSkill < player.potentialSkill) { // Check if there's room to improve overall
+            double improveChance = 0.015 * trainingEffectiveness;
+            if (_random.nextDouble() < improveChance) {
+                player.train(); // Call the train method
+            }
         }
         // Simple fatigue recovery for AI club players
         player.fatigue = (player.fatigue - (5.0 + (player.stamina / 15.0))).clamp(0.0, 100.0);
       }
-
 
       // 6. Recalculate Skill Level periodically
       if (_currentDate.weekday == DateTime.monday) { // Example: Recalculate weekly
@@ -712,6 +922,36 @@ class GameStateManager with ChangeNotifier {
     return true;
   }
 
+  void fireStaff(Staff staffToFire) {
+    // Ensure the staff member exists in the hired list
+    if (!_hiredStaff.any((s) => s.id == staffToFire.id)) {
+      print("Error: Cannot fire staff ${staffToFire.name} (ID: ${staffToFire.id}). Not found in hired staff.");
+      return;
+    }
+
+    // If firing a coach, unassign their players first
+    if (staffToFire.role == StaffRole.Coach) {
+      List<String> playersToUnassign = List.from(staffToFire.assignedPlayerIds); // Copy list to avoid modification issues
+      for (String playerId in playersToUnassign) {
+        unassignPlayerFromCoach(playerId, staffToFire.id); // Use existing method
+        print(" -> Unassigned player ID $playerId from fired coach ${staffToFire.name}");
+      }
+    }
+
+    _hiredStaff.removeWhere((s) => s.id == staffToFire.id);
+    _calculateWeeklyWages(); // Recalculate wages after firing
+    _addNewsItem(NewsItem.create(
+      title: "Staff Fired",
+      description: "We have parted ways with ${staffToFire.name} (${staffToFire.role.toString().split('.').last}).",
+      type: NewsItemType.StaffChange,
+      date: _currentDate
+    ));
+    print("Fired ${staffToFire.name}.");
+    notifyListeners();
+    // Optional: Add the fired staff back to the available pool? For now, just remove.
+    // _availableStaff.add(staffToFire);
+  }
+
   void signPlayer(Player playerToSign) {
     playerToSign.isScouted = false;
     _academyPlayers.add(playerToSign);
@@ -733,6 +973,28 @@ class GameStateManager with ChangeNotifier {
     _scoutedPlayers.removeWhere((p) => p.id == playerToReject.id);
     notifyListeners();
     print("Rejected ${playerToReject.name}");
+  }
+
+  void releasePlayer(Player playerToRelease) {
+    // Ensure the player exists in the academy list
+    if (!_academyPlayers.any((p) => p.id == playerToRelease.id)) {
+      print("Error: Cannot release player ${playerToRelease.name} (ID: ${playerToRelease.id}). Not found in academy.");
+      return;
+    }
+
+    // Unassign player from any coach
+    unassignPlayerFromAnyCoach(playerToRelease.id);
+
+    _academyPlayers.removeWhere((p) => p.id == playerToRelease.id);
+    _calculateWeeklyWages(); // Recalculate wages after release
+    _addNewsItem(NewsItem.create(
+      title: "Player Released",
+      description: "We have released ${playerToRelease.name} from the academy.",
+      type: NewsItemType.PlayerSigned, // Using PlayerSigned for now, maybe add PlayerReleased later?
+      date: _currentDate
+    ));
+    print("Released ${playerToRelease.name}.");
+    notifyListeners();
   }
 
   // Add Active Tournament (Instance)
@@ -832,15 +1094,19 @@ class GameStateManager with ChangeNotifier {
                     }
                 }
                 completedOrCancelledTournamentsThisWeek.add(tournament); // Move cancelled to completed list
-            } else if (tournament.matches.isNotEmpty) {
-                // Matches generated successfully, set to InProgress
-                tournament.status = TournamentStatus.InProgress;
-                print(" -> Tournament is now InProgress.");
-                _addNewsItem(NewsItem.create(title: "${tournament.name} Started", description: "The ${tournament.name} has officially begun!", type: NewsItemType.Tournament, date: tournament.startDate));
-            } else {
-                // Should ideally not happen if generateMatchesForStart handles cancellation, but as a fallback:
-                 print(" -> Tournament start check resulted in no matches and not cancelled. Status remains Scheduled? Investigate.");
+            } else if (tournament.status != TournamentStatus.Cancelled) { // Check if not cancelled by generateMatchesForStart
+                // If not cancelled, check if matches were actually generated
+                if (tournament.matches.isNotEmpty) {
+                    // Matches generated successfully, set to InProgress
+                    tournament.status = TournamentStatus.InProgress;
+                    print(" -> Tournament ${tournament.name} is now InProgress.");
+                    _addNewsItem(NewsItem.create(title: "${tournament.name} Started", description: "The ${tournament.name} has officially begun!", type: NewsItemType.Tournament, date: tournament.startDate));
+                } else {
+                    // Matches were NOT generated, but it wasn't cancelled either. Log a warning.
+                    print(" -> WARNING: Tournament ${tournament.name} (ID: ${tournament.id}) met start date condition but generateMatchesForStart() resulted in zero matches. Status remains ${tournament.status}. Investigate Tournament.generateMatchesForStart().");
+                }
             }
+            // If tournament.status WAS Cancelled, the previous block handles it.
         }
     }
 
@@ -853,39 +1119,67 @@ class GameStateManager with ChangeNotifier {
           if (!match.isSimulated && !match.matchDate.isAfter(endOfWeek)) {
             // print("Preparing detailed simulation for match: ${match.id} scheduled for ${match.matchDate}"); // Less verbose
             TournamentType tournamentType = tournament.type;
-            List<Player> homeLineup; List<Player> awayLineup;
+            MatchTeamSelection homeSelection; // Use the helper class
+            MatchTeamSelection awaySelection; // Use the helper class
 
-            // Get Home Team Lineup
+            // --- Get Home Team Lineup (Player, Rival, or AI Club) ---
             if (match.homeTeamId == playerAcademyId) {
-              homeLineup = selectPlayerTeamForMatch(tournamentType);
+              homeSelection = selectPlayerTeamForMatch(tournamentType);
             } else {
-              RivalAcademy? homeAcademy = _rivalAcademyMap[match.homeTeamId];
-              homeLineup = (homeAcademy != null) ? selectRivalTeamForMatch(tournamentType, homeAcademy) : [];
-              if (homeAcademy == null) print("Error: Home Rival Academy ${match.homeTeamId} not found for match ${match.id}. Using empty lineup.");
+              // Check if it's a Rival or AI Club
+              RivalAcademy? homeRival = _rivalAcademyMap[match.homeTeamId];
+              AIClub? homeAIClub = _aiClubMap[match.homeTeamId]; // Check AI Club Map
+
+              if (homeRival != null) {
+                homeSelection = selectRivalTeamForMatch(tournamentType, homeRival);
+              } else if (homeAIClub != null) { // If AI Club found...
+                homeSelection = selectAIClubTeamForMatch(tournamentType, homeAIClub); // Call AI Club selection
+              } else {
+                // Fallback if team not found in EITHER map
+                print("Error: Home Team ${match.homeTeamId} not found as Player, Rival, or AI Club for match ${match.id}. Using empty lineup."); // <-- NEW ERROR PRINT
+                homeSelection = MatchTeamSelection(formation: predefinedFormations.first, starters: [], bench: []);
+              }
             }
 
-            // Get Away Team Lineup
+            // --- Get Away Team Lineup (Player, Rival, or AI Club) ---
             if (match.awayTeamId == playerAcademyId) {
-              awayLineup = selectPlayerTeamForMatch(tournamentType);
+              awaySelection = selectPlayerTeamForMatch(tournamentType);
             } else {
-              RivalAcademy? awayAcademy = _rivalAcademyMap[match.awayTeamId];
-              awayLineup = (awayAcademy != null) ? selectRivalTeamForMatch(tournamentType, awayAcademy) : [];
-              if (awayAcademy == null) print("Error: Away Rival Academy ${match.awayTeamId} not found for match ${match.id}. Using empty lineup.");
+               // --- DEBUG PRINTS START ---
+              print("DEBUG: Checking Away Team ID: ${match.awayTeamId}");
+              print("DEBUG: _rivalAcademyMap contains key? ${_rivalAcademyMap.containsKey(match.awayTeamId)}");
+              print("DEBUG: _aiClubMap contains key? ${_aiClubMap.containsKey(match.awayTeamId)}");
+              // --- DEBUG PRINTS END ---
+
+              // Check if it's a Rival or AI Club
+              RivalAcademy? awayRival = _rivalAcademyMap[match.awayTeamId];
+              AIClub? awayAIClub = _aiClubMap[match.awayTeamId]; // Check AI Club Map
+
+              if (awayRival != null) {
+                awaySelection = selectRivalTeamForMatch(tournamentType, awayRival);
+              } else if (awayAIClub != null) { // If AI Club found...
+                awaySelection = selectAIClubTeamForMatch(tournamentType, awayAIClub); // Call AI Club selection
+              } else {
+                // Fallback if team not found in EITHER map
+                print("Error: Away Team ${match.awayTeamId} not found as Player, Rival, or AI Club for match ${match.id}. Using empty lineup."); // <-- NEW ERROR PRINT
+                awaySelection = MatchTeamSelection(formation: predefinedFormations.first, starters: [], bench: []);
+              }
             }
 
             Staff? playerManager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
             // Simulate the match, passing whether it's a knockout game
             match.simulateDetailed(
-              homeLineup,
-              awayLineup,
+              homeSelection.starters, // Pass starters list
+              awaySelection.starters, // Pass starters list
               isKnockout: tournament.format == TournamentFormat.Knockout, // Pass knockout status
               playerManager: (match.homeTeamId == playerAcademyId || match.awayTeamId == playerAcademyId) ? playerManager : null
             );
 
-            _updatePlayerStatsAndFatigue(match, homeLineup, awayLineup); // Updates player academy players
-            _updateRivalFatigue(match, homeLineup, awayLineup); // Update rival fatigue
-            _updateReputationAfterMatch(tournament, match); // Updates player and rival reputation
-            _updateLeagueStandings(tournament, match); // NEW: Update league standings
+            // --- Update Stats/Fatigue for ALL involved teams ---
+            _updatePlayerStatsAndFatigue(match, homeSelection.starters, awaySelection.starters); // Player Academy
+            _updateRivalOrAIClubFatigue(match, homeSelection.starters, awaySelection.starters); // Rivals AND AI Clubs (Use combined function)
+            _updateReputationAfterMatch(tournament, match); // Handles Player, Rivals, and AI Clubs
+            _updateLeagueStandings(tournament, match); // Handles all team types
 
             matchesSimulatedThisWeek = true;
 
@@ -925,12 +1219,42 @@ class GameStateManager with ChangeNotifier {
         // --- Premature Completion Check REMOVED ---
         // The logic below in "Generate Next Knockout Rounds" handles completion correctly.
 
-      } // End if InProgress
+        } // End if InProgress
+
+        // --- NEW: Check for League Completion ---
+        if (tournament.status == TournamentStatus.InProgress && tournament.format == TournamentFormat.League) {
+            // Check if all matches in the league are simulated
+            // --- FIX: Explicitly type 'match' as Match ---
+            bool allMatchesSimulated = tournament.matches.every((Match match) => match.isSimulated);
+            // --- END FIX ---
+            if (allMatchesSimulated) {
+                print(" -> League ${tournament.name} (ID: ${tournament.id}) has completed all matches.");
+                tournament.status = TournamentStatus.Completed;
+                if (!completedOrCancelledTournamentsThisWeek.contains(tournament)) {
+                    completedOrCancelledTournamentsThisWeek.add(tournament);
+                    // Remove tournament ID from participating entities (Rivals/AI Clubs)
+                    for (var participantId in tournament.teamIds) {
+                        if (participantId != playerAcademyId) {
+                           _rivalAcademyMap[participantId]?.activeTournamentIds.remove(tournament.id);
+                           _aiClubMap[participantId]?.activeTournamentIds.remove(tournament.id); // Also remove from AI clubs
+                        }
+                    }
+                    // Handle completion immediately (awards, news, P/R)
+                    // Note: This might lead to _handleTournamentCompletion being called twice if
+                    // the league also somehow ended up in completedOrCancelledTournamentsThisWeek later.
+                    // We'll rely on the check inside _handleTournamentCompletion to prevent double processing.
+                    _handleTournamentCompletion(tournament);
+                }
+            }
+        }
+        // --- END NEW ---
+
     } // End tournament loop
 
     // --- Generate Next Knockout Rounds ---
     for (var tournament in tournamentsToCheckForNextRound) {
-        if (tournament.status == TournamentStatus.InProgress) { // Ensure it wasn't completed above
+        // Check status again in case it was completed by the league check above
+        if (tournament.status == TournamentStatus.InProgress) {
             bool nextRoundGenerated = tournament.generateNextKnockoutRound();
             if (nextRoundGenerated) {
                 print("Generated next knockout round (${tournament.currentRound}) for ${tournament.name}.");
@@ -1054,7 +1378,9 @@ class GameStateManager with ChangeNotifier {
           if (determinedWinnerId == playerAcademyId) {
               winnerName = _academyName;
               _balance += prizeMoney;
-              _academyReputation += (tournament.format == TournamentFormat.League) ? 40 : 20; // More rep for league win
+              // --- Increased Academy Reputation for Tournament Win ---
+              _academyReputation += (tournament.format == TournamentFormat.League) ? 60 : 30; // Increased rep gain
+              // --- End Increased Academy Reputation ---
               _addNewsItem(NewsItem.create(
                   title: "Tournament Won!",
                   description: "We won the ${tournament.name} and received ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(prizeMoney)}!",
@@ -1074,10 +1400,25 @@ class GameStateManager with ChangeNotifier {
                       type: NewsItemType.MatchResult, // Corrected type
                       date: _currentDate
                   ));
-                  print("${rivalWinner.name} won ${tournament.name}. Prize: $prizeMoney. New Balance: ${rivalWinner.balance}. New Rep: ${rivalWinner.reputation}");
+          print("${rivalWinner.name} won ${tournament.name}. Prize: $prizeMoney. New Balance: ${rivalWinner.balance}. New Rep: ${rivalWinner.reputation}");
               } else {
-                  winnerName = "An unknown team"; // Fallback if rival not found
-                  print("Warning: Winner ID $determinedWinnerId not found in rival map for tournament ${tournament.name}");
+                  // Check if it's an AI Club winner
+                  AIClub? aiWinner = _aiClubMap[determinedWinnerId];
+                  if (aiWinner != null) {
+                      winnerName = aiWinner.name;
+                      aiWinner.balance += prizeMoney;
+                      aiWinner.reputation += (tournament.format == TournamentFormat.League) ? 50 : 25; // AI club rep boost
+                      _addNewsItem(NewsItem.create(
+                          title: "${tournament.name} Concluded",
+                          description: "${aiWinner.name} won the ${tournament.name}.",
+                          type: NewsItemType.MatchResult,
+                          date: _currentDate
+                      ));
+                      print("${aiWinner.name} won ${tournament.name}. Prize: $prizeMoney. New Balance: ${aiWinner.balance}. New Rep: ${aiWinner.reputation}");
+                  } else {
+                      winnerName = "An unknown team"; // Fallback if neither rival nor AI club found
+                      print("Warning: Winner ID $determinedWinnerId not found in rival or AI club map for tournament ${tournament.name}");
+                  }
               }
           }
       } else {
@@ -1089,6 +1430,12 @@ class GameStateManager with ChangeNotifier {
           ));
           print("${tournament.name} finished without a clear winner determined.");
       }
+
+      // --- NEW: Promotion/Relegation Logic for AI Club Leagues ---
+      if (tournament.format == TournamentFormat.League && tournament.isAIClubFocusedLeague) {
+          _handleLeaguePromotionRelegation(tournament);
+      }
+      // --- END NEW ---
   }
 
   void _updatePlayerStatsAndFatigue(Match match, List<Player> homeLineup, List<Player> awayLineup) {
@@ -1117,28 +1464,41 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
-  // Update Rival Fatigue
-  void _updateRivalFatigue(Match match, List<Player> homeLineup, List<Player> awayLineup) {
+  // --- NEW: Update Rival OR AI Club Fatigue --- // Renamed from _updateRivalFatigue
+  void _updateRivalOrAIClubFatigue(Match match, List<Player> homeLineup, List<Player> awayLineup) {
       if (!match.isSimulated) return;
-      // *** FIX: Use match.homeLineup and match.awayLineup which store the actual player IDs used ***
+
+      // Check Home Team
       RivalAcademy? homeRival = _rivalAcademyMap[match.homeTeamId];
-      RivalAcademy? awayRival = _rivalAcademyMap[match.awayTeamId];
+      AIClub? homeAIClub = _aiClubMap[match.homeTeamId];
+      List<Player> homePlayersToUpdate = [];
 
-      List<Player> playersToUpdate = [];
       if (homeRival != null) {
-          playersToUpdate.addAll(homeRival.players.where((p) => match.homeLineup.contains(p.id)));
-      }
-      if (awayRival != null) {
-          playersToUpdate.addAll(awayRival.players.where((p) => match.awayLineup.contains(p.id)));
+          homePlayersToUpdate.addAll(homeRival.players.where((p) => match.homeLineup.contains(p.id)));
+      } else if (homeAIClub != null) {
+          homePlayersToUpdate.addAll(homeAIClub.players.where((p) => match.homeLineup.contains(p.id)));
       }
 
-      for (var rivalPlayer in playersToUpdate) {
-          // Player already fetched from rival academy list
-          double fatigueIncrease = 15.0 + ((100 - rivalPlayer.stamina) / 10.0);
-          rivalPlayer.fatigue = (rivalPlayer.fatigue + fatigueIncrease).clamp(0.0, 100.0);
-          // print("Rival Player ${rivalPlayer.name} fatigue updated to ${rivalPlayer.fatigue.toStringAsFixed(1)}%"); // Verbose
+      // Check Away Team
+      RivalAcademy? awayRival = _rivalAcademyMap[match.awayTeamId];
+      AIClub? awayAIClub = _aiClubMap[match.awayTeamId];
+      List<Player> awayPlayersToUpdate = [];
+
+      if (awayRival != null) {
+          awayPlayersToUpdate.addAll(awayRival.players.where((p) => match.awayLineup.contains(p.id)));
+      } else if (awayAIClub != null) {
+          awayPlayersToUpdate.addAll(awayAIClub.players.where((p) => match.awayLineup.contains(p.id)));
+      }
+
+      // Apply fatigue increase
+      List<Player> allPlayersToUpdate = [...homePlayersToUpdate, ...awayPlayersToUpdate];
+      for (var player in allPlayersToUpdate) {
+          double fatigueIncrease = 15.0 + ((100 - player.stamina) / 10.0);
+          player.fatigue = (player.fatigue + fatigueIncrease).clamp(0.0, 100.0);
+          // print("Non-Player ${player.name} fatigue updated to ${player.fatigue.toStringAsFixed(1)}%"); // Verbose
       }
   }
+  // --- END NEW ---
 
   void _applyWeeklyFatigueRecovery() {
      // print("--- Applying Weekly Fatigue Recovery (Player Academy) ---"); // Less verbose
@@ -1174,10 +1534,15 @@ class GameStateManager with ChangeNotifier {
             }
             int totalChance = (baseChance + coachBonus + facilityBonus + difficultyModifier).clamp(1, 99);
             if (_random.nextInt(100) < totalChance) {
-              int oldSkill = player.currentSkill; player.currentSkill++;
-              // print("  -> Player ${player.name} (under ${coach.name}) improved skill to ${player.currentSkill}. Chance: $totalChance%"); // Less verbose
-              anyPlayerImproved = true;
-              _addNewsItem(NewsItem.create(title: "Player Improved", description: "${player.name} improved their skill from $oldSkill to ${player.currentSkill} under Coach ${coach.name}.", type: NewsItemType.Training, date: _currentDate));
+              int oldSkill = player.currentSkill;
+              bool improved = player.train(focusPosition: player.assignedPosition); // Use train method
+              if (improved) {
+                anyPlayerImproved = true;
+                // The news item can state general improvement, as specific attribute isn't easily known here.
+                // Or, we can just say skill in assigned position improved.
+                _addNewsItem(NewsItem.create(title: "Player Improved", description: "${player.name} showed improvement in training under Coach ${coach.name}. Skill in ${player.assignedPosition.name} is now ${player.currentSkill} (was $oldSkill).", type: NewsItemType.Training, date: _currentDate));
+                // print("  -> Player ${player.name} (under ${coach.name}) improved. New skill in ${player.assignedPosition.name}: ${player.currentSkill}. Chance: $totalChance%"); // Less verbose
+              }
             }
           }
         } else if (!playerMap.containsKey(playerId)) { print("  -> Warning: Player ID $playerId assigned to coach ${coach.name} not found in academy players."); }
@@ -1278,38 +1643,131 @@ class GameStateManager with ChangeNotifier {
      }
   }
 
-  List<Player> selectPlayerTeamForMatch(TournamentType type, {Staff? manager}) {
-    int playersNeeded = _getPlayersNeededForType(type);
-    if (_academyPlayers.length < playersNeeded) { print("Warning: Not enough players in academy (${_academyPlayers.length}) for a ${type.toString()} match (needs $playersNeeded). Selecting all available."); return List<Player>.from(_academyPlayers); }
+  // --- Refactored Team Selection for Player ---
+  MatchTeamSelection selectPlayerTeamForMatch(TournamentType type) {
+    int startersNeeded = _getPlayersNeededForType(type);
+    int benchSize = _getBenchSizeForType(type);
+    int totalPlayersNeeded = startersNeeded + benchSize;
+
+    // Get the manager's preferred formation or find a default
+    Staff? manager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
+    // --- FIX: Use predefinedFormations ---
+    Formation formation = manager?.preferredFormation ??
+                         (predefinedFormations.firstWhereOrNull((f) => f.tournamentType == type) ?? // Find first matching type
+                         predefinedFormations.first); // Absolute fallback
+
+    // Check if enough players are available
+    if (_academyPlayers.length < totalPlayersNeeded) {
+      print("Warning: Not enough players in academy (${_academyPlayers.length}) for a ${type.toString()} match (needs $totalPlayersNeeded). Selecting all available.");
+      List<Player> allPlayers = List<Player>.from(_academyPlayers);
+      allPlayers.sort(_sortByEffectiveSkill); // Sort even if not enough
+      List<Player> starters = allPlayers.take(startersNeeded).toList();
+      List<Player> bench = allPlayers.skip(startersNeeded).toList();
+      return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
+    }
+
     List<Player> availablePlayers = List<Player>.from(_academyPlayers);
-    // Sort by highest skill, penalizing high fatigue
-    availablePlayers.sort((a, b) {
-        double fatiguePenaltyA = a.fatigue > 75 ? 50 : (a.fatigue / 2); // Heavier penalty above 75%
-        double fatiguePenaltyB = b.fatigue > 75 ? 50 : (b.fatigue / 2);
-        double effectiveScoreA = a.currentSkill - fatiguePenaltyA;
-        double effectiveScoreB = b.currentSkill - fatiguePenaltyB;
-        return effectiveScoreB.compareTo(effectiveScoreA); // Descending order
-    });
-    return availablePlayers.sublist(0, playersNeeded);
+    availablePlayers.sort(_sortByEffectiveSkill); // Sort by skill, penalizing fatigue
+
+    // Select starters and bench
+    List<Player> starters = availablePlayers.sublist(0, startersNeeded);
+    List<Player> bench = availablePlayers.sublist(startersNeeded, totalPlayersNeeded);
+
+    return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
   }
 
-  // Select Rival Team
-  List<Player> selectRivalTeamForMatch(TournamentType type, RivalAcademy academy) {
-     int playersNeeded = _getPlayersNeededForType(type);
-     if (academy.players.length < playersNeeded) { print("Warning: Not enough players in rival academy ${academy.name} (${academy.players.length}) for a ${type.toString()} match (needs $playersNeeded). Selecting all available."); return List<Player>.from(academy.players); }
-     List<Player> availablePlayers = List<Player>.from(academy.players);
-     // Sort by highest skill, penalizing high fatigue
-     availablePlayers.sort((a, b) {
-        double fatiguePenaltyA = a.fatigue > 75 ? 50 : (a.fatigue / 2);
-        double fatiguePenaltyB = b.fatigue > 75 ? 50 : (b.fatigue / 2);
-        double effectiveScoreA = a.currentSkill - fatiguePenaltyA;
-        double effectiveScoreB = b.currentSkill - fatiguePenaltyB;
-        return effectiveScoreB.compareTo(effectiveScoreA); // Descending order
-     });
-     return availablePlayers.sublist(0, playersNeeded);
+  // --- Refactored Team Selection for Rival ---
+  MatchTeamSelection selectRivalTeamForMatch(TournamentType type, RivalAcademy academy) {
+    int startersNeeded = _getPlayersNeededForType(type);
+    int benchSize = _getBenchSizeForType(type);
+    int totalPlayersNeeded = startersNeeded + benchSize;
+
+    // Rivals use a default formation for now
+    // --- FIX: Use predefinedFormations ---
+    Formation formation = predefinedFormations.firstWhereOrNull((f) => f.tournamentType == type) ?? // Find first matching type
+                         predefinedFormations.first; // Absolute fallback
+
+    // Check if enough players are available
+    if (academy.players.length < totalPlayersNeeded) {
+      print("Warning: Not enough players in rival academy ${academy.name} (${academy.players.length}) for a ${type.toString()} match (needs $totalPlayersNeeded). Selecting all available.");
+      List<Player> allPlayers = List<Player>.from(academy.players);
+      allPlayers.sort(_sortByEffectiveSkill); // Sort even if not enough
+      List<Player> starters = allPlayers.take(startersNeeded).toList();
+      List<Player> bench = allPlayers.skip(startersNeeded).toList();
+      return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
+    }
+
+    List<Player> availablePlayers = List<Player>.from(academy.players);
+    availablePlayers.sort(_sortByEffectiveSkill); // Sort by skill, penalizing fatigue
+
+    // Select starters and bench
+    List<Player> starters = availablePlayers.sublist(0, startersNeeded);
+    List<Player> bench = availablePlayers.sublist(startersNeeded, totalPlayersNeeded);
+
+    return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
   }
 
-  int _getPlayersNeededForType(TournamentType type) { switch (type) { case TournamentType.threeVthree: return 3; case TournamentType.fiveVfive: return 5; case TournamentType.sevenVseven: return 7; case TournamentType.elevenVeleven: return 11; default: return 11; } }
+  // --- NEW: Team Selection for AI Club ---
+  MatchTeamSelection selectAIClubTeamForMatch(TournamentType type, AIClub club) {
+    int startersNeeded = _getPlayersNeededForType(type);
+    int benchSize = _getBenchSizeForType(type);
+    int totalPlayersNeeded = startersNeeded + benchSize;
+
+    // AI Clubs use a default formation for now
+    Formation formation = predefinedFormations.firstWhereOrNull((f) => f.tournamentType == type) ??
+                         predefinedFormations.first;
+
+    // Check if enough players are available
+    if (club.players.length < totalPlayersNeeded) {
+      print("Warning: Not enough players in AI club ${club.name} (${club.players.length}) for a ${type.toString()} match (needs $totalPlayersNeeded). Selecting all available.");
+      List<Player> allPlayers = List<Player>.from(club.players);
+      allPlayers.sort(_sortByEffectiveSkill);
+      List<Player> starters = allPlayers.take(startersNeeded).toList();
+      List<Player> bench = allPlayers.skip(startersNeeded).toList();
+      return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
+    }
+
+    List<Player> availablePlayers = List<Player>.from(club.players);
+    availablePlayers.sort(_sortByEffectiveSkill); // Sort by skill, penalizing fatigue
+
+    // Select starters and bench
+    List<Player> starters = availablePlayers.sublist(0, startersNeeded);
+    List<Player> bench = availablePlayers.sublist(startersNeeded, totalPlayersNeeded);
+
+    return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
+  }
+  // --- END NEW ---
+
+  // Helper for sorting players by effective skill (skill - fatigue penalty)
+  int _sortByEffectiveSkill(Player a, Player b) {
+    double fatiguePenaltyA = a.fatigue > 75 ? 50 : (a.fatigue / 2); // Heavier penalty above 75%
+    double fatiguePenaltyB = b.fatigue > 75 ? 50 : (b.fatigue / 2);
+    double effectiveScoreA = a.currentSkill - fatiguePenaltyA;
+    double effectiveScoreB = b.currentSkill - fatiguePenaltyB;
+    return effectiveScoreB.compareTo(effectiveScoreA); // Descending order
+  }
+
+  // Helper to get number of starters needed
+  int _getPlayersNeededForType(TournamentType type) {
+    switch (type) {
+      case TournamentType.threeVthree: return 3;
+      case TournamentType.fiveVfive: return 5;
+      case TournamentType.sevenVseven: return 7;
+      case TournamentType.elevenVeleven: return 11;
+      default: return 11;
+    }
+  }
+
+  // Helper to get bench size
+  int _getBenchSizeForType(TournamentType type) {
+    switch (type) {
+      case TournamentType.threeVthree: return 2; // e.g., 3 starters + 2 bench
+      case TournamentType.fiveVfive: return 3; // e.g., 5 starters + 3 bench
+      case TournamentType.sevenVseven: return 4; // e.g., 7 starters + 4 bench
+      case TournamentType.elevenVeleven: return 7; // e.g., 11 starters + 7 bench
+      default: return 7;
+    }
+  }
 
   // Update Reputation After Match
   void _updateReputationAfterMatch(Tournament tournament, Match match) {
@@ -1324,10 +1782,12 @@ class GameStateManager with ChangeNotifier {
                        (match.awayTeamId == playerAcademyId && match.result == MatchResult.awayWin);
       bool playerDrew = match.result == MatchResult.draw;
 
+      // --- Increased Academy Reputation for Match Win/Draw ---
       // Reputation change based on format and result
-      int winRep = (tournament.format == TournamentFormat.League) ? 3 : 5;
-      int drawRep = (tournament.format == TournamentFormat.League) ? 1 : 2;
-      int lossRep = (tournament.format == TournamentFormat.League) ? -1 : -3;
+      int winRep = (tournament.format == TournamentFormat.League) ? 5 : 8; // Increased win rep
+      int drawRep = (tournament.format == TournamentFormat.League) ? 2 : 3; // Increased draw rep
+      int lossRep = (tournament.format == TournamentFormat.League) ? -1 : -3; // Loss rep remains
+      // --- End Increased Academy Reputation ---
 
       if (playerWon) {
         playerReputationChange = winRep;
@@ -1361,8 +1821,10 @@ class GameStateManager with ChangeNotifier {
                 if (event.type == MatchEventType.Assist) assists++;
               }
             }
-            individualChange += goals * 5; // Bonus for goals
-            individualChange += assists * 3; // Bonus for assists
+            // --- Increased Reputation Impact ---
+            individualChange += goals * 15; // Significant bonus for goals
+            individualChange += assists * 8; // Significant bonus for assists
+            // --- End Increased Reputation Impact ---
             if (individualChange != 0) {
                 player.reputation = max(0, player.reputation + individualChange);
                 // print("Player ${player.name} reputation changed by $individualChange to ${player.reputation}"); // Verbose
@@ -1370,34 +1832,55 @@ class GameStateManager with ChangeNotifier {
         }
     }
 
-    // Update Rival Reputation
-    RivalAcademy? homeRival = _rivalAcademyMap[match.homeTeamId];
-    RivalAcademy? awayRival = _rivalAcademyMap[match.awayTeamId];
-    int rivalRepChange = 0;
-    int rivalWinRep = (tournament.format == TournamentFormat.League) ? 2 : 3;
-    int rivalDrawRep = 1;
-    int rivalLossRep = (tournament.format == TournamentFormat.League) ? 0 : -2;
+    // --- Update Rival / AI Club Reputation ---
+    dynamic homeEntity = _rivalAcademyMap[match.homeTeamId] ?? _aiClubMap[match.homeTeamId];
+    dynamic awayEntity = _rivalAcademyMap[match.awayTeamId] ?? _aiClubMap[match.awayTeamId];
 
-    if (homeRival != null) {
-        if (match.result == MatchResult.homeWin) rivalRepChange = rivalWinRep;
-        else if (match.result == MatchResult.draw) rivalRepChange = rivalDrawRep;
-        else rivalRepChange = rivalLossRep; // Lost
-        homeRival.reputation = max(10, homeRival.reputation + rivalRepChange);
-        // print("Rival ${homeRival.name} reputation changed by $rivalRepChange to ${homeRival.reputation}"); // Verbose
+    // Define reputation changes (slightly different for AI clubs vs Rivals)
+    int winRep = (tournament.format == TournamentFormat.League) ? 2 : 3; // Base win rep
+    int drawRep = 1; // Base draw rep
+    int lossRep = (tournament.format == TournamentFormat.League) ? 0 : -2; // Base loss rep
+
+    // Apply to Home Entity
+    if (homeEntity != null) {
+        int repChange = 0;
+        bool isAI = homeEntity is AIClub;
+        int currentRep = homeEntity.reputation;
+        int entityWinRep = winRep + (isAI ? 1 : 0); // AI clubs get slightly more for winning
+        int entityDrawRep = drawRep;
+        int entityLossRep = lossRep - (isAI ? 1 : 0); // AI clubs lose slightly more
+
+        if (match.result == MatchResult.homeWin) repChange = entityWinRep;
+        else if (match.result == MatchResult.draw) repChange = entityDrawRep;
+        else repChange = entityLossRep; // Lost
+
+        homeEntity.reputation = max(isAI ? 20 : 10, currentRep + repChange); // Higher min rep for AI clubs
+        // print("${isAI ? 'AI Club' : 'Rival'} ${homeEntity.name} reputation changed by $repChange to ${homeEntity.reputation}"); // Verbose
     }
-    if (awayRival != null) {
-        if (match.result == MatchResult.awayWin) rivalRepChange = rivalWinRep;
-        else if (match.result == MatchResult.draw) rivalRepChange = rivalDrawRep;
-        else rivalRepChange = rivalLossRep; // Lost
-        awayRival.reputation = max(10, awayRival.reputation + rivalRepChange);
-        // print("Rival ${awayRival.name} reputation changed by $rivalRepChange to ${awayRival.reputation}"); // Verbose
+
+    // Apply to Away Entity
+    if (awayEntity != null) {
+        int repChange = 0;
+        bool isAI = awayEntity is AIClub;
+        int currentRep = awayEntity.reputation;
+        int entityWinRep = winRep + (isAI ? 1 : 0);
+        int entityDrawRep = drawRep;
+        int entityLossRep = lossRep - (isAI ? 1 : 0);
+
+        if (match.result == MatchResult.awayWin) repChange = entityWinRep;
+        else if (match.result == MatchResult.draw) repChange = entityDrawRep;
+        else repChange = entityLossRep; // Lost
+
+        awayEntity.reputation = max(isAI ? 20 : 10, currentRep + repChange);
+        // print("${isAI ? 'AI Club' : 'Rival'} ${awayEntity.name} reputation changed by $repChange to ${awayEntity.reputation}"); // Verbose
     }
+    // --- End Update Rival / AI Club Reputation ---
   }
 
   void _updateReputationDecay() {
     // Player academy decay is handled in _handleRivalAcademyActions now
     // _academyReputation = max(0, _academyReputation - 1);
-    for (var player in _academyPlayers) { player.reputation = max(0, player.reputation - 1); }
+    // for (var player in _academyPlayers) { player.reputation = max(0, player.reputation - 1); } // Removed weekly player reputation decay
      // print("Applied weekly player reputation decay."); // Rival decay is in their action handler
   }
 
@@ -1592,7 +2075,7 @@ class GameStateManager with ChangeNotifier {
         print("Error: $buyerName can no longer afford the offer of $offerAmount for ${player.name}. Rejecting offer.");
         rejectTransferOffer(offer); // Reject if they can't afford it anymore
     }
-  } // <-- ADD THIS MISSING BRACE
+  }
 
   void rejectTransferOffer(Map<String, dynamic> offer) {
      _transferOffers.removeWhere((o) => o['playerId'] == offer['playerId']);
@@ -1618,10 +2101,12 @@ class GameStateManager with ChangeNotifier {
   bool upgradeTrainingFacility() {
     int cost = getTrainingFacilityUpgradeCost();
     if (_balance >= cost) {
-      _balance -= cost; _trainingFacilityLevel++;
+      _balance -= cost;
+      _trainingFacilityLevel++;
+      _academyReputation += 5; // Add reputation boost
       _updateStaffCapsFromFacilities();
-      print("Upgraded Training Facility to Level $_trainingFacilityLevel. Cost: $cost. Balance: $_balance");
-      _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Training Facility upgraded to Level $_trainingFacilityLevel. Coach capacity increased to $_maxCoaches.", type: NewsItemType.Facility, date: _currentDate));
+      print("Upgraded Training Facility to Level $_trainingFacilityLevel. Cost: $cost. Balance: $_balance. Rep: $_academyReputation");
+      _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Training Facility upgraded to Level $_trainingFacilityLevel. Coach capacity increased to $_maxCoaches. Academy reputation increased.", type: NewsItemType.Facility, date: _currentDate));
       notifyListeners(); return true;
     } else { print("Cannot upgrade Training Facility. Cost: $cost, Balance: $_balance"); return false; }
   }
@@ -1702,11 +2187,12 @@ class GameStateManager with ChangeNotifier {
         academyReputation: _academyReputation,
         newsItems: _newsItems,
         difficulty: _difficulty,
-        themeMode: _themeMode,
-        rivalAcademies: _rivalAcademies, // Save Rivals
-        aiClubs: _aiClubs, // <-- Add missing required argument
-      );
-      final jsonMap = gameStateToSave.toJson();
+         themeMode: _themeMode,
+         rivalAcademies: _rivalAcademies, // Save Rivals
+         aiClubs: _aiClubs, // <-- Add missing required argument
+         playerAcademyTier: _playerAcademyTier, // <-- ADD: Save player tier
+       );
+       final jsonMap = gameStateToSave.toJson();
       final jsonString = jsonEncode(jsonMap);
 
       if (kIsWeb) {
@@ -1780,6 +2266,11 @@ class GameStateManager with ChangeNotifier {
            }
          }
        }
+       // Check for aiClubs (older saves)
+       if (!jsonMap.containsKey('aiClubs')) {
+          print("--- Save file is from an older version (missing aiClubs). Adding empty list. ---");
+          jsonMap['aiClubs'] = []; // Add empty list to allow parsing
+       }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
 
@@ -1801,7 +2292,7 @@ class GameStateManager with ChangeNotifier {
       _difficulty = loadedState.difficulty;
       _themeMode = loadedState.themeMode;
       _rivalAcademies = loadedState.rivalAcademies; // Load Rivals
-      _aiClubs = loadedState.aiClubs; // <-- ADD: Load AI Clubs (This was missing)
+      _aiClubs = loadedState.aiClubs; // <-- ADD: Load AI Clubs
 
       // Regenerate/reset transient state
       _scoutedPlayers.clear();
@@ -1830,5 +2321,357 @@ class GameStateManager with ChangeNotifier {
       return false;
     }
   }
+
+  // --- NEW: Handle League Promotion/Relegation ---
+  void _handleLeaguePromotionRelegation(Tournament league) {
+      print("Handling Promotion/Relegation for ${league.name}");
+      int currentTier = league.getLeagueTier();
+      if (currentTier == 0) {
+          print(" -> Cannot determine tier for league ${league.name}. Skipping P/R.");
+          return;
+      }
+
+      List<LeagueStanding> sortedStandings = league.leagueStandings.values.toList();
+      if (sortedStandings.length < 4) { // Need at least 4 teams for P/R
+          print(" -> Not enough teams (${sortedStandings.length}) in league for promotion/relegation. Skipping.");
+          return;
+      }
+
+      // Sort standings: Points -> GD -> GF
+      sortedStandings.sort((a, b) {
+          int pointsComparison = b.points.compareTo(a.points);
+          if (pointsComparison != 0) return pointsComparison;
+          int gdComparison = b.goalDifference.compareTo(a.goalDifference);
+          if (gdComparison != 0) return gdComparison;
+          return b.goalsFor.compareTo(a.goalsFor);
+      });
+
+      // Determine number to promote/relegate (e.g., 2 up, 2 down)
+      int numPromote = 2;
+      int numRelegate = 2;
+
+      // --- Promotion ---
+      if (currentTier > 1) { // Can only promote from Tier 2 or 3
+          int targetTier = currentTier - 1;
+          List<LeagueStanding> promotedTeams = sortedStandings.take(numPromote).toList();
+          print(" -> Promoting to Tier $targetTier: ${promotedTeams.map((s) => s.teamId).join(', ')}");
+          for (var standing in promotedTeams) {
+              AIClub? club = _aiClubMap[standing.teamId];
+              if (club != null) {
+                  if (club.tier == currentTier) { // Only promote if they are currently in this tier
+                      club.tier = targetTier;
+                      club.reputation += 25; // Reputation boost for promotion
+                      print("   -> ${club.name} promoted to Tier $targetTier. New Rep: ${club.reputation}");
+                      _addNewsItem(NewsItem.create(title: "Club Promoted!", description: "${club.name} has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}!", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                  } else {
+                      print("   -> ${club.name} finished in promotion spot but is already in Tier ${club.tier}. No change.");
+                  }
+              } else if (standing.teamId == playerAcademyId) {
+                  // Handle Player Academy Promotion
+                  if (_playerAcademyTier == currentTier) {
+                      _playerAcademyTier = targetTier;
+                      _academyReputation += 40; // Player rep boost for promotion
+                      print("   -> Player Academy promoted to Tier $targetTier! New Rep: $_academyReputation");
+                      _addNewsItem(NewsItem.create(title: "PROMOTED!", description: "Your academy has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}!", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                  } else {
+                      print("   -> Player Academy finished in promotion spot but is already in Tier $_playerAcademyTier. No change.");
+                  }
+              } else {
+                  // Handle Rival Academy Promotion
+                  RivalAcademy? academy = _rivalAcademyMap[standing.teamId];
+                  if (academy != null) {
+                      if (academy.tier == currentTier) {
+                          academy.tier = targetTier;
+                          academy.reputation += 30; // Rival rep boost for promotion
+                          print("   -> Rival Academy ${academy.name} promoted to Tier $targetTier. New Rep: ${academy.reputation}");
+                          _addNewsItem(NewsItem.create(title: "Rival Promoted", description: "${academy.name} has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                      } else {
+                          print("   -> Rival Academy ${academy.name} finished in promotion spot but is already in Tier ${academy.tier}. No change.");
+                      }
+                  }
+              }
+          }
+      } else {
+          print(" -> No promotion from Tier 1.");
+      }
+
+      // --- Relegation ---
+      if (currentTier < 3) { // Can only relegate from Tier 1 or 2
+          int targetTier = currentTier + 1;
+          List<LeagueStanding> relegatedTeams = sortedStandings.reversed.take(numRelegate).toList();
+          print(" -> Relegating to Tier $targetTier: ${relegatedTeams.map((s) => s.teamId).join(', ')}");
+          for (var standing in relegatedTeams) {
+              AIClub? club = _aiClubMap[standing.teamId];
+              if (club != null) {
+                  if (club.tier == currentTier) { // Only relegate if they are currently in this tier
+                      club.tier = targetTier;
+                      club.reputation = max(10, club.reputation - 15); // Reputation hit for relegation
+                      print("   -> ${club.name} relegated to Tier $targetTier. New Rep: ${club.reputation}");
+                      _addNewsItem(NewsItem.create(title: "Club Relegated", description: "${club.name} has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                  } else {
+                      print("   -> ${club.name} finished in relegation spot but is already in Tier ${club.tier}. No change.");
+                  }
+              } else if (standing.teamId == playerAcademyId) {
+                  // Handle Player Academy Relegation
+                  if (_playerAcademyTier == currentTier) {
+                      _playerAcademyTier = targetTier;
+                      _academyReputation = max(10, _academyReputation - 20); // Player rep hit for relegation
+                      print("   -> Player Academy relegated to Tier $targetTier. New Rep: $_academyReputation");
+                      _addNewsItem(NewsItem.create(title: "RELEGATED!", description: "Your academy has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                  } else {
+                      print("   -> Player Academy finished in relegation spot but is already in Tier $_playerAcademyTier. No change.");
+                  }
+              } else {
+                   // Handle Rival Academy Relegation
+                  RivalAcademy? academy = _rivalAcademyMap[standing.teamId];
+                  if (academy != null) {
+                      if (academy.tier == currentTier) {
+                          academy.tier = targetTier;
+                          academy.reputation = max(10, academy.reputation - 15); // Rival rep hit for relegation
+                          print("   -> Rival Academy ${academy.name} relegated to Tier $targetTier. New Rep: ${academy.reputation}");
+                          _addNewsItem(NewsItem.create(title: "Rival Relegated", description: "${academy.name} has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                      } else {
+                          print("   -> Rival Academy ${academy.name} finished in relegation spot but is already in Tier ${academy.tier}. No change.");
+                      }
+                  }
+              }
+          }
+      } else {
+          print(" -> No relegation from Tier 3.");
+      }
+  }
+
+  // Helper for ordinal suffixes (1st, 2nd, 3rd, etc.)
+  String _getOrdinalSuffix(int n) {
+    if (n % 100 >= 11 && n % 100 <= 13) {
+      return 'th';
+    }
+    switch (n % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  }
+  // --- END NEW ---
+
+  // --- NEW: Schedule Annual Pro Leagues ---
+  void _scheduleAnnualLeagues(int year) {
+    print("--- Scheduling Annual Pro Leagues for $year ---");
+    DateTime leagueStartDate = DateTime(year, 7, 1); // Fixed start date: July 1st
+
+    List<Tournament> proLeagueTemplates = _availableTournamentTemplates
+        .where((t) => t.name.startsWith("Pro Youth League"))
+        .toList();
+
+    // Sort templates by tier (optional, but good practice)
+    proLeagueTemplates.sort((a, b) => a.getLeagueTier().compareTo(b.getLeagueTier()));
+
+    for (var template in proLeagueTemplates) {
+      // Check if an instance of this league is already active or scheduled for the *upcoming* season
+      bool alreadyScheduledOrActive = _activeTournaments.any((t) =>
+          t.baseId == template.id &&
+          (t.status == TournamentStatus.InProgress ||
+           (t.status == TournamentStatus.Scheduled && t.startDate.year == year))); // Check year for scheduled
+
+      if (alreadyScheduledOrActive) {
+        print(" -> Instance of ${template.name} for $year already active or scheduled. Skipping.");
+        continue;
+      }
+
+      print(" -> Attempting to schedule ${template.name} for $year season.");
+      List<String> participants = [];
+      bool enoughParticipantsFound = false;
+
+      // --- Participant Gathering Logic (Deterministic - No Random Chance) ---
+      // (This logic is copied and adapted from _checkForNewTournaments, removing the random chance check)
+
+      // 1. Gather Eligible AI Clubs (Based on CURRENT TIER for T1/T2)
+      int leagueTier = template.getLeagueTier();
+      List<AIClub> eligibleAIClubs;
+
+      if (leagueTier == 1 || leagueTier == 2) {
+        eligibleAIClubs = _aiClubs.where((club) =>
+            club.tier == leagueTier &&
+            club.balance >= template.entryFee &&
+            club.players.length >= template.requiredPlayers &&
+            !club.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
+        ).toList();
+      } else { // Tier 3 or unknown
+        eligibleAIClubs = _aiClubs.where((club) =>
+            (club.tier == 3 || club.tier == 0) &&
+            club.reputation >= template.requiredReputation &&
+            club.balance >= template.entryFee &&
+            club.players.length >= template.requiredPlayers &&
+            !club.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
+        ).toList();
+      }
+      eligibleAIClubs.sort((a, b) => b.reputation.compareTo(a.reputation));
+
+      // 2. Gather Eligible Youth Academies (Rivals + Player)
+      List<dynamic> eligibleYouthAcademies = [];
+      bool playerEligible = false;
+      int youthRepReq = template.youthAcademyMinReputation ?? template.requiredReputation;
+
+      if (leagueTier == 3 || (leagueTier == 2 && youthRepReq >= 400)) { // Allow high-rep youth in T2
+         eligibleYouthAcademies.addAll(_rivalAcademies.where((rival) =>
+             rival.reputation >= youthRepReq &&
+             rival.balance >= template.entryFee &&
+             rival.players.length >= template.requiredPlayers &&
+             !rival.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
+         ));
+         playerEligible = _academyReputation >= youthRepReq &&
+                               _balance >= template.entryFee &&
+                               _academyPlayers.length >= template.requiredPlayers &&
+                               !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
+         eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation));
+      } else {
+         // Tier 1 or lower-rep Tier 2: No youth academies eligible
+      }
+      print(" -> Found ${eligibleAIClubs.length} eligible AI Clubs and ${eligibleYouthAcademies.length} eligible Youth Academies (Player eligible: $playerEligible) for Tier $leagueTier League.");
+
+      // 3. Fill Slots (Prioritize AI Clubs)
+      int slotsToFill = template.numberOfTeams;
+      if (playerEligible) {
+        slotsToFill--; // Reserve a slot for the player if they are eligible
+      }
+
+      // Add top AI Clubs first
+      for (var club in eligibleAIClubs) {
+        if (participants.length >= slotsToFill) break;
+        participants.add(club.id);
+      }
+      print(" -> Added ${participants.length} AI Clubs.");
+
+      // Add top Youth Academies if slots remain (Rivals join automatically here as it's the main league)
+      int aiClubsAdded = participants.length;
+      for (var academy in eligibleYouthAcademies) {
+        if (participants.length >= slotsToFill) break;
+        if (academy is RivalAcademy) { // Only add Rivals, not the player placeholder
+           participants.add(academy.id);
+        }
+      }
+      print(" -> Added ${participants.length - aiClubsAdded} Youth Academies.");
+
+      // 4. Check if minimum met (considering potential player join)
+      int minRequired = template.minTeamsToStart;
+      if (playerEligible) minRequired--;
+
+      if (participants.length >= minRequired) {
+        enoughParticipantsFound = true;
+      } else {
+         print(" -> Not enough participants (${participants.length}) for AI Focused League ${template.name}. Min required (allowing for player): $minRequired. League will not be scheduled this year.");
+      }
+      // --- End Participant Gathering ---
+
+      // --- Create Instance if Enough Participants Found ---
+      if (enoughParticipantsFound) {
+        // --- FIX: Pass the *actual current game date* to the factory ---
+        // The factory constructor will calculate the correct July 1st start date based on _currentDate.
+        Tournament newTournament = Tournament.fromTemplate(template, participants, _currentDate);
+        // --- END FIX ---
+        addActiveTournament(newTournament); // Adds to _activeTournaments with Scheduled status
+
+        // Mark participants as active in this tournament
+        for (var participantId in participants) {
+          _rivalAcademyMap[participantId]?.activeTournamentIds.add(newTournament.id);
+          _aiClubMap[participantId]?.activeTournamentIds.add(newTournament.id);
+        }
+
+        // Player join window is until the league starts
+        String joinWindow = "You have until ${DateFormat.yMMMd().format(leagueStartDate)} to join.";
+        _addNewsItem(NewsItem.create(
+            title: "Pro League Scheduled",
+            description: "${newTournament.name} is scheduled to start on ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams confirmed so far. $joinWindow",
+            type: NewsItemType.Tournament,
+            date: _currentDate // Use current date for the news item
+        ));
+        print(" -> Scheduled ${newTournament.name} (ID: ${newTournament.id}) starting ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
+      }
+      // --- END Create Instance ---
+    } // End loop through templates
+    print("--- Finished Scheduling Annual Pro Leagues ---");
+  }
+  // --- END Schedule Annual Pro Leagues ---
+
+  // --- NEW: Schedule Initial Pro Leagues (at Game Start/Reset) ---
+  void _scheduleInitialProLeagues() {
+    int initialYear = _currentDate.year; // Use the starting year
+    print("--- Scheduling Initial Pro Leagues for $initialYear ---");
+    // Use the current date directly as the scheduling date, matches will start based on this.
+    DateTime schedulingDate = _currentDate;
+
+    List<Tournament> proLeagueTemplates = _availableTournamentTemplates
+        .where((t) => t.name.startsWith("Pro Youth League"))
+        .toList();
+
+    proLeagueTemplates.sort((a, b) => a.getLeagueTier().compareTo(b.getLeagueTier()));
+
+    for (var template in proLeagueTemplates) {
+      // No need to check if already scheduled, as this runs only once at the start
+      print(" -> Attempting to schedule initial ${template.name} for $initialYear season.");
+      List<String> participants = [];
+      bool enoughParticipantsFound = false;
+
+      // --- Participant Gathering Logic (Deterministic) ---
+      int leagueTier = template.getLeagueTier();
+      List<AIClub> eligibleAIClubs;
+      if (leagueTier == 1 || leagueTier == 2) {
+        eligibleAIClubs = _aiClubs.where((club) => club.tier == leagueTier && club.balance >= template.entryFee && club.players.length >= template.requiredPlayers).toList();
+      } else { // Tier 3 or unknown
+        eligibleAIClubs = _aiClubs.where((club) => (club.tier == 3 || club.tier == 0) && club.reputation >= template.requiredReputation && club.balance >= template.entryFee && club.players.length >= template.requiredPlayers).toList();
+      }
+      eligibleAIClubs.sort((a, b) => b.reputation.compareTo(a.reputation));
+
+      List<dynamic> eligibleYouthAcademies = [];
+      bool playerEligible = false;
+      int youthRepReq = template.youthAcademyMinReputation ?? template.requiredReputation;
+      if (leagueTier == 3 || (leagueTier == 2 && youthRepReq >= 400)) {
+         eligibleYouthAcademies.addAll(_rivalAcademies.where((rival) => rival.reputation >= youthRepReq && rival.balance >= template.entryFee && rival.players.length >= template.requiredPlayers));
+         playerEligible = _academyReputation >= youthRepReq && _balance >= template.entryFee && _academyPlayers.length >= template.requiredPlayers;
+         eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation));
+      }
+      print(" -> Found ${eligibleAIClubs.length} eligible AI Clubs and ${eligibleYouthAcademies.length} eligible Youth Academies (Player eligible: $playerEligible) for Initial Tier $leagueTier League.");
+
+      int slotsToFill = template.numberOfTeams;
+      // --- MODIFICATION: Don't reserve slot for player in Tier 3 initially ---
+      // Let Tier 3 fill up, player can join later if eligible.
+      // For Tier 1/2, player isn't allowed anyway for now.
+      // --- END MODIFICATION ---
+
+      for (var club in eligibleAIClubs) { if (participants.length >= slotsToFill) break; participants.add(club.id); }
+      print(" -> Added ${participants.length} AI Clubs.");
+      int aiClubsAdded = participants.length;
+      for (var academy in eligibleYouthAcademies) { if (participants.length >= slotsToFill) break; if (academy is RivalAcademy) participants.add(academy.id); }
+      print(" -> Added ${participants.length - aiClubsAdded} Youth Academies.");
+
+      // --- MODIFICATION: Adjust min required check based on player eligibility for Tier 3 ---
+      int minRequired = template.minTeamsToStart;
+      // If player is eligible for Tier 3, they can potentially make up the numbers later
+      if (playerEligible && leagueTier == 3) minRequired--;
+      // --- END MODIFICATION ---
+
+      if (participants.length >= minRequired) enoughParticipantsFound = true;
+      else print(" -> Not enough participants (${participants.length}) for Initial League ${template.name}. Min required (allowing for player): $minRequired. League will not be scheduled.");
+      // --- End Participant Gathering ---
+
+      if (enoughParticipantsFound) {
+        // Use the schedulingDate (which is the game start date) to create the tournament instance.
+        // The tournament's internal logic will set the actual match dates starting from this.
+        Tournament newTournament = Tournament.fromTemplate(template, participants, schedulingDate);
+        addActiveTournament(newTournament);
+        for (var participantId in participants) { _rivalAcademyMap[participantId]?.activeTournamentIds.add(newTournament.id); _aiClubMap[participantId]?.activeTournamentIds.add(newTournament.id); }
+        // Adjust join window message slightly
+        String joinWindow = (leagueTier == 3 && playerEligible)
+            ? "You can join this league if you meet the requirements."
+            : "This league is for AI clubs and high-reputation academies."; // Generic message for T1/T2
+        _addNewsItem(NewsItem.create(title: "Pro League Scheduled", description: "${newTournament.name} is scheduled to start soon with ${participants.length} teams confirmed. $joinWindow", type: NewsItemType.Tournament, date: _currentDate));
+        print(" -> Scheduled Initial ${newTournament.name} (ID: ${newTournament.id}) starting around ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
+      }
+    }
+    print("--- Finished Scheduling Initial Pro Leagues ---");
+  }
+  // --- END Schedule Initial Pro Leagues ---
+
   // --- End Save/Load Logic ---
 }

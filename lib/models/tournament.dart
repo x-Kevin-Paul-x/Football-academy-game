@@ -69,6 +69,8 @@ class Tournament {
   final int numberOfTeams; // Target number of teams
   final int rounds; // For knockout format (ignored for League)
   final int minTeamsToStart; // Minimum teams required for the tournament to actually start
+  final bool isAIClubFocusedLeague; // NEW: Flag for AI club priority leagues
+  final int? youthAcademyMinReputation; // NEW: Optional separate rep req for youth teams in AI leagues
 
   // --- Instance Properties ---
   final String id; // Unique ID for this specific instance
@@ -103,6 +105,8 @@ class Tournament {
     Map<String, LeagueStanding>? standings,
     Map<int, List<String>>? byes,
     this.currentByeTeamId, // Add constructor parameter
+    this.isAIClubFocusedLeague = false, // Default to false
+    this.youthAcademyMinReputation, // Add constructor parameter
   }) : minTeamsToStart = minTeams ?? (numberOfTeams ~/ 2).clamp(2, numberOfTeams),
        leagueStandings = standings ?? {},
        roundByes = byes ?? {}; // Initialize byes map
@@ -119,6 +123,8 @@ class Tournament {
     int rounds = 0, // Optional for knockout, ignored for league
     int? minTeamsToStart, // Optional min teams for template
     String? templateId, // Optional specific ID for the template
+    bool isAIClubFocused = false, // NEW: Template parameter
+    int? youthRepReq, // NEW: Template parameter
   }) {
     int actualMinTeams = minTeamsToStart ?? (numberOfTeams ~/ 2).clamp(2, numberOfTeams);
     // Calculate rounds for knockout if not provided (log base 2)
@@ -138,6 +144,8 @@ class Tournament {
       numberOfTeams: numberOfTeams,
       rounds: calculatedRounds, // Use calculated or provided rounds
       minTeams: actualMinTeams,
+      isAIClubFocusedLeague: isAIClubFocused, // NEW: Set from template param
+      youthAcademyMinReputation: youthRepReq, // NEW: Set from template param
       // --- Dummy values for instance fields (not used by template logic) ---
       teamIds: [],
       startDate: DateTime.now(),
@@ -187,9 +195,20 @@ class Tournament {
       matches: [],
       currentRound: 1, // Start at round 1
       standings: initialStandings, // Add initial standings
+      isAIClubFocusedLeague: template.isAIClubFocusedLeague, // Inherit flag
+      youthAcademyMinReputation: template.youthAcademyMinReputation, // Inherit rep req
     );
 
     return newInstance;
+  }
+
+  // Helper to determine the tier of an AI Club Focused League from its name
+  int getLeagueTier() {
+    if (!isAIClubFocusedLeague) return 0; // Not an AI league
+    if (name.contains("Tier 1")) return 1;
+    if (name.contains("Tier 2")) return 2;
+    if (name.contains("Tier 3")) return 3;
+    return 0; // Unknown tier
   }
 
   // --- Match Generation Logic (Called when tournament starts) ---
@@ -220,10 +239,10 @@ class Tournament {
       leagueStandings.clear();
       for (String teamId in teamIds) {
          leagueStandings[teamId] = LeagueStanding(teamId: teamId);
-      }
+       }
     }
 
-    print("Generated ${matches.length} initial matches for ${name} (${format.name}).");
+    print("-> [Tournament ${id}] generateMatchesForStart: Generated ${matches.length} initial matches for ${name} (${format.name})."); // DEBUG
   }
 
   // --- Knockout Round Generation ---
@@ -386,9 +405,10 @@ class Tournament {
     List<Match> firstHalfMatches = [];
     List<Map<String, String>> secondHalfFixtures = []; // Store { 'home': teamId, 'away': teamId }
 
-    // --- Schedule First Half ---
+    // --- Schedule First Half (July to ~December) ---
     int firstHalfMatchCount = numRounds * matchesPerRound;
-    int daysBetweenFirstHalf = (182 ~/ firstHalfMatchCount).clamp(1, 7); // Spread over ~6 months
+    // Target ~150 days for first half (July 1st to end of Nov)
+    int daysBetweenFirstHalf = (150 ~/ firstHalfMatchCount).clamp(1, 5); // Compress slightly, max 5 days apart
     DateTime firstHalfDate = DateTime(startDate.year, startDate.month, startDate.day);
 
     List<String> currentTeams = List.from(teams); // Use a copy for rotation
@@ -423,10 +443,14 @@ class Tournament {
       currentTeams.insert(1, currentTeams.removeLast());
     }
 
-    // --- Schedule Second Half ---
+    // --- Schedule Second Half (~December to April) ---
     List<Match> secondHalfMatches = [];
-    DateTime secondHalfStartDate = firstHalfDate.add(const Duration(days: 7)); // Start a week after last first-half match
-    int daysBetweenSecondHalf = (183 ~/ secondHalfFixtures.length).clamp(1, 7); // Spread over remaining ~6 months
+    // Start second half around early December, ensuring it's after the last first-half match
+    DateTime secondHalfStartDate = firstHalfDate.isAfter(DateTime(firstHalfDate.year, 12, 1))
+                                     ? firstHalfDate.add(const Duration(days: 3)) // If first half ran late, add small gap
+                                     : DateTime(firstHalfDate.year, 12, 1); // Target Dec 1st start
+    // Target ~120 days for second half (Dec to end of April)
+    int daysBetweenSecondHalf = (120 ~/ secondHalfFixtures.length).clamp(1, 4); // Compress more, max 4 days apart
     DateTime secondHalfDate = secondHalfStartDate;
 
     // Shuffle fixtures for variety in second half schedule order

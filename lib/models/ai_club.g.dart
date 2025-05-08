@@ -18,6 +18,9 @@ AIClub _$AIClubFromJson(Map<String, dynamic> json) => AIClub(
       tier: (json['tier'] as num).toInt(),
       fanCount: (json['fanCount'] as num).toInt(),
       ticketPrice: (json['ticketPrice'] as num).toDouble(),
+      activeTournamentIds: (json['activeTournamentIds'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$AIClubToJson(AIClub instance) => <String, dynamic>{
@@ -30,4 +33,5 @@ Map<String, dynamic> _$AIClubToJson(AIClub instance) => <String, dynamic>{
       'tier': instance.tier,
       'fanCount': instance.fanCount,
       'ticketPrice': instance.ticketPrice,
+      'activeTournamentIds': instance.activeTournamentIds,
     };

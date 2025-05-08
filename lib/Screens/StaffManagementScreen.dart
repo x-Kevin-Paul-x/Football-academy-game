@@ -124,20 +124,49 @@ class StaffManagementScreen extends StatelessWidget {
       );
     }
 
-    // TODO: Add 'Fire' button later
-    // actions.add(
-    //   ElevatedButton.icon(
-    //     icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-    //     label: const Text('Fire', style: TextStyle(color: Colors.red)),
-    //     onPressed: () {
-    //       // Implement firing logic
-    //     },
-    //     style: ElevatedButton.styleFrom(
-    //       backgroundColor: Colors.white, // Or a light background
-    //       side: BorderSide(color: Colors.red),
-    //     ),
-    //   ),
-    // );
+    // Add 'Fire' button
+    actions.add(
+      ElevatedButton.icon(
+        icon: const Icon(Icons.remove_circle_outline),
+        label: const Text('Fire'),
+        onPressed: () {
+          // Show confirmation dialog before firing
+          showDialog(
+            context: context,
+            builder: (BuildContext dialogContext) {
+              return AlertDialog(
+                title: Text('Confirm Firing'),
+                content: Text('Are you sure you want to fire ${staff.name}?'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop(); // Close the dialog
+                    },
+                  ),
+                  TextButton(
+                    child: const Text('Fire', style: TextStyle(color: Colors.red)),
+                    onPressed: () {
+                      // Use Provider to call the fireStaff method
+                      Provider.of<GameStateManager>(context, listen: false).fireStaff(staff);
+                      Navigator.of(dialogContext).pop(); // Close the dialog
+                      // Optional: Show confirmation snackbar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Fired ${staff.name}.')),
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.red[700], // Darker red
+          foregroundColor: Colors.white,
+        ),
+      ),
+    );
 
     return actions;
   }

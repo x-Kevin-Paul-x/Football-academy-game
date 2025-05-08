@@ -28,6 +28,18 @@ Match _$MatchFromJson(Map<String, dynamic> json) => Match(
           .toList(),
       homePenaltyScore: (json['homePenaltyScore'] as num?)?.toInt(),
       awayPenaltyScore: (json['awayPenaltyScore'] as num?)?.toInt(),
+      homeFormation: json['homeFormation'] == null
+          ? null
+          : Formation.fromJson(json['homeFormation'] as Map<String, dynamic>),
+      awayFormation: json['awayFormation'] == null
+          ? null
+          : Formation.fromJson(json['awayFormation'] as Map<String, dynamic>),
+      homeBench: (json['homeBench'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      awayBench: (json['awayBench'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
 
 Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
@@ -46,6 +58,10 @@ Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
       'awayLineup': instance.awayLineup,
       'homePenaltyScore': instance.homePenaltyScore,
       'awayPenaltyScore': instance.awayPenaltyScore,
+      'homeFormation': instance.homeFormation?.toJson(),
+      'awayFormation': instance.awayFormation?.toJson(),
+      'homeBench': instance.homeBench,
+      'awayBench': instance.awayBench,
     };
 
 const _$MatchResultEnumMap = {

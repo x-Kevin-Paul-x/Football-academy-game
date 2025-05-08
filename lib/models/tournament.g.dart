@@ -51,6 +51,9 @@ Tournament _$TournamentFromJson(Map<String, dynamic> json) => Tournament(
       baseId: json['baseId'] as String?,
       currentRound: (json['currentRound'] as num?)?.toInt() ?? 1,
       currentByeTeamId: json['currentByeTeamId'] as String?,
+      isAIClubFocusedLeague: json['isAIClubFocusedLeague'] as bool? ?? false,
+      youthAcademyMinReputation:
+          (json['youthAcademyMinReputation'] as num?)?.toInt(),
     )
       ..leagueStandings = (json['leagueStandings'] as Map<String, dynamic>).map(
         (k, e) =>
@@ -72,6 +75,8 @@ Map<String, dynamic> _$TournamentToJson(Tournament instance) =>
       'prizeMoneyBase': instance.prizeMoneyBase,
       'numberOfTeams': instance.numberOfTeams,
       'rounds': instance.rounds,
+      'isAIClubFocusedLeague': instance.isAIClubFocusedLeague,
+      'youthAcademyMinReputation': instance.youthAcademyMinReputation,
       'id': instance.id,
       'teamIds': instance.teamIds,
       'startDate': instance.startDate.toIso8601String(),

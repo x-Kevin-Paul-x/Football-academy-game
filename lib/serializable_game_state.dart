@@ -32,6 +32,7 @@ class SerializableGameState {
   final ThemeMode themeMode;
   final List<RivalAcademy> rivalAcademies;
   final List<AIClub> aiClubs; // <-- ADDED AI Clubs Field Declaration
+  final int playerAcademyTier; // Add Player Academy Tier
 
   SerializableGameState({
     required this.currentDate,
@@ -52,6 +53,7 @@ class SerializableGameState {
     required this.themeMode,
     required this.rivalAcademies,
     required this.aiClubs, // <-- ADDED AI Clubs to constructor
+    required this.playerAcademyTier, // Add Player Academy Tier
   });
 
   // Connect to the generated functions

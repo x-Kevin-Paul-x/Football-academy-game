@@ -23,6 +23,7 @@ RivalAcademy _$RivalAcademyFromJson(Map<String, dynamic> json) => RivalAcademy(
       activeTournamentIds: (json['activeTournamentIds'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      tier: (json['tier'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$RivalAcademyToJson(RivalAcademy instance) =>
@@ -37,4 +38,5 @@ Map<String, dynamic> _$RivalAcademyToJson(RivalAcademy instance) =>
       'scoutingFacilityLevel': instance.scoutingFacilityLevel,
       'medicalBayLevel': instance.medicalBayLevel,
       'activeTournamentIds': instance.activeTournamentIds,
+      'tier': instance.tier,
     };

@@ -30,7 +30,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
-  final Random _random = Random(); // Keep for potential future use
+  // final Random _random = Random(); // Removed unused field
   final DateFormat _dateFormatter = DateFormat('MMMM d, yyyy');
 
   @override

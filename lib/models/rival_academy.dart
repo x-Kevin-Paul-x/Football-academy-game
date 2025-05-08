@@ -19,6 +19,7 @@ class RivalAcademy {
   int scoutingFacilityLevel;
   int medicalBayLevel;
   List<String> activeTournamentIds; // IDs of tournaments currently participating in
+  int tier; // 0 = Unranked/Not in Pro League, 1 = Tier 1, 2 = Tier 2, 3 = Tier 3
 
   @JsonKey(ignore: true) // Don't serialize random instance
   final Random _random = Random();
@@ -34,6 +35,7 @@ class RivalAcademy {
     this.scoutingFacilityLevel = 1,
     this.medicalBayLevel = 1,
     List<String>? activeTournamentIds, // Make nullable for constructor
+    this.tier = 0, // Default to unranked
   }) : activeTournamentIds = activeTournamentIds ?? []; // Initialize if null
 
   // Factory for creating initial rivals based on index and difficulty
@@ -79,6 +81,7 @@ class RivalAcademy {
       trainingFacilityLevel: 1 + random.nextInt(2), // Start with level 1 or 2
       scoutingFacilityLevel: 1 + random.nextInt(2),
       medicalBayLevel: 1 + random.nextInt(2),
+      tier: 0, // Start unranked
     );
   }
 

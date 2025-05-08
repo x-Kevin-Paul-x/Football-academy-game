@@ -54,8 +54,50 @@ class PlayerManagementScreen extends StatelessWidget {
                 return PlayerCard(
                   player: player,
                   showPotential: true, // Optionally show potential for academy players too
-                  // Add actions for academy players later (e.g., Train, Sell, Release)
-                  actions: [],
+                  actions: [
+                    // Add Release Button
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.person_remove_outlined),
+                      label: const Text('Release'),
+                      onPressed: () {
+                        // Show confirmation dialog before releasing
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext dialogContext) {
+                            return AlertDialog(
+                              title: Text('Confirm Release'),
+                              content: Text('Are you sure you want to release ${player.name} from the academy? This action cannot be undone.'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.of(dialogContext).pop(); // Close the dialog
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text('Release', style: TextStyle(color: Colors.red)),
+                                  onPressed: () {
+                                    // Use Provider to call the releasePlayer method
+                                    Provider.of<GameStateManager>(context, listen: false).releasePlayer(player);
+                                    Navigator.of(dialogContext).pop(); // Close the dialog
+                                    // Optional: Show confirmation snackbar
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Released ${player.name}.')),
+                                    );
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[800], // Use a distinct color like orange/brown
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                    // Add other actions like 'View Details' or 'Train' later
+                  ],
                   onTap: () => _showPlayerDetailsDialog(context, player, assignedCoach), // Show details on tap
                 );
               }, // End itemBuilder
@@ -81,7 +123,7 @@ class PlayerManagementScreen extends StatelessWidget {
           content: SingleChildScrollView( // Use SingleChildScrollView if content might overflow
             child: ListBody( // Use ListBody for column-like layout
               children: <Widget>[
-                _buildDetailRow('Position:', player.position.toString().split('.').last),
+                _buildDetailRow('Position:', player.positionString), // Use positionString getter
                 _buildDetailRow('Age:', player.age.toString()),
                 _buildDetailRow('Skill:', '${player.currentSkill} / ${player.potentialSkill}'),
                 _buildDetailRow('Stamina:', player.stamina.toString()), // New

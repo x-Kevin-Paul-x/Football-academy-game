@@ -36,5 +36,6 @@ const _$NewsItemTypeEnumMap = {
   NewsItemType.Facility: 'Facility',
   NewsItemType.PlayerSigned: 'PlayerSigned',
   NewsItemType.Tournament: 'Tournament',
+  NewsItemType.LeagueUpdate: 'LeagueUpdate',
   NewsItemType.Generic: 'Generic',
 };

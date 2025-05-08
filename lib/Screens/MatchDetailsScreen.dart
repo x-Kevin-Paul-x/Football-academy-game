@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
+import '../models/ai_club.dart'; // <-- ADD: Import AIClub
 import '../models/match.dart' hide GameStateManager; // Hide dummy GameStateManager
-import '../models/tournament.dart'; // Import Tournament for context if needed
+// import '../models/tournament.dart'; // Removed unused import (Analyzer warning)
 import '../models/player.dart';
 import '../models/rival_academy.dart'; // Import RivalAcademy
 import '../models/match_event.dart';
@@ -65,9 +66,14 @@ class MatchDetailsScreen extends StatelessWidget {
   String _getTeamName(String teamId, GameStateManager gameState) {
     if (teamId == GameStateManager.playerAcademyId) {
       return gameState.academyName;
-    } else {
-      return gameState.rivalAcademyMap[teamId]?.name ?? teamId; // Use rivalAcademyMap
     }
+    String? name = gameState.rivalAcademyMap[teamId]?.name;
+    if (name != null) return name;
+
+    name = gameState.aiClubMap[teamId]?.name;
+    if (name != null) return name;
+
+    return teamId; // Fallback to ID if not found anywhere
   }
 
   Widget _buildMatchInfo(BuildContext context, Match match, String homeTeamName, String awayTeamName) {
@@ -122,12 +128,16 @@ class MatchDetailsScreen extends StatelessWidget {
         String playerName = 'Unknown Player';
         String teamName = _getTeamName(event.teamId, gameState); // Get team name for context
 
-        // Find player name (check player academy first, then rivals)
+        // Find player name (check player academy, rivals, then AI clubs)
         Player? player = gameState.academyPlayers.firstWhereOrNull((p) => p.id == event.playerId);
         if (player == null) {
           RivalAcademy? rivalAcademy = gameState.rivalAcademyMap[event.teamId];
           player = rivalAcademy?.players.firstWhereOrNull((p) => p.id == event.playerId);
         }
+        if (player == null) { // --- ADDED: Check AI Clubs ---
+          AIClub? aiClub = gameState.aiClubMap[event.teamId];
+          player = aiClub?.players.firstWhereOrNull((p) => p.id == event.playerId);
+        } // --- END ADDED ---
         playerName = player?.name ?? (event.playerId ?? 'Unknown Player'); // Use player ID if name not found
 
         IconData icon = Icons.info_outline; // Default icon
@@ -253,7 +263,7 @@ class MatchDetailsScreen extends StatelessWidget {
                Text(awayTeamName, style: Theme.of(context).textTheme.titleMedium),
                const Divider(),
                 if (awayPlayers.isNotEmpty)
-                 ...awayPlayers.map((p) => Text('${p.name} (Skill: ${p.currentSkill})')).toList()
+                 ...awayPlayers.map((p) => Text('${p.name} (Skill: ${p.currentSkill})')) // Removed .toList()
                else
                  const Text('Lineup unavailable'), // Indicate if players couldn't be resolved
              ],
@@ -268,11 +278,18 @@ class MatchDetailsScreen extends StatelessWidget {
      List<Player> players = [];
      if (teamId == GameStateManager.playerAcademyId) {
        players = gameState.academyPlayers.where((p) => playerIds.contains(p.id)).toList();
-     } else {
+     } else if (gameState.rivalAcademyMap.containsKey(teamId)) { // Check Rivals
        RivalAcademy? academy = gameState.rivalAcademyMap[teamId];
        if (academy != null) {
          players = academy.players.where((p) => playerIds.contains(p.id)).toList();
        }
+     } else if (gameState.aiClubMap.containsKey(teamId)) { // Check AI Clubs
+       AIClub? club = gameState.aiClubMap[teamId];
+       if (club != null) {
+         players = club.players.where((p) => playerIds.contains(p.id)).toList();
+       }
+     } else {
+       print("Warning: Could not resolve players for team ID $teamId in MatchDetailsScreen._resolvePlayers");
      }
      // Sort players alphabetically by name for consistent display
      players.sort((a, b) => a.name.compareTo(b.name));
