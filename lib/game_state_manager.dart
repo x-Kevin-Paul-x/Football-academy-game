@@ -290,7 +290,7 @@ class GameStateManager with ChangeNotifier {
       name: "Kickabout Cup (3v3)",
       type: TournamentType.threeVthree,
       format: TournamentFormat.Knockout, // Added format
-      requiredReputation: 20, // Low requirement
+      requiredReputation: 0, // Low requirement
       entryFee: 200,
       prizeMoneyBase: 1000,
       numberOfTeams: 8, // Smaller tournament
@@ -302,7 +302,7 @@ class GameStateManager with ChangeNotifier {
       name: "Local Youth Cup (5v5)",
       type: TournamentType.fiveVfive,
       format: TournamentFormat.Knockout, // Added format
-      requiredReputation: 50,
+      requiredReputation: 40,
       entryFee: 500,
       prizeMoneyBase: 2000,
       numberOfTeams: 8,
@@ -389,19 +389,19 @@ class GameStateManager with ChangeNotifier {
      // Reset to base values first
      _balance = 50000.0;
      _weeklyIncome = 1000;
-     _academyReputation = 100; // Base reputation
+     _academyReputation = 1; // Base reputation
 
      switch (_difficulty) {
        case Difficulty.Easy:
-         _balance = 75000.0; _weeklyIncome = 1200; _academyReputation = 120; break;
+         _balance = 75000.0; _weeklyIncome = 1200; _academyReputation = 30; break;
        case Difficulty.Normal:
-         _balance = 50000.0; _weeklyIncome = 1000; _academyReputation = 100; break;
+         _balance = 50000.0; _weeklyIncome = 1000; _academyReputation = 10; break;
        case Difficulty.Hard:
-         _balance = 30000.0; _weeklyIncome = 800; _academyReputation = 80; break;
+         _balance = 30000.0; _weeklyIncome = 800; _academyReputation = 5; break;
        case Difficulty.Hardcore: // Added Hardcore Case
          _balance = 10000.0; // Very low starting balance
          _weeklyIncome = 600; // Lower income
-         _academyReputation = 50; // Very low starting reputation
+         _academyReputation = 0; // Set starting reputation to 0
          break;
      }
      print("Applied difficulty settings for $_difficulty: Balance=$_balance, Income=$_weeklyIncome, Reputation=$_academyReputation");
@@ -492,22 +492,76 @@ class GameStateManager with ChangeNotifier {
     double weeklyNet = _balance - balanceBefore;
 
     // 2. Scouting Logic (Player)
-    _scoutedPlayers.clear();
-    int totalScoutingSkill = _hiredStaff
-        .where((s) => s.role == StaffRole.Scout)
-        .fold(0, (sum, scout) => sum + scout.skill);
-    int playersToFind = 0;
-    if (_hiredStaff.any((s) => s.role == StaffRole.Scout)) {
-      playersToFind = (totalScoutingSkill / 50).ceil() + _random.nextInt(2);
+    _scoutedPlayers.clear(); // Clear previous week's finds first
+    final activeScouts = _hiredStaff.where((s) => s.role == StaffRole.Scout && s.isAssigned).toList();
+    int playersFoundThisWeekByAllScouts = 0;
+    const int maxScoutedPlayersCap = 20; // Max players to keep in the scouted list
+
+    if (activeScouts.isNotEmpty) {
+      for (var scout in activeScouts) {
+        // Chance for a scout to find *any* players this week
+        // Base chance + scout skill bonus + facility bonus
+        double baseFindChance = 0.3; // 30% base chance
+        double scoutSkillBonus = scout.skill / 200.0; // Max 0.5 for 100 skill
+        double facilityBonus = _scoutingFacilityLevel / 20.0; // Max 0.25 for level 5 (assuming max level 5 for now)
+        double findChance = (baseFindChance + scoutSkillBonus + facilityBonus).clamp(0.1, 0.9); // Clamp chance
+
+        if (_random.nextDouble() < findChance) {
+          // Number of players this scout finds (1, maybe more for high skill/facility)
+          int numPlayersFoundByScout = 1;
+          // Example: Higher skill/facility increases chance of finding more than one player
+          if (scout.skill > 70 && _scoutingFacilityLevel > 2 && _random.nextDouble() < 0.3) {
+            numPlayersFoundByScout++;
+          }
+          if (scout.skill > 85 && _scoutingFacilityLevel > 3 && _random.nextDouble() < 0.2) {
+            numPlayersFoundByScout++; // Rare chance for a third player
+          }
+
+          for (int i = 0; i < numPlayersFoundByScout; i++) {
+            // Add to a temporary list first if we want to strictly cap _scoutedPlayers after sorting
+            // For now, add directly and then trim if over a larger buffer before final trim.
+            // This ensures we don't miss out on potentially good players if many are found.
+            // A simpler approach is to cap additions if _scoutedPlayers is already large.
+            if (_scoutedPlayers.length < (maxScoutedPlayersCap + 10)) { // Allow a buffer before sorting and final trim
+              final newPlayerId = 'scouted_${_currentDate.millisecondsSinceEpoch}_${scout.id}_$i';
+              // Use the scout's skill to influence player generation
+              Player newPlayer = Player.randomScoutedPlayer(newPlayerId, scoutSkill: scout.skill);
+              _scoutedPlayers.add(newPlayer);
+              playersFoundThisWeekByAllScouts++;
+            } else {
+              break; // Stop this scout if the buffer is full
+            }
+          }
+        }
+      }
+
+      if (_scoutedPlayers.isNotEmpty) {
+        // Sort by potential (desc) then current skill (desc)
+        _scoutedPlayers.sort((a, b) {
+          int potCompare = b.potentialSkill.compareTo(a.potentialSkill);
+          if (potCompare != 0) return potCompare;
+          return b.currentSkill.compareTo(a.currentSkill);
+        });
+
+        // Trim to maxScoutedPlayersCap
+        if (_scoutedPlayers.length > maxScoutedPlayersCap) {
+          _scoutedPlayers.removeRange(maxScoutedPlayersCap, _scoutedPlayers.length);
+        }
+      }
     }
-    // print("Scouting found $playersToFind players this week."); // Less verbose
-    for (int i = 0; i < playersToFind; i++) {
-      _scoutedPlayers.add(Player.randomScoutedPlayer('scouted_${_currentDate.millisecondsSinceEpoch}_$i'));
-    }
-    if (playersToFind > 0) {
-       _addNewsItem(NewsItem.create(title: "Scouting Report", description: "Our scouts have identified $playersToFind potential new players this week.", type: NewsItemType.Scouting, date: _currentDate));
-    } else if (_hiredStaff.any((s) => s.role == StaffRole.Scout)) {
-       _addNewsItem(NewsItem.create(title: "Scouting Report", description: "Scouts found no notable players this week.", type: NewsItemType.Scouting, date: _currentDate));
+
+    if (playersFoundThisWeekByAllScouts > 0) {
+       _addNewsItem(NewsItem.create(
+           title: "Scouting Report",
+           description: "Our scouts have identified $playersFoundThisWeekByAllScouts potential new talent${playersFoundThisWeekByAllScouts > 1 ? 's' : ''} this week.",
+           type: NewsItemType.Scouting,
+           date: _currentDate));
+    } else if (activeScouts.isNotEmpty) { // Only report "no players found" if scouts were active
+       _addNewsItem(NewsItem.create(
+           title: "Scouting Report",
+           description: "Scouts found no notable players this week despite their efforts.",
+           type: NewsItemType.Scouting,
+           date: _currentDate));
     }
 
     // 3. Simulate Tournament Matches & Handle Starts/Completions
@@ -1555,15 +1609,33 @@ class GameStateManager with ChangeNotifier {
 
   void _refreshAvailableStaff() {
     int removedCount = 0;
-    _availableStaff.removeWhere((staff) { bool leaving = _random.nextDouble() < 0.20; if (leaving) removedCount++; return leaving; });
-    int newStaffCount = 1 + _random.nextInt(3); int addedCount = 0;
+    _availableStaff.removeWhere((staff) {
+      bool leaving = _random.nextDouble() < 0.20; // 20% chance any staff leaves the market
+      if (leaving) removedCount++;
+      return leaving;
+    });
+
+    // Number of new staff depends on player's academy reputation
+    // Min 1, Max 5. Example: Rep 0-199 -> 1, 200-399 -> 2, ..., 800-1000 -> 5
+    int newStaffCount = 1 + (_academyReputation ~/ 200);
+    newStaffCount = newStaffCount.clamp(1, 5); // Clamp between 1 and 5
+
+    int addedCount = 0;
     for (int i = 0; i < newStaffCount; i++) {
       StaffRole role = StaffRole.values[_random.nextInt(StaffRole.values.length)];
-      // Reduce chance of Manager/Physio appearing if many already available?
-      if ((role == StaffRole.Physio || role == StaffRole.Manager) && _random.nextBool()) { role = StaffRole.values[_random.nextInt(StaffRole.values.length)]; }
-      if (_availableStaff.length < 15) { Staff newStaff = Staff.randomStaff('staff_${_currentDate.millisecondsSinceEpoch}_$i', role); _availableStaff.add(newStaff); addedCount++; }
+      // Reduce chance of Manager/Physio appearing if many already available or low rep?
+      // For now, keep it simple.
+      if (_availableStaff.length < 15) { // Max 15 available staff in the market
+        Staff newStaff = Staff.randomStaff(
+          'staff_${_currentDate.millisecondsSinceEpoch}_$i',
+          role,
+          academyReputation: _academyReputation, // Pass current academy reputation
+        );
+        _availableStaff.add(newStaff);
+        addedCount++;
+      }
     }
-    // print("Staff Market Refreshed: $removedCount removed, $addedCount added. Total available: ${_availableStaff.length}"); // Less verbose
+    // print("Staff Market Refreshed: $removedCount removed, $addedCount added (based on rep $_academyReputation). Total available: ${_availableStaff.length}");
   }
 
   bool assignPlayerToCoach(String playerId, String coachId) {

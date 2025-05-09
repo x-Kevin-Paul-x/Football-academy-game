@@ -46,27 +46,31 @@ class RivalAcademy {
 
     // Base values
     int baseSkill = 20 + random.nextInt(41); // 20-60
-    int baseReputation = 50 + random.nextInt(151); // 50-200
+    int baseReputation = 0; // Initialize reputation to 0 for all difficulties by default
     double baseBalance = 20000.0 + random.nextInt(30001); // 20k-50k
 
     // Adjust based on difficulty
     switch (difficulty) {
       case Difficulty.Easy:
         baseSkill = (baseSkill * 0.8).round().clamp(10, 90);
-        baseReputation = (baseReputation * 0.8).round().clamp(20, 500);
+        // baseReputation remains 0
         baseBalance *= 1.2;
         break;
       case Difficulty.Normal:
-        // No change
+        // No change to baseSkill, baseBalance, or baseReputation (already 0).
         break;
       case Difficulty.Hard:
         baseSkill = (baseSkill * 1.15).round().clamp(10, 90);
-        baseReputation = (baseReputation * 1.15).round().clamp(20, 500);
+        // baseReputation remains 0 unless explicitly changed here for harder difficulties
+        // For now, let's keep it 0 for all difficulties at the start.
+        // If we want harder difficulties to start with some reputation, we'd adjust here.
+        // Example: baseReputation = (10 + random.nextInt(21)).clamp(0, 500); // Small starting rep for Hard
         baseBalance *= 0.8;
         break;
       case Difficulty.Hardcore:
         baseSkill = (baseSkill * 1.3).round().clamp(10, 90);
-        baseReputation = (baseReputation * 1.3).round().clamp(20, 500);
+        // baseReputation remains 0
+        // Example: baseReputation = (20 + random.nextInt(31)).clamp(0, 500); // Slightly more for Hardcore
         baseBalance *= 0.6;
         break;
     }

@@ -26,6 +26,7 @@ class Staff {
   int potential; // 1-100, max skill they can reach naturally
   // final TacticalStyle preferredTacticalStyle; // Removed
   int age;
+  bool isAssigned; // Field to track if staff (especially scouts) are active
 
   // Coach specific
   List<String> assignedPlayerIds; // IDs of players assigned to this coach
@@ -49,14 +50,36 @@ class Staff {
     int? maxPlayersTrainable,
     List<FormationType>? knownFormations,
     this.preferredFormation, // <-- Add to constructor parameters
+    this.isAssigned = true, // Default to true if not specified
   }) : assignedPlayerIds = assignedPlayerIds ?? [],
        maxPlayersTrainable = maxPlayersTrainable ?? 5, // Default max trainable
-       knownFormations = knownFormations ?? []; // <-- Initialize knownFormations
+       knownFormations = knownFormations ?? [];
+       // isAssigned is initialized via the constructor parameter's default value
 
   // Factory for generating random staff
-  factory Staff.randomStaff(String id, StaffRole role) {
+  factory Staff.randomStaff(String id, StaffRole role, {int? academyReputation}) {
     final random = Random();
-    int potential = 30 + random.nextInt(61); // 30-90 potential
+    // For randomly generated staff, they are considered active/assigned by default.
+    const bool defaultIsAssignedForRandomStaff = true;
+
+    // --- Reputation Influence on Potential ---
+    // academyReputation typically ranges from 0 to 1000.
+    // Let's scale this to influence potential.
+    // Base potential range: 20-70. Max bonus from reputation: +30.
+    // So, at 0 reputation, potential is 20-70.
+    // At 1000 reputation, potential is 50-100.
+    int baseMinPotential = 20;
+    int baseMaxPotential = 70;
+    double reputationFactor = (academyReputation ?? 0) / 1000.0; // Normalize reputation to 0.0 - 1.0
+    int reputationBonus = (reputationFactor * 30).toInt(); // Max +30 bonus
+
+    int minPotential = (baseMinPotential + reputationBonus).clamp(10, 90); // Ensure min potential is reasonable
+    int maxPotential = (baseMaxPotential + reputationBonus).clamp(minPotential + 10, 100); // Ensure max is above min and capped
+
+    int potential = minPotential + random.nextInt(maxPotential - minPotential + 1);
+    potential = potential.clamp(10, 100); // Final clamp for safety
+    // --- End Reputation Influence ---
+
     int skill = (potential * (0.4 + random.nextDouble() * 0.5)).clamp(10, 95).toInt(); // 40-90% of potential, min 10
     int age = 25 + random.nextInt(36); // 25-60 age
     int wage = 100 + (skill * 5) + (potential * 2) + random.nextInt(100); // Wage based on skill/potential
@@ -103,6 +126,7 @@ class Staff {
       maxPlayersTrainable: (role == StaffRole.Coach) ? maxTrainable : 0,
       knownFormations: initialKnownFormations,
       preferredFormation: initialPreferredFormation, // <-- Set preferred formation
+      isAssigned: defaultIsAssignedForRandomStaff, 
     );
   }
 

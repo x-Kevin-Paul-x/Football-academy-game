@@ -163,18 +163,63 @@ class Player {
   }
 
   // Factory constructor for generating random scouted players
-  factory Player.randomScoutedPlayer(String id) {
+  factory Player.randomScoutedPlayer(String id, {int? scoutSkill}) { // Added scoutSkill parameter
     final random = Random();
-    int randomStat() => 5 + random.nextInt(11); // Generates a stat between 5-15
+    // Adjusted randomStat to be more flexible, will be used later for individual attributes
+    int randomStat({int base = 5, int range = 11}) => (base + random.nextInt(range)).clamp(1, 20);
 
-    String name = NameGenerator.generatePlayerName(); // <-- Use NameGenerator
+
+    String name = NameGenerator.generatePlayerName();
     int age = 15 + random.nextInt(4); // Young players: 15-18
-    PlayerPosition position = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
-    int potentialSkill = 50 + random.nextInt(41); // Potential between 50-90
-    int currentSkill = 20 + random.nextInt(potentialSkill - 20 + 1); // Current skill lower than potential
+
+    // --- Scout Skill Influence on Potential ---
+    int actualScoutSkill = scoutSkill ?? 50; // Default to average scout skill if not provided
+    int minPotential, maxPotential;
+
+    // Tiered approach for potential based on scout skill
+    if (actualScoutSkill < 30) { // Poor scout (20-50 rating)
+      minPotential = 20; // Base min potential for poor scout
+      maxPotential = 55; // Base max potential for poor scout
+    } else if (actualScoutSkill < 60) { // Average scout (50-70 rating)
+      minPotential = 40;
+      maxPotential = 75;
+    } else if (actualScoutSkill < 85) { // Good scout (70-90 rating)
+      minPotential = 55;
+      maxPotential = 90;
+    } else { // Elite scout (90+ rating)
+      minPotential = 65;
+      maxPotential = 99;
+    }
+    // Add some randomness within the scout's capability band
+    // Ensure minPotential doesn't exceed maxPotential after randomness
+    int potentialRandomness = 10;
+    minPotential = (minPotential + random.nextInt(potentialRandomness) - (potentialRandomness ~/ 2)).clamp(10, 90);
+    maxPotential = (maxPotential + random.nextInt(potentialRandomness) - (potentialRandomness ~/ 2)).clamp(minPotential + 5, 99);
+    if (minPotential > maxPotential) minPotential = maxPotential -5;
+
+
+    int potentialSkill = minPotential + random.nextInt(maxPotential - minPotential + 1);
+    potentialSkill = potentialSkill.clamp(20, 99); // Ensure potential is within reasonable game bounds
+
+    // --- Scout Skill Influence on Initial Attributes (which then determine currentSkill) ---
+    // Weaker scouts find players with generally lower starting attributes.
+    int baseAttr, attrRange;
+    if (actualScoutSkill < 30) { // Poor scout
+      baseAttr = 1; attrRange = 5; // Attributes 1-5
+    } else if (actualScoutSkill < 60) { // Average scout
+      baseAttr = 3; attrRange = 7; // Attributes 3-9
+    } else if (actualScoutSkill < 85) { // Good scout
+      baseAttr = 5; attrRange = 9; // Attributes 5-13
+    } else { // Elite scout
+      baseAttr = 7; attrRange = 11; // Attributes 7-17
+    }
+
+    // This function will now be used to generate each attribute
+    int generateAttributeValue() => randomStat(base: baseAttr, range: attrRange);
+
     int weeklyWage = 50 + random.nextInt(151); // Wage between 50-200 for prospects
 
-    PlayerPosition naturalPositionValue = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)]; // Renamed from 'position' for clarity
+    PlayerPosition naturalPositionValue = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
     // int potentialSkill = 50 + random.nextInt(41); // Potential between 50-90 // Already defined above
     // int currentSkill = 20 + random.nextInt(potentialSkill - 20 + 1); // Current skill lower than potential // No longer needed here
     // int weeklyWage = 50 + random.nextInt(151); // Wage between 50-200 for prospects // Already defined above
@@ -198,53 +243,56 @@ class Player {
       potentialSkill: potentialSkill,
       weeklyWage: weeklyWage,
       isScouted: true, // Mark as scouted initially
-      reputation: random.nextInt(6),
-      stamina: random.nextInt(51) + 35,
+      reputation: random.nextInt(6), // Initial reputation for scouted players is low
+      stamina: generateAttributeValue(), // Use new generator
       preferredFormat: TournamentType.values[random.nextInt(TournamentType.values.length)],
       preferredPositions: preferred,
-      aggression: randomStat(),
-      composure: randomStat(),
-      concentration: randomStat(),
-      decision: randomStat(),
-      determination: randomStat(),
-      flair: randomStat(),
-      leadership: randomStat(),
-      teamwork: randomStat(),
-      vision: randomStat(),
-      workRate: randomStat(),
-      // Physical
-      acceleration: randomStat(),
-      agility: randomStat(),
-      balance: randomStat(),
-      jumpingReach: randomStat(),
-      naturalFitness: randomStat(),
-      pace: randomStat(),
-      strength: randomStat(),
-      // Attacking
-      crossing: randomStat(),
-      dribbling: randomStat(),
-      finishing: randomStat(),
-      firstTouch: randomStat(),
-      heading: randomStat(),
-      longShots: randomStat(),
-      passing: randomStat(),
-      penaltyTaking: randomStat(),
-      technique: randomStat(),
-      // Defending
-      marking: randomStat(),
-      tackling: randomStat(),
-      defensivePositioning: randomStat(),
-      // Goalkeeping - potentially make these higher if GK, lower otherwise
-      aerialReach: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      commandOfArea: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      communicationGK: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      eccentricity: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      handling: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      kicking: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      oneOnOnes: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      reflexes: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      rushingOut: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
-      throwing: naturalPositionValue == PlayerPosition.Goalkeeper ? randomStat() + 5 : randomStat() -2,
+      // Mental Attributes
+      aggression: generateAttributeValue(),
+      composure: generateAttributeValue(),
+      concentration: generateAttributeValue(),
+      decision: generateAttributeValue(),
+      determination: generateAttributeValue(),
+      flair: generateAttributeValue(),
+      leadership: generateAttributeValue(),
+      teamwork: generateAttributeValue(),
+      vision: generateAttributeValue(),
+      workRate: generateAttributeValue(),
+      // Physical Attributes
+      acceleration: generateAttributeValue(),
+      agility: generateAttributeValue(),
+      balance: generateAttributeValue(),
+      jumpingReach: generateAttributeValue(),
+      naturalFitness: generateAttributeValue(),
+      pace: generateAttributeValue(),
+      strength: generateAttributeValue(),
+      // Attacking Stats
+      crossing: generateAttributeValue(),
+      dribbling: generateAttributeValue(),
+      finishing: generateAttributeValue(),
+      firstTouch: generateAttributeValue(),
+      heading: generateAttributeValue(),
+      longShots: generateAttributeValue(),
+      passing: generateAttributeValue(),
+      penaltyTaking: generateAttributeValue(),
+      technique: generateAttributeValue(),
+      // Defending Stats
+      marking: generateAttributeValue(),
+      tackling: generateAttributeValue(),
+      defensivePositioning: generateAttributeValue(),
+      // Goalkeeping Stats - Apply positional bias
+      // For GK-specific stats, if the player is a GK, give them a slight boost from the generated value.
+      // If not a GK, potentially slightly reduce it or keep as is (less specialized).
+      aerialReach: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      commandOfArea: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      communicationGK: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      eccentricity: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      handling: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      kicking: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      oneOnOnes: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      reflexes: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      rushingOut: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      throwing: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
       // lastMatchRating defaults to null
       // Other new fields like matchesPlayed, goals, assists, fatigue, status keep their defaults (0, 0, 0, 0.0, Reserve)
     );

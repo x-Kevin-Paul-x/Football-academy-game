@@ -26,6 +26,7 @@ Staff _$StaffFromJson(Map<String, dynamic> json) => Staff(
           ? null
           : Formation.fromJson(
               json['preferredFormation'] as Map<String, dynamic>),
+      isAssigned: json['isAssigned'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
@@ -37,6 +38,7 @@ Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
       'loyalty': instance.loyalty,
       'potential': instance.potential,
       'age': instance.age,
+      'isAssigned': instance.isAssigned,
       'assignedPlayerIds': instance.assignedPlayerIds,
       'maxPlayersTrainable': instance.maxPlayersTrainable,
       'knownFormations': instance.knownFormations
