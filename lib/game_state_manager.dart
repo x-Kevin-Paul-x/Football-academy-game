@@ -438,6 +438,7 @@ class GameStateManager with ChangeNotifier {
     _updateStaffCapsFromFacilities();
     // _academyReputation is set in _applyDifficultySettings
     _transferOffers.clear();
+    print("--- DEBUG (resetGame): _transferOffers cleared. Length: ${_transferOffers.length} ---");
     _newsItems.clear();
     _playerAcademyTier = 0; // Reset player tier
     _generateInitialAvailableStaff();
@@ -918,19 +919,194 @@ class GameStateManager with ChangeNotifier {
       // TODO: AI identifies transfer targets (player academy, rivals, other AI)
       // TODO: AI decides offer amount based on value and budget
       // TODO: AI makes offers (add to a central offer list or handle directly?)
+      // --- START AI CLUB PLAYER ACQUISITION LOGIC ---
+      double transferActivityChance = 0.10 + ((4 - club.tier) * 0.05); // Tier 1: 25%, Tier 2: 20%, Tier 3: 15%
+      bool alreadyMadeOfferThisWeekByThisClub = _transferOffers.any((o) => o['offeringClubId'] == club.id && o['dateEpoch'] == _currentDate.millisecondsSinceEpoch);
+
+      if (!alreadyMadeOfferThisWeekByThisClub && _random.nextDouble() < transferActivityChance) {
+        // A. Assess Squad Needs
+        Map<String, int> desiredCountsPerGroup = {
+          "GK": 2,
+          "DEF": club.tier == 1 ? 6 : 5, // Adjusted counts for generic positions
+          "MID": club.tier == 1 ? 7 : 6, // Adjusted counts
+          "FWD": club.tier == 1 ? 3 : 2, // Adjusted counts
+        };
+        Map<String, PlayerPosition> positionGroups = { // Simplified to single PlayerPosition per group
+          "GK": PlayerPosition.Goalkeeper,
+          "DEF": PlayerPosition.Defender,
+          "MID": PlayerPosition.Midfielder,
+          "FWD": PlayerPosition.Forward,
+        };
+
+        List<PlayerPosition> neededPositions = []; // Renamed from neededSpecificPositions
+        positionGroups.forEach((groupName, positionInGroup) {
+          int currentCountInGroup = club.players.where((p) => p.naturalPosition == positionInGroup).length;
+          int desiredCountForThisGroup = desiredCountsPerGroup[groupName] ?? 0;
+          if (currentCountInGroup < desiredCountForThisGroup) {
+            neededPositions.add(positionInGroup); // Add the single position
+          }
+        });
+
+        // If no specific positional need but squad is generally small, look for any good player
+        if (neededPositions.isEmpty && club.players.length < (club.tier == 1 ? 22 : (club.tier == 2 ? 20 : 18)) ) {
+          neededPositions.addAll(PlayerPosition.values); // Consider all generic positions
+        }
+
+        if (neededPositions.isNotEmpty) {
+          neededPositions.shuffle(_random);
+
+          // B. Identify Potential Targets
+          List<Map<String, dynamic>> potentialTargetsData = [];
+
+          // B1. From Player's Academy
+          for (var player in _academyPlayers) {
+            PlayerPosition targetPos = player.naturalPosition; // Use natural position directly
+            if (neededPositions.contains(targetPos)) { // Check against the list of needed generic positions
+              if (player.age < 23 &&
+                  player.potentialSkill > (club.skillLevel * 0.7 + (3 - club.tier) * 5) &&
+                  club.balance > player.calculateMarketValue() * 0.5) { // Initial affordability check
+                if (!_transferOffers.any((o) => o['playerId'] == player.id && o['offeringClubId'] == club.id)) {
+                  potentialTargetsData.add({'player': player, 'ownerId': playerAcademyId, 'ownerName': _academyName, 'position': targetPos});
+                }
+              }
+            }
+          }
+
+          // B2. From Rival Academies
+          for (var rivalAcademy in _rivalAcademies) {
+            for (var player in rivalAcademy.players) {
+              PlayerPosition targetPos = player.naturalPosition; // Use natural position directly
+              if (neededPositions.contains(targetPos)) { // Check against the list of needed generic positions
+                if (player.age < 21 && // Stricter age for rival players
+                    player.potentialSkill > (club.skillLevel * 0.65 + (3 - club.tier) * 5) &&
+                    club.balance > player.calculateMarketValue() * 0.5) { // Initial affordability check
+                  // Check if an offer from this club for this player (from this rival) already exists and is recent
+                  bool existingOfferToRival = _transferOffers.any((o) =>
+                      o['playerId'] == player.id &&
+                      o['offeringClubId'] == club.id &&
+                      o['sellingClubId'] == rivalAcademy.id && // Ensure it's for this specific rival
+                      o['dateEpoch'] == _currentDate.millisecondsSinceEpoch); // Check for offer made this exact week
+
+                  if (!existingOfferToRival) { // Only add if no recent offer to this rival for this player
+                    potentialTargetsData.add({'player': player, 'ownerId': rivalAcademy.id, 'ownerName': rivalAcademy.name, 'position': targetPos});
+                  }
+                }
+              }
+            }
+          }
+
+          // B3. From Other AI Clubs
+          for (var otherAIClub in _aiClubs) {
+            if (otherAIClub.id == club.id) continue; // Don't target self
+
+            for (var player in otherAIClub.players) {
+              PlayerPosition targetPos = player.naturalPosition;
+              if (neededPositions.contains(targetPos)) {
+                // AI clubs might be more willing to buy slightly older/established players from other AIs
+                if (player.age < 28 && // Broader age range
+                    player.currentSkill > (club.skillLevel * 0.8 + (3 - club.tier) * 3) && // Target slightly better or comparable players
+                    player.potentialSkill > (club.skillLevel * 0.7) &&
+                    club.balance > player.calculateMarketValue() * 0.6) { // Affordability
+                  // Check if an offer from this club for this player (from this other AI club) already exists and is recent
+                  bool existingOfferToAI = _transferOffers.any((o) =>
+                      o['playerId'] == player.id &&
+                      o['offeringClubId'] == club.id &&
+                      o['sellingClubId'] == otherAIClub.id && // Ensure it's for this specific AI club
+                      o['dateEpoch'] == _currentDate.millisecondsSinceEpoch);
+
+                  if (!existingOfferToAI) {
+                    potentialTargetsData.add({
+                      'player': player,
+                      'ownerId': otherAIClub.id,
+                      'ownerName': otherAIClub.name,
+                      'position': targetPos
+                    });
+                  }
+                }
+              }
+            }
+          }
+
+          if (potentialTargetsData.isNotEmpty) {
+            potentialTargetsData.sort((a, b) {
+              Player pA = a['player'] as Player; Player pB = b['player'] as Player;
+              int potCompare = pB.potentialSkill.compareTo(pA.potentialSkill);
+              if (potCompare != 0) return potCompare;
+              int ageCompare = pA.age.compareTo(pB.age);
+              if (ageCompare != 0) return ageCompare;
+              return pB.currentSkill.compareTo(pA.currentSkill);
+            });
+
+            var targetData = potentialTargetsData.first;
+            Player targetPlayer = targetData['player'] as Player;
+            String targetPlayerOwnerId = targetData['ownerId'] as String;
+            String targetPlayerOwnerName = targetData['ownerName'] as String;
+            // PlayerPosition targetedPosition = targetData['position'] as PlayerPosition; // For future use if needed
+
+            int marketValue = targetPlayer.calculateMarketValue();
+            double offerMultiplierMin = 0.7;
+            double offerMultiplierMax = 1.3;
+            if (club.tier == 1) { offerMultiplierMin = 0.85; offerMultiplierMax = 1.6; }
+            else if (club.tier == 2) { offerMultiplierMin = 0.8; offerMultiplierMax = 1.45; }
+            double potentialGapBonus = ((targetPlayer.potentialSkill - targetPlayer.currentSkill) / 50.0).clamp(0.0, 0.3);
+            offerMultiplierMax += potentialGapBonus;
+
+            double offerMultiplier = offerMultiplierMin + _random.nextDouble() * (offerMultiplierMax - offerMultiplierMin);
+            int offerAmount = (marketValue * offerMultiplier).round();
+            offerAmount = (offerAmount ~/ 100) * 100;
+            offerAmount = max(500, offerAmount);
+
+            if (club.balance >= offerAmount) {
+              _transferOffers.add({
+                'playerId': targetPlayer.id,
+                'playerName': targetPlayer.name,
+                'offeringClubName': club.name,
+                'offeringClubId': club.id,
+                'offerAmount': offerAmount,
+                'isAIClubOffer': true,
+                'sellingClubId': targetPlayerOwnerId,
+                'sellingClubName': targetPlayerOwnerName,
+                'dateEpoch': _currentDate.millisecondsSinceEpoch,
+              });
+              // print("AI Club ${club.name} (Tier ${club.tier}) made an offer of ${NumberFormat.compactCurrency(symbol: '\$').format(offerAmount)} for ${targetPlayer.name} (Pot: ${targetPlayer.potentialSkill}, Age: ${targetPlayer.age}) from $targetPlayerOwnerName. MV: ${NumberFormat.compactCurrency(symbol: '\$').format(marketValue)}");
+
+              // --- DEBUG: Log AI-to-AI or AI-to-Rival offers (REMOVED) ---
+              // if (targetPlayerOwnerId != playerAcademyId) {
+              //   String ownerType = _rivalAcademyMap.containsKey(targetPlayerOwnerId) ? "Rival Academy" : (_aiClubMap.containsKey(targetPlayerOwnerId) ? "AI Club" : "Unknown Owner");
+              //   print("--- DEBUG (AI Offer for Non-Player): AI Club ${club.name} (ID: ${club.id}) offered for ${targetPlayer.name} (Player ID: ${targetPlayer.id}) from $targetPlayerOwnerName ($ownerType ID: $targetPlayerOwnerId). Amount: $offerAmount ---");
+              // }
+              // --- END DEBUG ---
+
+              if (targetPlayerOwnerId == playerAcademyId) {
+                _addNewsItem(NewsItem.create(
+                  title: "Transfer Offer Received",
+                  description: "${club.name} has made an offer of ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(offerAmount)} for your player ${targetPlayer.name}.",
+                  type: NewsItemType.TransferOffer,
+                  date: _currentDate
+                ));
+              }
+              // TODO: Later, add logic for rival academies to react to these offers in _handleRivalAcademyActions
+            }
+          }
+        }
+      }
+      // --- END AI CLUB PLAYER ACQUISITION LOGIC ---
 
       // 4. Transfer Logic (Responding to Offers)
-      // TODO: AI decides whether to accept/reject offers for their own players
+      // TODO: AI decides whether to accept/reject offers for their own players (i.e. if another AI club bids for their player)
 
       // 5. Player Training/Development (Simplified)
       // TODO: Basic skill improvement chance for AI players (similar to rivals?)
+      // Player development for AI clubs is significantly slower than academies.
       double trainingEffectiveness = (club.skillLevel / 100.0); // Simple skill-based training
       for (var player in club.players) {
         // AI club player training uses the new train method
         if (player.currentSkill < player.potentialSkill) { // Check if there's room to improve overall
-            double improveChance = 0.015 * trainingEffectiveness;
+            // Reduced improvement chance for AI clubs
+            double improveChance = 0.002 * trainingEffectiveness; // Was 0.015, significantly reduced
             if (_random.nextDouble() < improveChance) {
-                player.train(); // Call the train method
+                // AI clubs train less effectively, maybe only 1 attribute point if successful
+                player.train(improvementAmount: 1);
             }
         }
         // Simple fatigue recovery for AI club players
@@ -1959,7 +2135,11 @@ class GameStateManager with ChangeNotifier {
   // Generate Transfer Offers
   void _generateTransferOffers() {
     print("--- DEBUG: Starting _generateTransferOffers ---");
-    _transferOffers.clear(); // Clear previous offers
+    // Clear only previous offers made by AI clubs FOR the player's academy players
+    _transferOffers.removeWhere((o) =>
+        o['sellingClubId'] == playerAcademyId &&
+        o['isAIClubOffer'] == true &&
+        o['offeringClubId'] != null && _aiClubMap.containsKey(o['offeringClubId']));
     // Only generate offers if not in Hardcore mode? Or make them rarer/lower value?
     // For now, let's keep generating them but maybe rivals can also bid later.
     if (_difficulty == Difficulty.Hardcore) {

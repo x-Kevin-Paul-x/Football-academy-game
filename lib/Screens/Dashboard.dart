@@ -195,7 +195,12 @@ class _DashboardState extends State<Dashboard> {
           : currentScreenData['screen'] as Widget?, // Use screen from list, allowing null
       bottomNavigationBar: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
-          final transferOffersCount = gameStateManager.transferOffers.length;
+          // Filter offers to only count those for the player's academy
+          final allOffers = gameStateManager.transferOffers;
+          final relevantOffersCount = allOffers.where((offer) {
+            // Ensure 'sellingClubId' exists and matches the player's academy ID
+            return offer['sellingClubId'] == GameStateManager.playerAcademyId;
+          }).length;
           // Potentially add unread news count badge to dashboard icon later if desired
 
           return BottomNavigationBar(
@@ -204,9 +209,9 @@ class _DashboardState extends State<Dashboard> {
               final IconData iconData = data['icon'] as IconData;
               Widget iconWidget = Icon(iconData);
 
-              if (title == 'Transfers' && transferOffersCount > 0) {
+              if (title == 'Transfers' && relevantOffersCount > 0) {
                 iconWidget = Badge(
-                  label: Text(transferOffersCount.toString()),
+                  label: Text(relevantOffersCount.toString()),
                   child: iconWidget,
                 );
               }

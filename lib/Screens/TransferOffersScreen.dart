@@ -17,7 +17,15 @@ class TransferOffersScreen extends StatelessWidget {
       ),
       body: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
-          final offers = gameStateManager.transferOffers;
+          // Filter offers to only show those for the player's academy
+          final allOffers = gameStateManager.transferOffers;
+          final offers = allOffers.where((offer) {
+            // Ensure 'sellingClubId' exists and matches the player's academy ID
+            // Also, ensure it's an AI club offer for the player's academy,
+            // or if 'sellingClubId' is not present, assume it's an older offer type for the player.
+            // The primary check is sellingClubId.
+            return offer['sellingClubId'] == GameStateManager.playerAcademyId;
+          }).toList();
 
           if (offers.isEmpty) {
             return const Center(
