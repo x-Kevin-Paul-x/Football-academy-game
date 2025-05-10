@@ -33,6 +33,7 @@ class StaffCard extends StatelessWidget {
                   ),
                 ),
                 Chip(
+                  avatar: Icon(_getRoleIcon(staff.role), color: _getRoleColor(staff.role), size: 18),
                   label: Text(staff.role.name),
                   backgroundColor: _getRoleColor(staff.role).withOpacity(0.2),
                   labelStyle: TextStyle(color: _getRoleColor(staff.role), fontWeight: FontWeight.bold),
@@ -84,6 +85,22 @@ class StaffCard extends StatelessWidget {
       case StaffRole.Scout: return Colors.purpleAccent;
       case StaffRole.Physio: return Colors.tealAccent;
       case StaffRole.Manager: return Colors.amberAccent;
+      case StaffRole.MerchandiseManager: return Colors.orangeAccent; // Added color for Merchandise Manager
+    }
+  }
+
+  IconData _getRoleIcon(StaffRole role) {
+    switch (role) {
+      case StaffRole.Manager:
+        return Icons.manage_accounts; // Corrected Icon
+      case StaffRole.Coach:
+        return Icons.sports_soccer; // Or Icons.fitness_center
+      case StaffRole.Scout:
+        return Icons.search;
+      case StaffRole.Physio:
+        return Icons.medical_services; // Or Icons.healing
+      case StaffRole.MerchandiseManager:
+        return Icons.store; // Icon for Merchandise Manager
     }
   }
 }

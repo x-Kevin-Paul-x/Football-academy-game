@@ -101,7 +101,20 @@ class GameStateManager with ChangeNotifier {
   int _maxCoaches = 1;
   int _maxScouts = 1;
   int _maxPhysios = 1;
-  // Manager cap is implicitly 1
+  // int _maxMerchandiseManagers = 0; // Replaced by specific caps below
+  int _maxStoreManagers = 0; // 0 if no store, 1 if store exists
+  int _maxMatchSalesManagers = 1; // Example: Start with 1, could be upgradable
+  // Manager cap (Head Coach/Director) is implicitly 1
+
+  // Merchandise State
+  double _academyMerchStockValue = 0.0; // Total cost value of merchandise owned by the academy
+  static const double _baseMerchUnitCost = 5.0; // Assumed base cost for a "unit" of merchandise
+
+  // Fans
+  int _fans = 100; // Starting fans
+
+  // Facility State (Extended)
+  int _merchandiseStoreLevel = 0; // 0 = Not built
 
   // Reputation
   int _academyReputation = 100;
@@ -143,6 +156,12 @@ class GameStateManager with ChangeNotifier {
   int get maxCoaches => _maxCoaches;
   int get maxScouts => _maxScouts;
   int get maxPhysios => _maxPhysios;
+  // int get maxMerchandiseManagers => _maxMerchandiseManagers; // Replaced
+  int get maxStoreManagers => _maxStoreManagers;
+  int get maxMatchSalesManagers => _maxMatchSalesManagers;
+  double get academyMerchStockValue => _academyMerchStockValue;
+  int get fans => _fans;
+  int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
   List<Map<String, dynamic>> get transferOffers => List<Map<String, dynamic>>.unmodifiable(_transferOffers);
   List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
@@ -163,6 +182,21 @@ class GameStateManager with ChangeNotifier {
     _scheduleInitialProLeagues(); // <-- ADD: Schedule initial leagues
     _calculateWeeklyWages();
     _updateStaffCapsFromFacilities();
+    _addInitialMerchandiseManagerToAvailable();
+  }
+
+  void _addInitialMerchandiseManagerToAvailable() {
+    // Ensure at least one Merchandise Manager is available at the start
+    if (!_availableStaff.any((s) => s.role == StaffRole.MerchandiseManager)) {
+      _availableStaff.add(
+        Staff.randomStaff(
+          'staff_${DateTime.now().millisecondsSinceEpoch}_initial_merch',
+          StaffRole.MerchandiseManager,
+          academyReputation: _academyReputation,
+        ),
+      );
+      // print("Added initial Merchandise Manager to available staff."); // Less verbose
+    }
   }
 
   // --- Helper for Save File Path (Non-Web Only) ---
@@ -193,12 +227,12 @@ class GameStateManager with ChangeNotifier {
   void _populateRivalAcademyMap() {
     _rivalAcademies.clear();
     _rivalAcademyMap.clear();
-    int numberOfRivals = 15; // Default number
+    int numberOfRivals = 35; // Default number
     if (_difficulty == Difficulty.Hardcore) {
       numberOfRivals = 23; // More rivals in Hardcore
-    } else if (_difficulty == Difficulty.Hard) {
-      numberOfRivals = 19;
-    }
+    } //else if (_difficulty == Difficulty.Hard) {
+    //  numberOfRivals = 19;
+    //}
 
     _rivalAcademies = List<RivalAcademy>.generate(numberOfRivals, (index) => RivalAcademy.initial(index, difficulty: _difficulty)); // Added <RivalAcademy>
 
@@ -206,26 +240,38 @@ class GameStateManager with ChangeNotifier {
     for (var academy in _rivalAcademies) {
       int initialPlayerCount = 5 + _random.nextInt(6); // 5-10 players initially
       for (int i = 0; i < initialPlayerCount; i++) {
-        // Generate players with skill relative to academy skill level
-        int potentialSkill = (academy.skillLevel * 1.5).toInt() + _random.nextInt(31); // Potential based on skill, range 30
-        potentialSkill = potentialSkill.clamp(30, 95); // Clamp potential
-        int currentSkill = (potentialSkill * (0.4 + _random.nextDouble() * 0.4)).toInt(); // 40-80% of potential
-        currentSkill = currentSkill.clamp(15, potentialSkill); // Clamp current skill
+        // --- NEW Player Generation Logic for Rivals ---
+        // Aligned more closely with how player's scouted players are generated.
+        // Base potential similar to scouted players.
+        int basePotential = 30 + _random.nextInt(41); // 30-70
 
-        academy.players.add(
-          Player(
-            id: '${academy.id}_player_$i',
-            name: 'Rival Player ${academy.id.split('_').last}-$i', // Simple generated name
-            age: 15 + _random.nextInt(4),
-            naturalPosition: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)], // Changed from position
-            // currentSkill: currentSkill, // Removed
-            potentialSkill: potentialSkill,
-            weeklyWage: 50 + _random.nextInt(101), // Low wages
-            reputation: academy.reputation ~/ 5 + _random.nextInt(10), // Reputation based on academy
-            stamina: 40 + _random.nextInt(41), // 40-80 stamina
-            preferredPositions: [PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]], // Add default preferred position
-          )
+        // Academy's skillLevel acts like a scout's skill for generating initial players.
+        // academy.skillLevel ranges from ~16 (Easy) to ~78 (Hardcore).
+        // Bonus will range from ~2 to ~11.
+        int academySkillBonus = (academy.skillLevel / 7.0).round();
+
+        // Calculate potential skill, similar to Player.randomScoutedPlayer
+        int potentialSkill = (basePotential + academySkillBonus).clamp(25, 95); // Clamped 25-95
+
+        // Current skill as a percentage of this new potential.
+        // Rivals start with players at 40-80% of their potential.
+        int currentSkill = (potentialSkill * (0.4 + _random.nextDouble() * 0.4)).toInt();
+        currentSkill = currentSkill.clamp(15, potentialSkill); // Clamp current skill
+        // --- END NEW Player Generation Logic ---
+
+        Player newPlayer = Player(
+          id: '${academy.id}_player_$i',
+          name: 'Rival Player ${academy.id.split('_').last}-$i', // Simple generated name
+          age: 15 + _random.nextInt(4),
+          naturalPosition: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)],
+          potentialSkill: potentialSkill,
+          weeklyWage: 50 + _random.nextInt(101), // Low wages
+          reputation: academy.reputation ~/ 5 + _random.nextInt(10), // Reputation based on academy
+          stamina: 40 + _random.nextInt(41), // 40-80 stamina
+          preferredPositions: [PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]],
         );
+        newPlayer.setInitialSkillForAssignedPosition(currentSkill); // <-- Ensure current skill is properly initialized
+        academy.players.add(newPlayer);
       }
       _rivalAcademyMap[academy.id] = academy;
     }
@@ -254,10 +300,10 @@ class GameStateManager with ChangeNotifier {
       int initialPlayerCount = 18 + _random.nextInt(11); // 18-28 players
       // --- END INCREASE ---
       for (int i = 0; i < initialPlayerCount; i++) {
-        int potentialSkill = (club.skillLevel * 1.8).toInt() + _random.nextInt(21); // Higher base potential
-        potentialSkill = potentialSkill.clamp(40, 99); // Clamp potential
+        int potentialSkill = (club.skillLevel * 1.4).toInt() + _random.nextInt(21); // Higher base potential
+        potentialSkill = potentialSkill.clamp(1, 99); // Clamp potential
         int currentSkill = (potentialSkill * (0.6 + _random.nextDouble() * 0.3)).toInt(); // 60-90% of potential
-        currentSkill = currentSkill.clamp(30, potentialSkill); // Clamp current skill
+        currentSkill = currentSkill.clamp(10, potentialSkill); // Clamp current skill
         PlayerPosition position = PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]; // Define position
 
         club.players.add(
@@ -293,7 +339,7 @@ class GameStateManager with ChangeNotifier {
       requiredReputation: 0, // Low requirement
       entryFee: 200,
       prizeMoneyBase: 1000,
-      numberOfTeams: 8, // Smaller tournament
+      numberOfTeams: 32, // Smaller tournament
       // rounds: 3, // Knockout (calculated automatically)
       minTeamsToStart: 4, // Lower minimum to start
     ));
@@ -305,7 +351,7 @@ class GameStateManager with ChangeNotifier {
       requiredReputation: 40,
       entryFee: 500,
       prizeMoneyBase: 2000,
-      numberOfTeams: 8,
+      numberOfTeams: 32,
       // rounds: 3, // Knockout (calculated automatically)
     ));
      _availableTournamentTemplates.add(Tournament.createTemplate(
@@ -315,7 +361,7 @@ class GameStateManager with ChangeNotifier {
       requiredReputation: 100,
       entryFee: 1000,
       prizeMoneyBase: 5000,
-      numberOfTeams: 8,
+      numberOfTeams: 32,
       // rounds: 3, // Knockout (calculated automatically)
     ));
      _availableTournamentTemplates.add(Tournament.createTemplate(
@@ -325,7 +371,7 @@ class GameStateManager with ChangeNotifier {
       requiredReputation: 200,
       entryFee: 2500,
       prizeMoneyBase: 15000,
-      numberOfTeams: 16,
+      numberOfTeams: 70,
       // rounds: 4, // Knockout (calculated automatically)
     ));
 
@@ -440,8 +486,12 @@ class GameStateManager with ChangeNotifier {
     _transferOffers.clear();
     print("--- DEBUG (resetGame): _transferOffers cleared. Length: ${_transferOffers.length} ---");
     _newsItems.clear();
-    _playerAcademyTier = 0; // Reset player tier
+    _playerAcademyTier = 0;
+    _merchandiseStoreLevel = 0;
+    _academyMerchStockValue = 0.0; // Reset merch stock
+    _fans = 100;
     _generateInitialAvailableStaff();
+    _addInitialMerchandiseManagerToAvailable(); // Ensure merch manager is available after reset
     _calculateWeeklyWages();
 
     if (kIsWeb) {
@@ -466,6 +516,9 @@ class GameStateManager with ChangeNotifier {
   void advanceWeek() {
     _currentDate = _currentDate.add(const Duration(days: 7));
     print("Advancing week to: $_currentDate");
+
+    // Merchandise Sales & Fan Updates (before other financial calculations)
+    _handleMerchandiseAndFans();
 
     // 0a. Schedule Annual Pro Leagues (e.g., last week of May)
     // Check if it's May and the day is 22nd or later (covering the last ~10 days)
@@ -620,7 +673,7 @@ class GameStateManager with ChangeNotifier {
       }
 
       // *** INCREASED CHANCE: Higher base chance, less dependent on rep ***
-      double baseChance = (template.format == TournamentFormat.League) ? 0.25 : 0.50; // Lower chance for league
+      double baseChance = (template.format == TournamentFormat.League) ? 0.50 : 0.80; // Lower chance for league (Increased from 0.25 / 0.50)
       double repModifier = (template.requiredReputation / 500.0).clamp(0.1, 0.5); // Rep still has some influence (10-50%)
       double startChance = baseChance + (_random.nextDouble() * repModifier); // Base + Random Rep Influence
       startChance = startChance.clamp(0.05, 0.95); // Clamp between 5% and 95%
@@ -1133,12 +1186,14 @@ class GameStateManager with ChangeNotifier {
     int currentCount = _hiredStaff.where((s) => s.role == staffToHire.role).length;
     bool canHire = true;
     String? reason;
+    int totalMerchManagerCap = _maxStoreManagers + _maxMatchSalesManagers;
 
     switch (staffToHire.role) {
       case StaffRole.Manager: if (currentCount >= 1) { canHire = false; reason = "Only one Manager allowed."; } break;
       case StaffRole.Coach: if (currentCount >= _maxCoaches) { canHire = false; reason = "Coach limit reached ($_maxCoaches). Upgrade Training Facility."; } break;
       case StaffRole.Scout: if (currentCount >= _maxScouts) { canHire = false; reason = "Scout limit reached ($_maxScouts). Upgrade Scouting Facility."; } break;
       case StaffRole.Physio: if (currentCount >= _maxPhysios) { canHire = false; reason = "Physio limit reached ($_maxPhysios). Upgrade Medical Bay."; } break;
+      case StaffRole.MerchandiseManager: if (currentCount >= totalMerchManagerCap) { canHire = false; reason = "Merchandise Manager limit reached ($totalMerchManagerCap). Upgrade Merchandise Store for more Store Managers."; } break;
     }
 
     if (!canHire) { print("Cannot hire ${staffToHire.name}. Reason: $reason"); return false; }
@@ -1397,12 +1452,40 @@ class GameStateManager with ChangeNotifier {
             }
 
             Staff? playerManager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
+            // --- Get Team Reputations for Viewership Calculation ---
+            int homeRep = 0;
+            int awayRep = 0;
+            if (_rivalAcademyMap.containsKey(match.homeTeamId)) {
+              homeRep = _rivalAcademyMap[match.homeTeamId]!.reputation;
+            } else if (_aiClubMap.containsKey(match.homeTeamId)) {
+              homeRep = _aiClubMap[match.homeTeamId]!.reputation;
+            } else if (match.homeTeamId == playerAcademyId) {
+              homeRep = _academyReputation;
+            }
+
+            if (_rivalAcademyMap.containsKey(match.awayTeamId)) {
+              awayRep = _rivalAcademyMap[match.awayTeamId]!.reputation;
+            } else if (_aiClubMap.containsKey(match.awayTeamId)) {
+              awayRep = _aiClubMap[match.awayTeamId]!.reputation;
+            } else if (match.awayTeamId == playerAcademyId) {
+              awayRep = _academyReputation;
+            }
+
             // Simulate the match, passing whether it's a knockout game
             match.simulateDetailed(
               homeSelection.starters, // Pass starters list
               awaySelection.starters, // Pass starters list
               isKnockout: tournament.format == TournamentFormat.Knockout, // Pass knockout status
-              playerManager: (match.homeTeamId == playerAcademyId || match.awayTeamId == playerAcademyId) ? playerManager : null
+              playerManager: (match.homeTeamId == playerAcademyId || match.awayTeamId == playerAcademyId) ? playerManager : null,
+              // Pass formations and benches
+              homeFormationUsed: homeSelection.formation,
+              awayFormationUsed: awaySelection.formation,
+              homeBenchPlayers: homeSelection.bench,
+              awayBenchPlayers: awaySelection.bench,
+              // Pass reputations for viewership
+              homeTeamReputation: homeRep,
+              awayTeamReputation: awayRep,
+              tournamentReputation: tournament.requiredReputation // Add tournament reputation
             );
 
             // --- Update Stats/Fatigue for ALL involved teams ---
@@ -2048,6 +2131,33 @@ class GameStateManager with ChangeNotifier {
         playerIndividualRepChangeBase = 0; // No base rep change for losing, but can gain from goals/assists
       }
       _academyReputation = max(0, _academyReputation + playerReputationChange);
+
+      // --- NEW: Direct Fan Changes based on Match Result & Viewership ---
+      int fanChangeOnMatch = 0;
+      if (playerWon) {
+        // Base fan gain for a win, scaled by viewership
+        fanChangeOnMatch = (5 + (match.viewership / 20)).round(); // e.g., 5 + (100 viewers / 20) = 10 fans
+        fanChangeOnMatch = fanChangeOnMatch.clamp(1, 50); // Clamp fan gain
+      } else if (playerDrew) {
+        // Smaller gain for a draw, scaled by viewership
+        fanChangeOnMatch = (2 + (match.viewership / 50)).round(); // e.g., 2 + (100 viewers / 50) = 4 fans
+        fanChangeOnMatch = fanChangeOnMatch.clamp(0, 25);
+      } else { // Player Lost
+        // Fan loss for a loss, less impact from viewership directly, more from disappointment
+        fanChangeOnMatch = -(_random.nextInt(3) + 1); // Lose 1 to 3 fans
+        fanChangeOnMatch = fanChangeOnMatch.clamp(-10, 0); // Clamp fan loss
+      }
+
+      // Add a small bonus based on raw viewership if it was a player's match
+      fanChangeOnMatch += (match.viewership / 100).round().clamp(0,5); // Max +5 from raw viewership
+
+      if (fanChangeOnMatch != 0) {
+        _fans += fanChangeOnMatch;
+        _fans = max(0, _fans); // Ensure fans don't go below 0
+        // print("Direct fan change after match: $fanChangeOnMatch (Viewers: ${match.viewership}). New fans: $_fans");
+      }
+      // --- END NEW: Direct Fan Changes ---
+
       // print("Player Academy reputation changed by $playerReputationChange to $_academyReputation after match ${match.id}"); // Less verbose
     }
 
@@ -2246,6 +2356,9 @@ class GameStateManager with ChangeNotifier {
                 'offeringClubId': offeringClub.id, // Store AI club ID
                 'offerAmount': offerAmount,
                 'isAIClubOffer': true, // Flag to distinguish from potential future rival offers
+                'sellingClubId': playerAcademyId, // Ensure selling club is player's academy
+                'sellingClubName': _academyName, // Add selling club name
+                'dateEpoch': _currentDate.millisecondsSinceEpoch, // Add date epoch for consistency
             });
             // print("Generated transfer offer for ${player.name} (Value: $marketValue) from AI Club ${offeringClub.name} for $offerAmount"); // Less verbose
             _addNewsItem(NewsItem.create(title: "Transfer Offer Received", description: "${offeringClub.name} has made an offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name}.", type: NewsItemType.TransferOffer, date: _currentDate));
@@ -2340,13 +2453,16 @@ class GameStateManager with ChangeNotifier {
   int getTrainingFacilityUpgradeCost() => _calculateFacilityUpgradeCost(_trainingFacilityLevel);
   int getScoutingFacilityUpgradeCost() => _calculateFacilityUpgradeCost(_scoutingFacilityLevel);
   int getMedicalBayUpgradeCost() => _calculateFacilityUpgradeCost(_medicalBayLevel);
+  int getMerchandiseStoreUpgradeCost() => _calculateFacilityUpgradeCost(_merchandiseStoreLevel); // Cost for merch store
 
   void _updateStaffCapsFromFacilities() {
     _maxCoaches = 1 + (_trainingFacilityLevel - 1);
     _maxScouts = 1 + (_scoutingFacilityLevel - 1);
     _maxPhysios = 1 + (_medicalBayLevel - 1);
+    _maxStoreManagers = (_merchandiseStoreLevel > 0) ? _merchandiseStoreLevel : 0; // 1 Store Manager per store level
+    // _maxMatchSalesManagers is currently static (1), can be made dynamic later if needed.
 
-    // print("Updated staff caps: Coaches=$_maxCoaches, Scouts=$_maxScouts, Physios=$_maxPhysios"); // Less verbose
+    // print("Updated staff caps: Coaches=$_maxCoaches, Scouts=$_maxScouts, Physios=$_maxPhysios, StoreMgrs=$_maxStoreManagers, MatchSalesMgrs=$_maxMatchSalesManagers"); // Less verbose
     // Ensure hired staff doesn't exceed new caps (fire excess? prevent hiring?) - For now, just prevents hiring more.
   }
 
@@ -2383,6 +2499,27 @@ class GameStateManager with ChangeNotifier {
        _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Medical Bay upgraded to Level $_medicalBayLevel. Physio capacity increased to $_maxPhysios.", type: NewsItemType.Facility, date: _currentDate));
       notifyListeners(); return true;
     } else { print("Cannot upgrade Medical Bay. Cost: $cost, Balance: $_balance"); return false; }
+  }
+
+  bool upgradeMerchandiseStore() {
+    int cost = getMerchandiseStoreUpgradeCost();
+    if (_balance >= cost) {
+      _balance -= cost;
+      _merchandiseStoreLevel++;
+      _academyReputation += 3; // Smaller reputation boost for merch store
+      _updateStaffCapsFromFacilities(); // This will update _maxStoreManagers
+      print("Upgraded Merchandise Store to Level $_merchandiseStoreLevel. Cost: $cost. Balance: $_balance. Rep: $_academyReputation. Max Store Managers: $_maxStoreManagers");
+      _addNewsItem(NewsItem.create(
+          title: "Facility Upgraded",
+          description: "Merchandise Store upgraded to Level $_merchandiseStoreLevel. Store Manager capacity increased to $_maxStoreManagers. Academy reputation increased.",
+          type: NewsItemType.Facility,
+          date: _currentDate));
+      notifyListeners();
+      return true;
+    } else {
+      print("Cannot upgrade Merchandise Store. Cost: $cost, Balance: $_balance");
+      return false;
+    }
   }
 
   void markAllNewsAsRead() {
@@ -2436,6 +2573,8 @@ class GameStateManager with ChangeNotifier {
         trainingFacilityLevel: _trainingFacilityLevel,
         scoutingFacilityLevel: _scoutingFacilityLevel,
         medicalBayLevel: _medicalBayLevel,
+        merchandiseStoreLevel: _merchandiseStoreLevel, // Save merchandise store level
+        fans: _fans, // Save fans
         academyReputation: _academyReputation,
         newsItems: _newsItems,
         difficulty: _difficulty,
@@ -2539,6 +2678,8 @@ class GameStateManager with ChangeNotifier {
       _trainingFacilityLevel = loadedState.trainingFacilityLevel;
       _scoutingFacilityLevel = loadedState.scoutingFacilityLevel;
       _medicalBayLevel = loadedState.medicalBayLevel;
+      _merchandiseStoreLevel = loadedState.merchandiseStoreLevel ?? 0; // Load merchandise store level, default to 0 if not present
+      _fans = loadedState.fans ?? 100; // Load fans, default to 100 if not present
       _academyReputation = loadedState.academyReputation;
       _newsItems = loadedState.newsItems;
       _difficulty = loadedState.difficulty;
@@ -2924,6 +3065,86 @@ class GameStateManager with ChangeNotifier {
     print("--- Finished Scheduling Initial Pro Leagues ---");
   }
   // --- END Schedule Initial Pro Leagues ---
+
+  // --- NEW: Handle Merchandise Sales & Fan Updates ---
+  void _handleMerchandiseAndFans() {
+    // --- Fan Fluctuation based on recent performance ---
+    // This is a simplified version. Could be tied to specific match results from the past week.
+    // For now, a general small fluctuation.
+    int fanChange = 0;
+    if (_random.nextDouble() < 0.1) { // 10% chance of fan change event
+      fanChange = _random.nextInt(11) - 5; // -5 to +5 fans
+      // Bonus for high reputation
+      if (_academyReputation > 300) fanChange += _random.nextInt( (_academyReputation ~/ 100) );
+      // Penalty for very low reputation
+      if (_academyReputation < 50) fanChange -= _random.nextInt(3);
+    }
+    _fans = max(0, _fans + fanChange); // Ensure fans don't go below 0
+
+    // --- Merchandise Sales ---
+    double merchandiseIncomeThisWeek = 0;
+    Staff? merchManager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.MerchandiseManager);
+
+    // 1. Sales at Games (if no store or low level store)
+    // This part assumes matches were played this week. We need a way to check that.
+    // For simplicity, let's assume some base "at game" sales potential if a manager is hired,
+    // even without a store, or if the store is very basic.
+    if (merchManager != null && _merchandiseStoreLevel <= 1) {
+      // Income based on fans, manager skill, and a bit of luck
+      // Lower income compared to a dedicated store
+      double atGameSales = (_fans * 0.05) * (merchManager.skill / 100.0) * (0.5 + _random.nextDouble() * 0.5);
+      merchandiseIncomeThisWeek += atGameSales.clamp(0, 500); // Cap at-game sales
+    }
+
+    // 2. Sales from Merchandise Store (if built and level > 0)
+    if (_merchandiseStoreLevel > 0 && merchManager != null) {
+      double storeBaseIncome = _merchandiseStoreLevel * 100.0; // Base income per store level
+      double fanMultiplier = 1 + (_fans / 500.0); // More fans, more sales
+      double managerSkillMultiplier = 0.5 + (merchManager.skill / 200.0); // Skill up to 1.0 multiplier
+      double randomFactor = 0.8 + _random.nextDouble() * 0.4; // 0.8 to 1.2
+
+      double storeIncome = storeBaseIncome * fanMultiplier * managerSkillMultiplier * randomFactor;
+
+      // Potential for negative outcome if manager skill is very low or bad luck
+      if (merchManager.skill < 30 && _random.nextDouble() < 0.15) { // 15% chance of negative if skill < 30
+        double lossAmount = storeIncome * (0.2 + _random.nextDouble() * 0.3); // Lose 20-50% of potential income
+        storeIncome -= lossAmount;
+        _addNewsItem(NewsItem.create(
+            title: "Merchandise Mismanagement",
+            description: "Poor handling at the club store led to a loss of ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(lossAmount.abs())} this week.",
+            type: NewsItemType.Finance, // Or a new type like Merch
+            date: _currentDate));
+      }
+      merchandiseIncomeThisWeek += storeIncome;
+    } else if (_merchandiseStoreLevel > 0 && merchManager == null) {
+      // Store exists but no manager - reduced income and higher chance of small loss
+      double storeBaseIncome = _merchandiseStoreLevel * 50.0; // Reduced base without manager
+      double fanMultiplier = 1 + (_fans / 1000.0); // Reduced fan impact
+      merchandiseIncomeThisWeek += storeBaseIncome * fanMultiplier * (0.5 + _random.nextDouble() * 0.3); // Lower random factor
+
+      if (_random.nextDouble() < 0.25) { // 25% chance of a small loss
+        double lossAmount = (storeBaseIncome * fanMultiplier) * (0.1 + _random.nextDouble() * 0.2);
+        merchandiseIncomeThisWeek -= lossAmount;
+         _addNewsItem(NewsItem.create(
+            title: "Merch Store Issues",
+            description: "The unmanaged club store incurred a small loss of ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(lossAmount.abs())} this week.",
+            type: NewsItemType.Finance,
+            date: _currentDate));
+      }
+    }
+
+    if (merchandiseIncomeThisWeek.abs() > 0.01) { // Only add to balance and news if there's actual income/loss
+        _balance += merchandiseIncomeThisWeek;
+        String incomeOrLossString = merchandiseIncomeThisWeek >= 0 ? "income" : "loss";
+        _addNewsItem(NewsItem.create(
+            title: "Merchandise Sales Update",
+            description: "This week's merchandise $incomeOrLossString: ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(merchandiseIncomeThisWeek)}. Current fans: $_fans.",
+            type: NewsItemType.Finance, // Or a new type
+            date: _currentDate));
+    }
+    // print("Merchandise income this week: $merchandiseIncomeThisWeek. Fans: $_fans"); // Less verbose
+  }
+  // --- END Handle Merchandise Sales & Fan Updates ---
 
   // --- End Save/Load Logic ---
 }

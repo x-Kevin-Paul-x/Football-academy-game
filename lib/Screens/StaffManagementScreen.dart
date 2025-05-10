@@ -26,39 +26,74 @@ class StaffManagementScreen extends StatelessWidget {
       length: 2, // Hired and Available
       child: Scaffold(
         appBar: AppBar(
-          flexibleSpace: const Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TabBar(
-                tabs: [
-                  Tab(text: 'Hired Staff'),
-                  Tab(text: 'Available for Hire'),
-                ],
-              )
+          title: const Text('Staff Management'), // Restore AppBar title
+          bottom: const TabBar( // Move TabBar to appBar.bottom
+            tabs: [
+              Tab(text: 'Hired Staff'),
+              Tab(text: 'Available for Hire'),
             ],
           ),
-          // Remove the default AppBar title to avoid overlap
-          title: const Text(''), 
-          // Ensure the AppBar doesn't take extra height if not needed
-          toolbarHeight: 48, // Adjust as needed for TabBar height
         ),
-        // Wrap TabBarView with Consumer
         body: Consumer<GameStateManager>(
           builder: (context, gameStateManager, child) {
-            // Access staff lists from gameStateManager
             final List<Staff> hiredStaff = gameStateManager.hiredStaff;
             final List<Staff> availableStaff = gameStateManager.availableStaff;
 
-            // Return the TabBarView within the builder
-            return TabBarView(
+            return Column( // Wrap with Column
               children: [
-                // Pass lists from gameStateManager
-                _buildStaffList(context, hiredStaff, isHiredList: true),
-                _buildStaffList(context, availableStaff, isHiredList: false),
+                _buildStaffCapsSummary(context, gameStateManager), // Add the summary here
+                const Divider(),
+                Expanded( // TabBarView needs to be Expanded within a Column
+                  child: TabBarView(
+                    children: [
+                      _buildStaffList(context, hiredStaff, isHiredList: true),
+                      _buildStaffList(context, availableStaff, isHiredList: false),
+                    ],
+                  ),
+                ),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildStaffCapsSummary(BuildContext context, GameStateManager gameState) {
+    TextStyle capStyle = Theme.of(context).textTheme.bodyMedium!;
+    TextStyle countStyle(int current, int max) => capStyle.copyWith(
+      color: current >= max ? Colors.redAccent : (current > 0 ? Colors.green : null),
+      fontWeight: current > 0 ? FontWeight.bold : null,
+    );
+
+    int hiredManagers = gameState.hiredStaff.where((s) => s.role == StaffRole.Manager).length;
+    int hiredCoaches = gameState.hiredStaff.where((s) => s.role == StaffRole.Coach).length;
+    int hiredScouts = gameState.hiredStaff.where((s) => s.role == StaffRole.Scout).length;
+    int hiredPhysios = gameState.hiredStaff.where((s) => s.role == StaffRole.Physio).length;
+    int hiredMerchManagers = gameState.hiredStaff.where((s) => s.role == StaffRole.MerchandiseManager).length;
+    int totalMerchCap = gameState.maxStoreManagers + gameState.maxMatchSalesManagers;
+
+    return Padding(
+      padding: const EdgeInsets.all(12.0),
+      child: Wrap(
+        spacing: 16.0,
+        runSpacing: 8.0,
+        alignment: WrapAlignment.center,
+        children: [
+          Text('Managers: ', style: capStyle),
+          Text('$hiredManagers/1', style: countStyle(hiredManagers, 1)),
+          Text('Coaches: ', style: capStyle),
+          Text('$hiredCoaches/${gameState.maxCoaches}', style: countStyle(hiredCoaches, gameState.maxCoaches)),
+          Text('Scouts: ', style: capStyle),
+          Text('$hiredScouts/${gameState.maxScouts}', style: countStyle(hiredScouts, gameState.maxScouts)),
+          Text('Physios: ', style: capStyle),
+          Text('$hiredPhysios/${gameState.maxPhysios}', style: countStyle(hiredPhysios, gameState.maxPhysios)),
+          Text('Merch Mgrs: ', style: capStyle),
+          Tooltip(
+            message: 'Store Mgrs: ${gameState.maxStoreManagers}\nMatch Sales Mgrs: ${gameState.maxMatchSalesManagers}',
+            child: Text('$hiredMerchManagers/$totalMerchCap', style: countStyle(hiredMerchManagers, totalMerchCap)),
+          ),
+        ],
       ),
     );
   }

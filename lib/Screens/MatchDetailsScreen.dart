@@ -100,6 +100,8 @@ class MatchDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Date: ${DateFormat.yMd().add_jm().format(match.matchDate)}'),
+            if (match.isSimulated)
+              Text('Viewership: ${match.viewership}'),
             Text('Round: ${match.round}'),
             if (match.isSimulated)
               Text('Result: ${match.result?.name ?? 'N/A'}'),

@@ -551,4 +551,20 @@ class Player {
     return improvementMade;
   }
   // --- End Training Logic ---
+  
+  // --- ADDED: Method to set initial skill for assigned position ---
+  void setInitialSkillForAssignedPosition(int desiredCurrentSkill) {
+    if (positionalAffinity.containsKey(assignedPosition)) {
+      positionalAffinity[assignedPosition] = desiredCurrentSkill.clamp(0, potentialSkill);
+    } else {
+      // This case should ideally not happen if assignedPosition is always a valid key
+      // and _calculatePositionalAffinities has been called.
+      // However, as a fallback, initialize it.
+      positionalAffinity[assignedPosition] = desiredCurrentSkill.clamp(0, potentialSkill);
+    }
+    // No need to call updatePositionalAffinities() here as we are directly setting
+    // the affinity for the already assigned position.
+  }
+  // --- END ADDED METHOD ---
 }
+

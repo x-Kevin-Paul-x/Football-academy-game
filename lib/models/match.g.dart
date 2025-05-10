@@ -40,6 +40,7 @@ Match _$MatchFromJson(Map<String, dynamic> json) => Match(
       awayBench: (json['awayBench'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      viewership: (json['viewership'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
@@ -62,6 +63,7 @@ Map<String, dynamic> _$MatchToJson(Match instance) => <String, dynamic>{
       'awayFormation': instance.awayFormation?.toJson(),
       'homeBench': instance.homeBench,
       'awayBench': instance.awayBench,
+      'viewership': instance.viewership,
     };
 
 const _$MatchResultEnumMap = {

@@ -13,6 +13,13 @@ enum StaffRole {
   Coach,
   Scout,
   Physio,
+  MerchandiseManager,
+}
+
+enum MerchAssignmentType {
+  None,
+  StoreManager,
+  MatchSales,
 }
 
 @JsonSerializable(explicitToJson: true)
@@ -33,8 +40,13 @@ class Staff {
   int maxPlayersTrainable; // How many players this coach can handle
 
   // Manager specific
-  List<FormationType> knownFormations; // Formations the manager knows (Types)
-  Formation? preferredFormation; // <-- ADD: Explicitly declare the field
+  List<FormationType> knownFormations;
+  Formation? preferredFormation;
+
+  // MerchandiseManager specific
+  MerchAssignmentType merchAssignment;
+  // int currentMerchStockValue; // Removed: Stock will be managed centrally in GameStateManager
+  double merchProfitMarginEffectiveness; // 0.0 to 1.0, derived from skill, affects buy/sell prices
 
   Staff({
     required this.id,
@@ -49,17 +61,18 @@ class Staff {
     List<String>? assignedPlayerIds,
     int? maxPlayersTrainable,
     List<FormationType>? knownFormations,
-    this.preferredFormation, // <-- Add to constructor parameters
-    this.isAssigned = true, // Default to true if not specified
+    this.preferredFormation,
+    this.isAssigned = true,
+    this.merchAssignment = MerchAssignmentType.None, // Default assignment
+    // this.currentMerchStockValue = 0, // Removed
+    this.merchProfitMarginEffectiveness = 0.5, // Default effectiveness
   }) : assignedPlayerIds = assignedPlayerIds ?? [],
-       maxPlayersTrainable = maxPlayersTrainable ?? 5, // Default max trainable
+       maxPlayersTrainable = maxPlayersTrainable ?? 5,
        knownFormations = knownFormations ?? [];
-       // isAssigned is initialized via the constructor parameter's default value
 
   // Factory for generating random staff
   factory Staff.randomStaff(String id, StaffRole role, {int? academyReputation}) {
     final random = Random();
-    // For randomly generated staff, they are considered active/assigned by default.
     const bool defaultIsAssignedForRandomStaff = true;
 
     // --- Reputation Influence on Potential ---
@@ -80,15 +93,15 @@ class Staff {
     potential = potential.clamp(10, 100); // Final clamp for safety
     // --- End Reputation Influence ---
 
-    int skill = (potential * (0.4 + random.nextDouble() * 0.5)).clamp(10, 95).toInt(); // 40-90% of potential, min 10
-    int age = 25 + random.nextInt(36); // 25-60 age
-    int wage = 100 + (skill * 5) + (potential * 2) + random.nextInt(100); // Wage based on skill/potential
-    int loyalty = 40 + random.nextInt(51); // 40-90 loyalty
-    int maxTrainable = 3 + (skill ~/ 20); // Coach specific: 3 base + 1 per 20 skill
-    // --- FIX: Define these variables outside the if block ---
+    int skill = (potential * (0.4 + random.nextDouble() * 0.5)).clamp(10, 95).toInt();
+    int age = 25 + random.nextInt(36);
+    int wage = 100 + (skill * 5) + (potential * 2) + random.nextInt(100);
+    int loyalty = 40 + random.nextInt(51);
+    int maxTrainable = 3 + (skill ~/ 20);
     List<FormationType> initialKnownFormations = [];
     Formation? initialPreferredFormation;
-    // --- END FIX ---
+    double initialMerchProfitMarginEffectiveness = 0.3 + (skill / 200.0); // Base 0.3 + up to 0.5 from skill (total 0.3 to 0.8)
+    initialMerchProfitMarginEffectiveness = initialMerchProfitMarginEffectiveness.clamp(0.1, 0.95); // Clamp it
 
     if (role == StaffRole.Manager) {
       initialKnownFormations = _determineInitialKnownFormations(skill);
@@ -121,12 +134,14 @@ class Staff {
       weeklyWage: wage,
       loyalty: loyalty,
       potential: potential,
-      // preferredTacticalStyle: TacticalStyle.values[random.nextInt(TacticalStyle.values.length)], // Removed
       age: age,
       maxPlayersTrainable: (role == StaffRole.Coach) ? maxTrainable : 0,
       knownFormations: initialKnownFormations,
-      preferredFormation: initialPreferredFormation, // <-- Set preferred formation
-      isAssigned: defaultIsAssignedForRandomStaff, 
+      preferredFormation: initialPreferredFormation,
+      isAssigned: defaultIsAssignedForRandomStaff,
+      merchAssignment: MerchAssignmentType.None,
+      // currentMerchStockValue: 0, // Removed
+      merchProfitMarginEffectiveness: (role == StaffRole.MerchandiseManager) ? initialMerchProfitMarginEffectiveness : 0.5,
     );
   }
 

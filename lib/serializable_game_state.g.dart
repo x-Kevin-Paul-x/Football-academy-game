@@ -29,6 +29,8 @@ SerializableGameState _$SerializableGameStateFromJson(
       trainingFacilityLevel: (json['trainingFacilityLevel'] as num).toInt(),
       scoutingFacilityLevel: (json['scoutingFacilityLevel'] as num).toInt(),
       medicalBayLevel: (json['medicalBayLevel'] as num).toInt(),
+      merchandiseStoreLevel: (json['merchandiseStoreLevel'] as num?)?.toInt(),
+      fans: (json['fans'] as num?)?.toInt(),
       academyReputation: (json['academyReputation'] as num).toInt(),
       newsItems: (json['newsItems'] as List<dynamic>)
           .map((e) => NewsItem.fromJson(e as Map<String, dynamic>))
@@ -62,6 +64,8 @@ Map<String, dynamic> _$SerializableGameStateToJson(
       'trainingFacilityLevel': instance.trainingFacilityLevel,
       'scoutingFacilityLevel': instance.scoutingFacilityLevel,
       'medicalBayLevel': instance.medicalBayLevel,
+      'merchandiseStoreLevel': instance.merchandiseStoreLevel,
+      'fans': instance.fans,
       'academyReputation': instance.academyReputation,
       'newsItems': instance.newsItems.map((e) => e.toJson()).toList(),
       'difficulty': _$DifficultyEnumMap[instance.difficulty]!,

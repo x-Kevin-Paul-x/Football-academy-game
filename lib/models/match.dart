@@ -39,6 +39,7 @@ class Match {
   Formation? awayFormation; // Store the actual Formation object used
   List<String> homeBench; // List of player IDs on the bench
   List<String> awayBench; // List of player IDs on the bench
+  int viewership; // Number of people who watched the match
 
   Match({
     required this.id,
@@ -60,6 +61,7 @@ class Match {
     this.awayFormation, // Pass Formation object
     List<String>? homeBench,
     List<String>? awayBench,
+    this.viewership = 0,
   }) : eventLog = eventLog ?? [],
        homeLineup = homeLineup ?? [], // Initialize starters
        awayLineup = awayLineup ?? [], // Initialize starters
@@ -90,7 +92,17 @@ class Match {
   // Detailed Simulation Logic
   // TODO: Update this method to accept selected formations and benches
   // Added isKnockout parameter
-  void simulateDetailed(List<Player> homeStarters, List<Player> awayStarters, {required bool isKnockout, Staff? playerManager, Formation? homeFormationUsed, Formation? awayFormationUsed, List<Player>? homeBenchPlayers, List<Player>? awayBenchPlayers}) {
+  void simulateDetailed(List<Player> homeStarters, List<Player> awayStarters, {
+    required bool isKnockout,
+    Staff? playerManager,
+    Formation? homeFormationUsed,
+    Formation? awayFormationUsed,
+    List<Player>? homeBenchPlayers,
+    List<Player>? awayBenchPlayers,
+    int homeTeamReputation = 50, // Default reputation
+    int awayTeamReputation = 50, // Default reputation
+    int tournamentReputation = 100 // Default tournament reputation
+  }) {
     if (isSimulated) return; // Don't re-simulate
 
     // --- Store Lineups, Bench, and Formation ---
@@ -189,6 +201,34 @@ class Match {
         result = MatchResult.draw;
       }
     }
+
+    // 8. Calculate Viewership
+    // Base viewership + bonus from team reputations + bonus from tournament reputation
+    double baseViewership = 20.0; // Minimum base viewers
+    double homeRepBonus = homeTeamReputation * 0.5; // 0.5 viewers per home rep point
+    double awayRepBonus = awayTeamReputation * 0.3; // 0.3 viewers per away rep point (less impact than home)
+    double tournamentRepBonus = tournamentReputation * 0.2; // 0.2 viewers per tournament rep point
+
+    // Rivalry bonus (if teams are close in reputation, or a derby - simplified for now)
+    double rivalryBonus = 0.0; // Initialize with a double
+    if ((homeTeamReputation - awayTeamReputation).abs() < 50) { // Closer reputation = more interest
+        rivalryBonus = (20 + random.nextInt(31)).toDouble(); // 20-50 extra viewers, converted to double
+    }
+
+    // Star player bonus (simplified - sum of top N players' reputation or skill from both teams)
+    // For now, let's use average skill of starters as a proxy
+    double homeStarPower = homeStarters.isNotEmpty ? homeStarters.map((p) => p.currentSkill).reduce((a, b) => a + b).toDouble() / homeStarters.length : 0.0;
+    double awayStarPower = awayStarters.isNotEmpty ? awayStarters.map((p) => p.currentSkill).reduce((a, b) => a + b).toDouble() / awayStarters.length : 0.0;
+    double starPlayerBonus = ((homeStarPower + awayStarPower) / 2.0) * 0.2; // 0.2 viewers per average skill point
+
+    // Knockout stage multiplier
+    double knockoutMultiplier = isKnockout ? 1.25 : 1.0; // 25% more viewers for knockout matches
+
+    this.viewership = ( (baseViewership + homeRepBonus + awayRepBonus + tournamentRepBonus + rivalryBonus + starPlayerBonus) * knockoutMultiplier ).round();
+    this.viewership = this.viewership.clamp(10, 10000); // Clamp viewership (e.g., min 10, max 10k for now)
+    // Add some randomness
+    this.viewership += random.nextInt((this.viewership * 0.2).round() + 1) - (this.viewership * 0.1).round(); // +/- 10% randomness
+    this.viewership = max(10, this.viewership); // Ensure it doesn't go below 10 after randomness
 
     isSimulated = true;
   }

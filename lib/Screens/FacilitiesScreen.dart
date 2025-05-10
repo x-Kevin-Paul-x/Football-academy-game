@@ -78,7 +78,28 @@ class FacilitiesScreen extends StatelessWidget {
                    }
                 },
               ),
-              // Removed the TODO comment
+              const SizedBox(height: 16), // Spacing for Medical Bay
+              _buildFacilityCard(
+                context: context,
+                icon: Icons.store, // Merchandise icon
+                title: 'Merchandise Store',
+                currentLevel: gameStateManager.merchandiseStoreLevel,
+                description: 'Generates weekly income based on level, fans, and Merchandise Manager skill. Each level increases Store Manager capacity.', // Updated description
+                currentEffect: 'Current Max Store Managers: ${gameStateManager.maxStoreManagers}', // <-- ADDED: Current effect
+                upgradeCost: gameStateManager.getMerchandiseStoreUpgradeCost(),
+                canAfford: gameStateManager.balance >= gameStateManager.getMerchandiseStoreUpgradeCost(),
+                onUpgrade: () {
+                   bool success = gameStateManager.upgradeMerchandiseStore();
+                   if (context.mounted) { // Check if widget is still in the tree
+                     ScaffoldMessenger.of(context).showSnackBar(
+                       SnackBar(
+                         content: Text(success ? 'Merchandise Store upgraded!' : 'Insufficient funds!'),
+                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
+                       ),
+                     );
+                   }
+                },
+              ),
             ],
           );
         },
@@ -92,6 +113,7 @@ class FacilitiesScreen extends StatelessWidget {
     required String title,
     required int currentLevel,
     required String description,
+    String? currentEffect, // <-- ADDED: Optional current effect string
     required int upgradeCost, // Pass cost explicitly
     required bool canAfford, // Pass affordability explicitly
     required VoidCallback onUpgrade, // Pass upgrade callback
@@ -123,6 +145,10 @@ class FacilitiesScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(description, style: Theme.of(context).textTheme.bodyMedium),
+            if (currentEffect != null && currentEffect.isNotEmpty) ...[ // <-- ADDED: Display current effect if provided
+              const SizedBox(height: 8),
+              Text(currentEffect, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic, color: Colors.grey[600])),
+            ],
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 8),

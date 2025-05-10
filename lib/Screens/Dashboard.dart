@@ -101,6 +101,11 @@ class _DashboardState extends State<Dashboard> {
                   'Academy Reputation: ${gameStateManager.academyReputation}',
                   style: const TextStyle(fontSize: 16, color: Colors.blue),
                 ),
+                const SizedBox(height: 10),
+                Text(
+                  'Fans: ${NumberFormat("#,##0", "en_US").format(gameStateManager.fans)}', // Added Fan Count
+                  style: const TextStyle(fontSize: 16, color: Colors.teal), // Example color
+                ),
                 const SizedBox(height: 30),
                 ElevatedButton.icon(
                    onPressed: () {

@@ -25,6 +25,8 @@ class SerializableGameState {
   final int trainingFacilityLevel;
   final int scoutingFacilityLevel;
   final int medicalBayLevel;
+  final int? merchandiseStoreLevel; // Nullable for backward compatibility
+  final int? fans; // Nullable for backward compatibility
   final int academyReputation;
   final List<NewsItem> newsItems;
   final Difficulty difficulty;
@@ -47,6 +49,8 @@ class SerializableGameState {
     required this.trainingFacilityLevel,
     required this.scoutingFacilityLevel,
     required this.medicalBayLevel,
+    this.merchandiseStoreLevel, // Nullable for backward compatibility
+    this.fans, // Nullable for backward compatibility
     required this.academyReputation,
     required this.newsItems,
     required this.difficulty,
