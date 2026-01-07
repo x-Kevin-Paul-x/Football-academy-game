@@ -635,7 +635,7 @@ class GameStateManager with ChangeNotifier {
             // This ensures we don't miss out on potentially good players if many are found.
             // A simpler approach is to cap additions if _scoutedPlayers is already large.
             if (_scoutedPlayers.length < (maxScoutedPlayersCap + 10)) { // Allow a buffer before sorting and final trim
-              final newPlayerId = 'scouted_${_currentDate.millisecondsSinceEpoch}_${scout.id}_$i';
+              final newPlayerId = 'scouted_${_timeService.currentDate.millisecondsSinceEpoch}_${scout.id}_$i';
               // Use the scout's skill to influence player generation
               Player newPlayer = Player.randomScoutedPlayer(newPlayerId, scoutSkill: scout.skill);
               _scoutedPlayers.add(newPlayer);
@@ -843,7 +843,7 @@ class GameStateManager with ChangeNotifier {
           for (var academy in eligibleYouthAcademies) {
             if (participants.length >= slotsToFill) break;
             // Ask rival if they want to join (AI clubs join automatically if selected)
-            if (academy is RivalAcademy && academy.shouldEnterTournament(template, _currentDate.year, _currentDate.month)) {
+            if (academy is RivalAcademy && academy.shouldEnterTournament(template, _timeService.currentDate.year, _timeService.currentDate.month)) {
                participants.add(academy.id);
             }
             // Player doesn't get added here, only eligibility is checked
@@ -877,7 +877,7 @@ class GameStateManager with ChangeNotifier {
           for (var rival in potentialRivals) {
             if (participants.length >= template.numberOfTeams) break;
             // Ask rival if they want to join
-            if (rival.shouldEnterTournament(template, _currentDate.year, _currentDate.month)) {
+            if (rival.shouldEnterTournament(template, _timeService.currentDate.year, _timeService.currentDate.month)) {
               participants.add(rival.id);
             }
           }
@@ -1291,7 +1291,7 @@ class GameStateManager with ChangeNotifier {
       title: "Staff Fired",
       description: "We have parted ways with ${staffToFire.name} (${staffToFire.role.toString().split('.').last}).",
       type: NewsItemType.StaffChange,
-      date: _currentDate
+      date: _timeService.currentDate
     ));
     print("Fired ${staffToFire.name}.");
     notifyListeners();
@@ -2992,7 +2992,7 @@ class GameStateManager with ChangeNotifier {
              !rival.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
          ));
          playerEligible = _academyReputation >= youthRepReq &&
-                               _balance >= template.entryFee &&
+                               _financeService.canAfford(template.entryFee.toDouble()) &&
                                _academyPlayers.length >= template.requiredPlayers &&
                                !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
          eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation));
@@ -3039,7 +3039,7 @@ class GameStateManager with ChangeNotifier {
       if (enoughParticipantsFound) {
         // --- FIX: Pass the *actual current game date* to the factory ---
         // The factory constructor will calculate the correct July 1st start date based on _currentDate.
-        Tournament newTournament = Tournament.fromTemplate(template, participants, _currentDate);
+        Tournament newTournament = Tournament.fromTemplate(template, participants, _timeService.currentDate);
         // --- END FIX ---
         addActiveTournament(newTournament); // Adds to _activeTournaments with Scheduled status
 
@@ -3055,7 +3055,7 @@ class GameStateManager with ChangeNotifier {
             title: "Pro League Scheduled",
             description: "${newTournament.name} is scheduled to start on ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams confirmed so far. $joinWindow",
             type: NewsItemType.Tournament,
-            date: _currentDate // Use current date for the news item
+            date: _timeService.currentDate // Use current date for the news item
         ));
         print(" -> Scheduled ${newTournament.name} (ID: ${newTournament.id}) starting ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
       }
