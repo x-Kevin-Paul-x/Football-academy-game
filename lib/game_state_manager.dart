@@ -2992,7 +2992,7 @@ class GameStateManager with ChangeNotifier {
              !rival.activeTournamentIds.any((tId) => _activeTournaments.any((at) => at.id == tId))
          ));
          playerEligible = _academyReputation >= youthRepReq &&
-                               _financeService.balance >= template.entryFee &&
+                               _financeService.canAfford(template.entryFee.toDouble()) &&
                                _academyPlayers.length >= template.requiredPlayers &&
                                !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
          eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation));
