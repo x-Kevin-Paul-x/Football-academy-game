@@ -107,21 +107,26 @@ class _DashboardState extends State<Dashboard> {
                   style: const TextStyle(fontSize: 16, color: Colors.teal), // Example color
                 ),
                 const SizedBox(height: 30),
-                ElevatedButton.icon(
-                   onPressed: () {
-                     Provider.of<GameStateManager>(context, listen: false).advanceWeek();
-                   },
-                  icon: const Icon(Icons.fast_forward),
-                  label: const Text('Advance 1 Week'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    textStyle: const TextStyle(fontSize: 18),
+                Tooltip(
+                  message: 'Simulate matches, training & finances',
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Provider.of<GameStateManager>(context, listen: false).advanceWeek();
+                    },
+                    icon: const Icon(Icons.fast_forward),
+                    label: const Text('Advance 1 Week'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      textStyle: const TextStyle(fontSize: 18),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20), // Space before News button
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Navigate to the NewsScreen FIRST
+                Tooltip(
+                  message: 'Read match results and transfer news',
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // Navigate to the NewsScreen FIRST
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const NewsScreen()),
@@ -138,10 +143,11 @@ class _DashboardState extends State<Dashboard> {
                     child: const Icon(Icons.article),
                   ),
                   label: const Text('View News Feed'),
-                   style: ElevatedButton.styleFrom(
+                  style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     textStyle: const TextStyle(fontSize: 16),
                   ),
+                ),
                 ),
               ],
             ),
