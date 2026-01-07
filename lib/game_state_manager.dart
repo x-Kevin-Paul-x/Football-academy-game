@@ -15,6 +15,10 @@ import 'package:flutter/material.dart'; // Import for ThemeMode
 import 'package:intl/intl.dart'; // Import for number formatting
 import 'utils/name_generator.dart'; // <-- Import NameGenerator
 
+// Import new Services
+import 'services/finance_service.dart';
+import 'services/time_service.dart';
+
 // Imports for Save/Load
 import 'dart:convert';
 import 'serializable_game_state.dart'; // Import the wrapper class
@@ -62,8 +66,12 @@ class MatchTeamSelection {
 // --- End Helper Class ---
 
 class GameStateManager with ChangeNotifier {
+  // Services
+  final FinanceService _financeService = FinanceService();
+  final TimeService _timeService = TimeService();
+
   // Core Game Time & State
-  DateTime _currentDate = DateTime(2025, 1, 1); // Starting date of the game
+  // DateTime _currentDate = DateTime(2025, 1, 1); // Moved to TimeService
   final Random _random = Random(); // Random number generator
   String _academyName = "My Academy";
   static const String playerAcademyId = 'player_academy_1'; // Unique ID for the player's academy
@@ -74,10 +82,10 @@ class GameStateManager with ChangeNotifier {
   List<Player> _scoutedPlayers = []; // Players found by scouts this week
   List<Staff> _availableStaff = [];
 
-  // Financial State
-  double _balance = 50000.0; // Starting balance
-  int _weeklyIncome = 1000; // Base weekly income (can be modified by factors later)
-  int _totalWeeklyWages = 0;
+  // Financial State - Moved to FinanceService
+  // double _balance = 50000.0;
+  // int _weeklyIncome = 1000;
+  // int _totalWeeklyWages = 0;
 
   // Tournament State
   List<Tournament> _activeTournaments = []; // Tournaments currently in progress (Scheduled or InProgress)
@@ -107,7 +115,7 @@ class GameStateManager with ChangeNotifier {
   // Manager cap (Head Coach/Director) is implicitly 1
 
   // Merchandise State
-  double _academyMerchStockValue = 0.0; // Total cost value of merchandise owned by the academy
+  // double _academyMerchStockValue = 0.0; // Moved to FinanceService
   static const double _baseMerchUnitCost = 5.0; // Assumed base cost for a "unit" of merchandise
 
   // Fans
@@ -130,16 +138,23 @@ class GameStateManager with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   int _playerAcademyTier = 0; // 0 = Unranked, 1-3 = Tier
 
+  // Game Status Flags
+  bool _isGameOver = false;
+  bool _isForcedSellActive = false;
+
   // --- Getters ---
-  DateTime get currentDate => _currentDate;
+  bool get isGameOver => _isGameOver;
+  bool get isForcedSellActive => _isForcedSellActive;
+
+  DateTime get currentDate => _timeService.currentDate;
   String get academyName => _academyName;
   List<Player> get academyPlayers => List<Player>.unmodifiable(_academyPlayers);
   List<Staff> get hiredStaff => List<Staff>.unmodifiable(_hiredStaff);
   List<Player> get scoutedPlayers => List<Player>.unmodifiable(_scoutedPlayers);
   List<Staff> get availableStaff => List<Staff>.unmodifiable(_availableStaff);
-  double get balance => _balance;
-  int get weeklyIncome => _weeklyIncome;
-  int get totalWeeklyWages => _totalWeeklyWages;
+  double get balance => _financeService.balance;
+  int get weeklyIncome => _financeService.weeklyIncome;
+  int get totalWeeklyWages => _financeService.totalWeeklyWages;
   List<Tournament> get activeTournaments => List<Tournament>.unmodifiable(_activeTournaments);
   List<Tournament> get completedTournaments => List<Tournament>.unmodifiable(_completedTournaments);
   List<Tournament> get availableTournamentTemplates => List<Tournament>.unmodifiable(_availableTournamentTemplates);
@@ -159,7 +174,7 @@ class GameStateManager with ChangeNotifier {
   // int get maxMerchandiseManagers => _maxMerchandiseManagers; // Replaced
   int get maxStoreManagers => _maxStoreManagers;
   int get maxMatchSalesManagers => _maxMatchSalesManagers;
-  double get academyMerchStockValue => _academyMerchStockValue;
+  double get academyMerchStockValue => _financeService.academyMerchStockValue;
   int get fans => _fans;
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
@@ -174,7 +189,8 @@ class GameStateManager with ChangeNotifier {
   static const String _prefsSaveKey = 'gameState'; // Used for web
 
   GameStateManager() {
-    _applyDifficultySettings(); // Apply difficulty first
+    // Initialize services if needed (TimeService defaults to 2025-01-01)
+    _applyDifficultySettings(); // Apply difficulty first (Updates FinanceService)
     _generateInitialAvailableStaff();
     _populateRivalAcademyMap(); // Populate rivals based on difficulty
     _populateAIClubs(); // <-- ADD: Populate AI Clubs
@@ -259,18 +275,18 @@ class GameStateManager with ChangeNotifier {
         currentSkill = currentSkill.clamp(15, potentialSkill); // Clamp current skill
         // --- END NEW Player Generation Logic ---
 
-        Player newPlayer = Player(
+        // Use the new factory method to generate player with consistent attributes
+        Player newPlayer = Player.createWithTargetSkill(
           id: '${academy.id}_player_$i',
-          name: 'Rival Player ${academy.id.split('_').last}-$i', // Simple generated name
+          name: 'Rival Player ${academy.id.split('_').last}-$i',
           age: 15 + _random.nextInt(4),
           naturalPosition: PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)],
+          targetSkill: currentSkill,
           potentialSkill: potentialSkill,
-          weeklyWage: 50 + _random.nextInt(101), // Low wages
-          reputation: academy.reputation ~/ 5 + _random.nextInt(10), // Reputation based on academy
-          stamina: 40 + _random.nextInt(41), // 40-80 stamina
-          preferredPositions: [PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]],
+          weeklyWage: 50 + _random.nextInt(101),
+          reputation: academy.reputation ~/ 5 + _random.nextInt(10),
+          // Other fields use defaults or are generated by the factory
         );
-        newPlayer.setInitialSkillForAssignedPosition(currentSkill); // <-- Ensure current skill is properly initialized
         academy.players.add(newPlayer);
       }
       _rivalAcademyMap[academy.id] = academy;
@@ -306,18 +322,17 @@ class GameStateManager with ChangeNotifier {
         currentSkill = currentSkill.clamp(10, potentialSkill); // Clamp current skill
         PlayerPosition position = PlayerPosition.values[_random.nextInt(PlayerPosition.values.length)]; // Define position
 
+        // Use the new factory method for AI Clubs as well
         club.players.add(
-          Player(
+          Player.createWithTargetSkill(
             id: '${club.id}_player_$i',
-            name: NameGenerator.generatePlayerName(), // <-- Use NameGenerator
-            age: 18 + _random.nextInt(10), // Wider age range (18-27)
-            naturalPosition: position, // Changed from position, use defined position variable
-            // currentSkill: currentSkill, // Removed
+            name: NameGenerator.generatePlayerName(),
+            age: 18 + _random.nextInt(10),
+            naturalPosition: position,
+            targetSkill: currentSkill,
             potentialSkill: potentialSkill,
-            weeklyWage: 200 + _random.nextInt(801), // Higher wages (200-1000)
-            reputation: club.reputation ~/ 2 + _random.nextInt(20), // Reputation based on club
-            stamina: 50 + _random.nextInt(41), // 50-90 stamina
-            preferredPositions: [position], // Add default preferred position
+            weeklyWage: 200 + _random.nextInt(801),
+            reputation: club.reputation ~/ 2 + _random.nextInt(20),
           )
         );
       }
@@ -432,32 +447,22 @@ class GameStateManager with ChangeNotifier {
 
   // Apply Difficulty Settings
   void _applyDifficultySettings() {
-     // Reset to base values first
-     _balance = 50000.0;
-     _weeklyIncome = 1000;
-     _academyReputation = 1; // Base reputation
+     _financeService.applyDifficultySettings(_difficulty);
 
+     // Set reputation based on difficulty
      switch (_difficulty) {
-       case Difficulty.Easy:
-         _balance = 75000.0; _weeklyIncome = 1200; _academyReputation = 30; break;
-       case Difficulty.Normal:
-         _balance = 50000.0; _weeklyIncome = 1000; _academyReputation = 10; break;
-       case Difficulty.Hard:
-         _balance = 30000.0; _weeklyIncome = 800; _academyReputation = 5; break;
-       case Difficulty.Hardcore: // Added Hardcore Case
-         _balance = 10000.0; // Very low starting balance
-         _weeklyIncome = 600; // Lower income
-         _academyReputation = 0; // Set starting reputation to 0
-         break;
+       case Difficulty.Easy: _academyReputation = 30; break;
+       case Difficulty.Normal: _academyReputation = 10; break;
+       case Difficulty.Hard: _academyReputation = 5; break;
+       case Difficulty.Hardcore: _academyReputation = 0; break;
      }
-     print("Applied difficulty settings for $_difficulty: Balance=$_balance, Income=$_weeklyIncome, Reputation=$_academyReputation");
-     // Note: Rival academies are populated *after* this in constructor/reset
+     print("Applied difficulty settings for $_difficulty. Rep=$_academyReputation");
   }
 
   // Reset Game
   void resetGame() {
     print("--- RESETTING GAME STATE ---");
-    _currentDate = DateTime(2025, 1, 1);
+    _timeService.initialize(DateTime(2025, 1, 1)); // Reset Date
     _academyName = "My Academy";
     // _difficulty = Difficulty.Normal; // Keep selected difficulty or reset? Let's keep it.
     _themeMode = ThemeMode.system;
@@ -466,7 +471,7 @@ class GameStateManager with ChangeNotifier {
     _scoutedPlayers.clear();
     _availableStaff.clear();
     _applyDifficultySettings(); // Apply difficulty settings (balance, income, rep)
-    _totalWeeklyWages = 0;
+    // _totalWeeklyWages handled by service now
     _activeTournaments.clear();
     _completedTournaments.clear();
     _availableTournamentTemplates.clear(); // Clear templates
@@ -488,11 +493,11 @@ class GameStateManager with ChangeNotifier {
     _newsItems.clear();
     _playerAcademyTier = 0;
     _merchandiseStoreLevel = 0;
-    _academyMerchStockValue = 0.0; // Reset merch stock
+    // _academyMerchStockValue handled by service
     _fans = 100;
     _generateInitialAvailableStaff();
     _addInitialMerchandiseManagerToAvailable(); // Ensure merch manager is available after reset
-    _calculateWeeklyWages();
+    _calculateWeeklyWages(); // Updates service
 
     if (kIsWeb) {
       _clearWebSaveData();
@@ -514,36 +519,89 @@ class GameStateManager with ChangeNotifier {
 
   // --- Weekly Update Logic ---
   void advanceWeek() {
-    _currentDate = _currentDate.add(const Duration(days: 7));
-    print("Advancing week to: $_currentDate");
+    if (_isGameOver) {
+      print("Cannot advance week. Game Over.");
+      return;
+    }
+
+    if (_isForcedSellActive && _financeService.balance < 0) {
+      print("Cannot advance week. Forced Sell active. Must raise funds.");
+      _addNewsItem(NewsItem.create(
+        title: "Action Required",
+        description: "You must sell players to raise funds before continuing.",
+        type: NewsItemType.Finance,
+        date: _timeService.currentDate
+      ));
+      notifyListeners();
+      return;
+    }
+
+    _timeService.advanceWeek();
+    print("Advancing week to: ${_timeService.currentDate}");
 
     // Merchandise Sales & Fan Updates (before other financial calculations)
     _handleMerchandiseAndFans();
 
     // 0a. Schedule Annual Pro Leagues (e.g., last week of May)
     // Check if it's May and the day is 22nd or later (covering the last ~10 days)
-    if (_currentDate.month == 5 && _currentDate.day >= 22) {
+    if (_timeService.isEndOfSeason()) {
         // Check if leagues for the *current* year have already been scheduled to avoid duplicates
         bool alreadyScheduledThisYear = _activeTournaments.any((t) =>
             t.name.startsWith("Pro Youth League") &&
             t.status == TournamentStatus.Scheduled &&
-            t.startDate.year == _currentDate.year);
+            t.startDate.year == _timeService.currentDate.year);
 
         if (!alreadyScheduledThisYear) {
-            _scheduleAnnualLeagues(_currentDate.year);
+            _scheduleAnnualLeagues(_timeService.currentDate.year);
         }
     }
 
     // 0b. Check for new *non-Pro League* Tournaments being scheduled (only in first week of month)
-    if (_currentDate.day <= 7) {
+    if (_timeService.isFirstWeekOfMonth()) {
       _checkForNewTournaments(); // This function will now ignore Pro Leagues
     }
 
     // 1. Update Finances (Player)
-    double balanceBefore = _balance;
-    _balance += _weeklyIncome;
-    _balance -= _totalWeeklyWages;
-    double weeklyNet = _balance - balanceBefore;
+    double netChange = _financeService.processWeek();
+
+    // Check Bankruptcy Status
+    BankruptcyStatus status = _financeService.checkBankruptcyStatus(_difficulty);
+
+    if (status == BankruptcyStatus.GameOver) {
+      _isGameOver = true;
+      print("GAME OVER: Academy is bankrupt!");
+      _addNewsItem(NewsItem.create(
+        title: "BANKRUPTCY DECLARED",
+        description: "The academy has run out of funds and credit. The board has dissolved the club.",
+        type: NewsItemType.Finance,
+        date: _timeService.currentDate
+      ));
+      notifyListeners();
+      return;
+    }
+
+    if (status == BankruptcyStatus.ForcedSell) {
+      _isForcedSellActive = true;
+      print("WARNING: Forced player sales required!");
+       _addNewsItem(NewsItem.create(
+        title: "Financial Crisis",
+        description: "We are in debt. The board mandates immediate player sales to balance the books. You cannot continue until you are in the green.",
+        type: NewsItemType.Finance,
+        date: _timeService.currentDate
+      ));
+    } else {
+      // If status became Safe or Warning, lift the forced sell
+      _isForcedSellActive = false;
+    }
+
+    if (status == BankruptcyStatus.Warning) {
+       _addNewsItem(NewsItem.create(
+        title: "Financial Warning",
+        description: "We are operating at a loss. Continued debt will lead to bankruptcy.",
+        type: NewsItemType.Finance,
+        date: _timeService.currentDate
+      ));
+    }
 
     // 2. Scouting Logic (Player)
     _scoutedPlayers.clear(); // Clear previous week's finds first
@@ -609,13 +667,13 @@ class GameStateManager with ChangeNotifier {
            title: "Scouting Report",
            description: "Our scouts have identified $playersFoundThisWeekByAllScouts potential new talent${playersFoundThisWeekByAllScouts > 1 ? 's' : ''} this week.",
            type: NewsItemType.Scouting,
-           date: _currentDate));
+           date: _timeService.currentDate));
     } else if (activeScouts.isNotEmpty) { // Only report "no players found" if scouts were active
        _addNewsItem(NewsItem.create(
            title: "Scouting Report",
            description: "Scouts found no notable players this week despite their efforts.",
            type: NewsItemType.Scouting,
-           date: _currentDate));
+           date: _timeService.currentDate));
     }
 
     // 3. Simulate Tournament Matches & Handle Starts/Completions
@@ -639,7 +697,12 @@ class GameStateManager with ChangeNotifier {
 
     // 9. Other weekly events (Player Finance Summary)
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
-    _addNewsItem(NewsItem.create(title: "Weekly Finances", description: "Income: ${currencyFormat.format(_weeklyIncome)}, Wages: ${currencyFormat.format(_totalWeeklyWages)}. Net: ${currencyFormat.format(weeklyNet)}. Balance: ${currencyFormat.format(_balance)}", type: NewsItemType.Finance, date: _currentDate));
+    _addNewsItem(NewsItem.create(
+      title: "Weekly Finances",
+      description: "Income: ${currencyFormat.format(_financeService.weeklyIncome)}, Wages: ${currencyFormat.format(_financeService.totalWeeklyWages)}. Net: ${currencyFormat.format(netChange)}. Balance: ${currencyFormat.format(_financeService.balance)}",
+      type: NewsItemType.Finance,
+      date: _timeService.currentDate
+    ));
 
     // 9. Notify Listeners
     notifyListeners();
@@ -647,8 +710,8 @@ class GameStateManager with ChangeNotifier {
 
   // Check for New Tournaments
   void _checkForNewTournaments() {
-    // Run only in the first week of the month
-    if (_currentDate.day > 7) return;
+    // Run only in the first week of the month (Logic handled by caller or kept here for safety)
+    if (!_timeService.isFirstWeekOfMonth()) return;
 
     print("Checking for new tournaments to schedule...");
     int tournamentsScheduledThisMonth = 0;
@@ -748,7 +811,7 @@ class GameStateManager with ChangeNotifier {
 
              // Player (Check eligibility but don't add yet)
              playerEligible = _academyReputation >= youthRepReq &&
-                                   _balance >= template.entryFee &&
+                                   _financeService.canAfford(template.entryFee.toDouble()) &&
                                    _academyPlayers.length >= template.requiredPlayers &&
                                    !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
 
@@ -823,7 +886,7 @@ class GameStateManager with ChangeNotifier {
           int minRequired = template.minTeamsToStart;
           // Player eligibility check for standard tournaments
           bool playerEligible = _academyReputation >= template.requiredReputation &&
-                                _balance >= template.entryFee &&
+                                _financeService.canAfford(template.entryFee.toDouble()) &&
                                 _academyPlayers.length >= template.requiredPlayers &&
                                 !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
 
@@ -839,7 +902,7 @@ class GameStateManager with ChangeNotifier {
 
         // --- Create Instance if Enough Participants Found ---
         if (enoughParticipantsFound) {
-          Tournament newTournament = Tournament.fromTemplate(template, participants, _currentDate);
+          Tournament newTournament = Tournament.fromTemplate(template, participants, _timeService.currentDate);
           addActiveTournament(newTournament); // Adds to _activeTournaments with Scheduled status
 
           // Mark participants as active in this tournament
@@ -858,7 +921,7 @@ class GameStateManager with ChangeNotifier {
               title: "New Tournament Scheduled",
               description: "The ${newTournament.name} is scheduled to start on ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams confirmed so far. $joinWindow",
               type: NewsItemType.Tournament,
-              date: _currentDate
+              date: _timeService.currentDate
           ));
           tournamentsScheduledThisMonth++;
           print(" -> Scheduled ${newTournament.name} (ID: ${newTournament.id}) starting ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
@@ -974,7 +1037,7 @@ class GameStateManager with ChangeNotifier {
       // TODO: AI makes offers (add to a central offer list or handle directly?)
       // --- START AI CLUB PLAYER ACQUISITION LOGIC ---
       double transferActivityChance = 0.10 + ((4 - club.tier) * 0.05); // Tier 1: 25%, Tier 2: 20%, Tier 3: 15%
-      bool alreadyMadeOfferThisWeekByThisClub = _transferOffers.any((o) => o['offeringClubId'] == club.id && o['dateEpoch'] == _currentDate.millisecondsSinceEpoch);
+      bool alreadyMadeOfferThisWeekByThisClub = _transferOffers.any((o) => o['offeringClubId'] == club.id && o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
 
       if (!alreadyMadeOfferThisWeekByThisClub && _random.nextDouble() < transferActivityChance) {
         // A. Assess Squad Needs
@@ -1038,7 +1101,7 @@ class GameStateManager with ChangeNotifier {
                       o['playerId'] == player.id &&
                       o['offeringClubId'] == club.id &&
                       o['sellingClubId'] == rivalAcademy.id && // Ensure it's for this specific rival
-                      o['dateEpoch'] == _currentDate.millisecondsSinceEpoch); // Check for offer made this exact week
+                      o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch); // Check for offer made this exact week
 
                   if (!existingOfferToRival) { // Only add if no recent offer to this rival for this player
                     potentialTargetsData.add({'player': player, 'ownerId': rivalAcademy.id, 'ownerName': rivalAcademy.name, 'position': targetPos});
@@ -1065,7 +1128,7 @@ class GameStateManager with ChangeNotifier {
                       o['playerId'] == player.id &&
                       o['offeringClubId'] == club.id &&
                       o['sellingClubId'] == otherAIClub.id && // Ensure it's for this specific AI club
-                      o['dateEpoch'] == _currentDate.millisecondsSinceEpoch);
+                      o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
 
                   if (!existingOfferToAI) {
                     potentialTargetsData.add({
@@ -1119,7 +1182,7 @@ class GameStateManager with ChangeNotifier {
                 'isAIClubOffer': true,
                 'sellingClubId': targetPlayerOwnerId,
                 'sellingClubName': targetPlayerOwnerName,
-                'dateEpoch': _currentDate.millisecondsSinceEpoch,
+                'dateEpoch': _timeService.currentDate.millisecondsSinceEpoch,
               });
               // print("AI Club ${club.name} (Tier ${club.tier}) made an offer of ${NumberFormat.compactCurrency(symbol: '\$').format(offerAmount)} for ${targetPlayer.name} (Pot: ${targetPlayer.potentialSkill}, Age: ${targetPlayer.age}) from $targetPlayerOwnerName. MV: ${NumberFormat.compactCurrency(symbol: '\$').format(marketValue)}");
 
@@ -1135,7 +1198,7 @@ class GameStateManager with ChangeNotifier {
                   title: "Transfer Offer Received",
                   description: "${club.name} has made an offer of ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(offerAmount)} for your player ${targetPlayer.name}.",
                   type: NewsItemType.TransferOffer,
-                  date: _currentDate
+                  date: _timeService.currentDate
                 ));
               }
               // TODO: Later, add logic for rival academies to react to these offers in _handleRivalAcademyActions
@@ -1167,7 +1230,7 @@ class GameStateManager with ChangeNotifier {
       }
 
       // 6. Recalculate Skill Level periodically
-      if (_currentDate.weekday == DateTime.monday) { // Example: Recalculate weekly
+      if (_timeService.currentDate.weekday == DateTime.monday) { // Example: Recalculate weekly
           club.updateSkillLevel();
       }
     }
@@ -1178,8 +1241,7 @@ class GameStateManager with ChangeNotifier {
   void _calculateWeeklyWages() {
     int staffWages = _hiredStaff.fold(0, (sum, staff) => sum + staff.weeklyWage);
     int playerWages = _academyPlayers.fold(0, (sum, player) => sum + player.weeklyWage);
-    _totalWeeklyWages = staffWages + playerWages;
-    // print("Calculated weekly wages: $_totalWeeklyWages"); // Less verbose
+    _financeService.updateWeeklyWages(staffWages + playerWages);
   }
 
   bool hireStaff(Staff staffToHire) {
@@ -1201,7 +1263,7 @@ class GameStateManager with ChangeNotifier {
     _hiredStaff.add(staffToHire);
     _availableStaff.removeWhere((s) => s.id == staffToHire.id);
     _calculateWeeklyWages();
-    _addNewsItem(NewsItem.create(title: "Staff Hired", description: "We have hired ${staffToHire.name} as our new ${staffToHire.role.toString().split('.').last}.", type: NewsItemType.StaffChange, date: _currentDate));
+    _addNewsItem(NewsItem.create(title: "Staff Hired", description: "We have hired ${staffToHire.name} as our new ${staffToHire.role.toString().split('.').last}.", type: NewsItemType.StaffChange, date: _timeService.currentDate));
     notifyListeners();
     print("Hired ${staffToHire.name}");
     return true;
@@ -1242,14 +1304,14 @@ class GameStateManager with ChangeNotifier {
     _academyPlayers.add(playerToSign);
     _scoutedPlayers.removeWhere((p) => p.id == playerToSign.id);
     _calculateWeeklyWages();
-    _addNewsItem(NewsItem.create(title: "Player Signed", description: "We have signed the promising young player ${playerToSign.name} to the academy.", type: NewsItemType.PlayerSigned, date: _currentDate));
+    _addNewsItem(NewsItem.create(title: "Player Signed", description: "We have signed the promising young player ${playerToSign.name} to the academy.", type: NewsItemType.PlayerSigned, date: _timeService.currentDate));
     print("Signed ${playerToSign.name}");
 
     Staff? availableCoach = _hiredStaff.firstWhereOrNull( (s) => s.role == StaffRole.Coach && s.assignedPlayerIds.length < s.maxPlayersTrainable );
     if (availableCoach != null) {
       assignPlayerToCoach(playerToSign.id, availableCoach.id); // Use the method
       print("Automatically assigned ${playerToSign.name} to coach ${availableCoach.name}.");
-      _addNewsItem(NewsItem.create(title: "Player Assigned", description: "${playerToSign.name} has been automatically assigned to Coach ${availableCoach.name} for training.", type: NewsItemType.Training, date: _currentDate));
+      _addNewsItem(NewsItem.create(title: "Player Assigned", description: "${playerToSign.name} has been automatically assigned to Coach ${availableCoach.name} for training.", type: NewsItemType.Training, date: _timeService.currentDate));
     } else { print("No coaches with available capacity found for ${playerToSign.name}."); }
     notifyListeners();
   }
@@ -1276,7 +1338,7 @@ class GameStateManager with ChangeNotifier {
       title: "Player Released",
       description: "We have released ${playerToRelease.name} from the academy.",
       type: NewsItemType.PlayerSigned, // Using PlayerSigned for now, maybe add PlayerReleased later?
-      date: _currentDate
+      date: _timeService.currentDate
     ));
     print("Released ${playerToRelease.name}.");
     notifyListeners();
@@ -1304,8 +1366,8 @@ class GameStateManager with ChangeNotifier {
       print(" -> Failed: Not enough reputation (${_academyReputation}/${template.requiredReputation})");
       return false;
     }
-    if (_balance < template.entryFee) {
-      print(" -> Failed: Not enough balance (${_balance}/${template.entryFee})");
+    if (!_financeService.canAfford(template.entryFee.toDouble())) {
+      print(" -> Failed: Not enough balance (${_financeService.balance}/${template.entryFee})");
       return false;
     }
     // Check if already joined an instance of this template
@@ -1332,14 +1394,14 @@ class GameStateManager with ChangeNotifier {
     }
 
     // 4. Join the Instance
-    _balance -= template.entryFee; // Deduct entry fee
+    _financeService.deductExpense(template.entryFee.toDouble()); // Deduct entry fee
     scheduledInstance.teamIds.add(playerAcademyId); // Add player to participants
     // If league, add player to standings
     if (scheduledInstance.format == TournamentFormat.League) {
         scheduledInstance.leagueStandings[playerAcademyId] = LeagueStanding(teamId: playerAcademyId);
     }
-    print(" -> Success: Joined scheduled tournament instance ${scheduledInstance.id}. Deducted fee: ${template.entryFee}. New balance: $_balance.");
-    _addNewsItem(NewsItem.create(title: "Tournament Joined", description: "Successfully joined the upcoming ${template.name}.", type: NewsItemType.Tournament, date: _currentDate));
+    print(" -> Success: Joined scheduled tournament instance ${scheduledInstance.id}. Deducted fee: ${template.entryFee}. New balance: ${_financeService.balance}.");
+    _addNewsItem(NewsItem.create(title: "Tournament Joined", description: "Successfully joined the upcoming ${template.name}.", type: NewsItemType.Tournament, date: _timeService.currentDate));
 
     // 5. Notify and Return
     notifyListeners();
@@ -1349,8 +1411,8 @@ class GameStateManager with ChangeNotifier {
 
   // Simulate Matches & Handle Tournament State Changes
   void _simulateMatchesForWeek() {
-    DateTime startOfWeek = _currentDate.subtract(const Duration(days: 7));
-    DateTime endOfWeek = _currentDate;
+    DateTime startOfWeek = _timeService.currentDate.subtract(const Duration(days: 7));
+    DateTime endOfWeek = _timeService.currentDate;
     List<Tournament> completedOrCancelledTournamentsThisWeek = [];
     List<Tournament> tournamentsToCheckForNextRound = []; // Knockout tournaments potentially ready for next round
 
@@ -1369,7 +1431,7 @@ class GameStateManager with ChangeNotifier {
                 _addNewsItem(NewsItem.create(title: "${tournament.name} Cancelled", description: "The ${tournament.name} was cancelled due to insufficient participants.", type: NewsItemType.Tournament, date: tournament.startDate));
                 // Refund entry fees
                 if (tournament.teamIds.contains(playerAcademyId)) {
-                    _balance += tournament.entryFee;
+                    _financeService.addIncome(tournament.entryFee.toDouble());
                     print(" -> Refunded entry fee ${tournament.entryFee} to player.");
                 }
                 for (var rivalId in tournament.teamIds) {
@@ -1571,7 +1633,7 @@ class GameStateManager with ChangeNotifier {
             bool nextRoundGenerated = tournament.generateNextKnockoutRound();
             if (nextRoundGenerated) {
                 print("Generated next knockout round (${tournament.currentRound}) for ${tournament.name}.");
-                _addNewsItem(NewsItem.create(title: "${tournament.name} Update", description: "Round ${tournament.currentRound-1} completed. Fixtures for Round ${tournament.currentRound} are set.", type: NewsItemType.Tournament, date: _currentDate));
+                _addNewsItem(NewsItem.create(title: "${tournament.name} Update", description: "Round ${tournament.currentRound-1} completed. Fixtures for Round ${tournament.currentRound} are set.", type: NewsItemType.Tournament, date: _timeService.currentDate));
             } else {
                 // generateNextKnockoutRound returns false if completed or error
                 if (tournament.status == TournamentStatus.Completed) {
@@ -1690,7 +1752,7 @@ class GameStateManager with ChangeNotifier {
       if (determinedWinnerId != null) {
           if (determinedWinnerId == playerAcademyId) {
               winnerName = _academyName;
-              _balance += prizeMoney;
+              _financeService.addIncome(prizeMoney.toDouble());
               // --- Increased Academy Reputation for Tournament Win ---
               _academyReputation += (tournament.format == TournamentFormat.League) ? 60 : 30; // Increased rep gain
               // --- End Increased Academy Reputation ---
@@ -1698,9 +1760,9 @@ class GameStateManager with ChangeNotifier {
                   title: "Tournament Won!",
                   description: "We won the ${tournament.name} and received ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(prizeMoney)}!",
                   type: NewsItemType.MatchResult, // Corrected type
-                  date: _currentDate
+                  date: _timeService.currentDate
               ));
-              print("Player won ${tournament.name}. Prize: $prizeMoney. New Balance: $_balance. New Rep: $_academyReputation");
+              print("Player won ${tournament.name}. Prize: $prizeMoney. New Balance: ${_financeService.balance}. New Rep: $_academyReputation");
           } else {
               RivalAcademy? rivalWinner = _rivalAcademyMap[determinedWinnerId];
               if (rivalWinner != null) {
@@ -1711,7 +1773,7 @@ class GameStateManager with ChangeNotifier {
                       title: "${tournament.name} Concluded",
                       description: "${rivalWinner.name} won the ${tournament.name}.",
                       type: NewsItemType.MatchResult, // Corrected type
-                      date: _currentDate
+                      date: _timeService.currentDate
                   ));
           print("${rivalWinner.name} won ${tournament.name}. Prize: $prizeMoney. New Balance: ${rivalWinner.balance}. New Rep: ${rivalWinner.reputation}");
               } else {
@@ -1725,7 +1787,7 @@ class GameStateManager with ChangeNotifier {
                           title: "${tournament.name} Concluded",
                           description: "${aiWinner.name} won the ${tournament.name}.",
                           type: NewsItemType.MatchResult,
-                          date: _currentDate
+                          date: _timeService.currentDate
                       ));
                       print("${aiWinner.name} won ${tournament.name}. Prize: $prizeMoney. New Balance: ${aiWinner.balance}. New Rep: ${aiWinner.reputation}");
                   } else {
@@ -1739,7 +1801,7 @@ class GameStateManager with ChangeNotifier {
               title: "${tournament.name} Concluded",
               description: "The ${tournament.name} has finished.", // Simpler message if no winner determined
               type: NewsItemType.MatchResult, // Corrected type
-              date: _currentDate
+              date: _timeService.currentDate
           ));
           print("${tournament.name} finished without a clear winner determined.");
       }
@@ -1853,7 +1915,7 @@ class GameStateManager with ChangeNotifier {
                 anyPlayerImproved = true;
                 // The news item can state general improvement, as specific attribute isn't easily known here.
                 // Or, we can just say skill in assigned position improved.
-                _addNewsItem(NewsItem.create(title: "Player Improved", description: "${player.name} showed improvement in training under Coach ${coach.name}. Skill in ${player.assignedPosition.name} is now ${player.currentSkill} (was $oldSkill).", type: NewsItemType.Training, date: _currentDate));
+                _addNewsItem(NewsItem.create(title: "Player Improved", description: "${player.name} showed improvement in training under Coach ${coach.name}. Skill in ${player.assignedPosition.name} is now ${player.currentSkill} (was $oldSkill).", type: NewsItemType.Training, date: _timeService.currentDate));
                 // print("  -> Player ${player.name} (under ${coach.name}) improved. New skill in ${player.assignedPosition.name}: ${player.currentSkill}. Chance: $totalChance%"); // Less verbose
               }
             }
@@ -1886,7 +1948,7 @@ class GameStateManager with ChangeNotifier {
       // For now, keep it simple.
       if (_availableStaff.length < 15) { // Max 15 available staff in the market
         Staff newStaff = Staff.randomStaff(
-          'staff_${_currentDate.millisecondsSinceEpoch}_$i',
+          'staff_${_timeService.currentDate.millisecondsSinceEpoch}_$i',
           role,
           academyReputation: _academyReputation, // Pass current academy reputation
         );
@@ -2358,10 +2420,10 @@ class GameStateManager with ChangeNotifier {
                 'isAIClubOffer': true, // Flag to distinguish from potential future rival offers
                 'sellingClubId': playerAcademyId, // Ensure selling club is player's academy
                 'sellingClubName': _academyName, // Add selling club name
-                'dateEpoch': _currentDate.millisecondsSinceEpoch, // Add date epoch for consistency
+                'dateEpoch': _timeService.currentDate.millisecondsSinceEpoch, // Add date epoch for consistency
             });
             // print("Generated transfer offer for ${player.name} (Value: $marketValue) from AI Club ${offeringClub.name} for $offerAmount"); // Less verbose
-            _addNewsItem(NewsItem.create(title: "Transfer Offer Received", description: "${offeringClub.name} has made an offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name}.", type: NewsItemType.TransferOffer, date: _currentDate));
+            _addNewsItem(NewsItem.create(title: "Transfer Offer Received", description: "${offeringClub.name} has made an offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name}.", type: NewsItemType.TransferOffer, date: _timeService.currentDate));
         } else {
              // print(" -> AI Club ${offeringClub.name} wanted to bid for ${player.name} but couldn't afford \$${offerAmount}."); // Verbose
         }
@@ -2418,7 +2480,7 @@ class GameStateManager with ChangeNotifier {
         unassignPlayerFromAnyCoach(playerId); // Unassign from player's coach
 
         // Player academy gains money
-        _balance += offerAmount;
+        _financeService.addIncome(offerAmount.toDouble());
 
         // Buying entity loses money and gains player
         buyingEntity.balance -= offerAmount;
@@ -2431,10 +2493,10 @@ class GameStateManager with ChangeNotifier {
         _transferOffers.removeWhere((o) => o['playerId'] == playerId); // Remove this offer
         _calculateWeeklyWages(); // Recalculate player wages
 
-        print("Accepted transfer offer for ${player.name}. Received $offerAmount. Balance: $_balance");
+        print("Accepted transfer offer for ${player.name}. Received $offerAmount. Balance: ${_financeService.balance}");
         print(" -> $buyerName signed ${player.name}. New Balance: ${buyingEntity.balance}. Player Count: ${buyingEntity.players.length}");
 
-        _addNewsItem(NewsItem.create(title: "Transfer Accepted", description: "We accepted the offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name} from $buyerName.", type: NewsItemType.TransferDecision, date: _currentDate));
+        _addNewsItem(NewsItem.create(title: "Transfer Accepted", description: "We accepted the offer of \$${NumberFormat.compact().format(offerAmount)} for ${player.name} from $buyerName.", type: NewsItemType.TransferDecision, date: _timeService.currentDate));
         notifyListeners();
     } else {
         print("Error: $buyerName can no longer afford the offer of $offerAmount for ${player.name}. Rejecting offer.");
@@ -2468,56 +2530,58 @@ class GameStateManager with ChangeNotifier {
 
   bool upgradeTrainingFacility() {
     int cost = getTrainingFacilityUpgradeCost();
-    if (_balance >= cost) {
-      _balance -= cost;
+    if (_financeService.canAfford(cost.toDouble())) {
+      _financeService.deductExpense(cost.toDouble());
       _trainingFacilityLevel++;
       _academyReputation += 5; // Add reputation boost
       _updateStaffCapsFromFacilities();
-      print("Upgraded Training Facility to Level $_trainingFacilityLevel. Cost: $cost. Balance: $_balance. Rep: $_academyReputation");
-      _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Training Facility upgraded to Level $_trainingFacilityLevel. Coach capacity increased to $_maxCoaches. Academy reputation increased.", type: NewsItemType.Facility, date: _currentDate));
+      print("Upgraded Training Facility to Level $_trainingFacilityLevel. Cost: $cost. Balance: ${_financeService.balance}. Rep: $_academyReputation");
+      _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Training Facility upgraded to Level $_trainingFacilityLevel. Coach capacity increased to $_maxCoaches. Academy reputation increased.", type: NewsItemType.Facility, date: _timeService.currentDate));
       notifyListeners(); return true;
-    } else { print("Cannot upgrade Training Facility. Cost: $cost, Balance: $_balance"); return false; }
+    } else { print("Cannot upgrade Training Facility. Cost: $cost, Balance: ${_financeService.balance}"); return false; }
   }
 
   bool upgradeScoutingFacility() {
     int cost = getScoutingFacilityUpgradeCost();
-    if (_balance >= cost) {
-      _balance -= cost; _scoutingFacilityLevel++;
+    if (_financeService.canAfford(cost.toDouble())) {
+      _financeService.deductExpense(cost.toDouble());
+      _scoutingFacilityLevel++;
       _updateStaffCapsFromFacilities();
-      print("Upgraded Scouting Facility to Level $_scoutingFacilityLevel. Cost: $cost. Balance: $_balance");
-       _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Scouting Facility upgraded to Level $_scoutingFacilityLevel. Scout capacity increased to $_maxScouts.", type: NewsItemType.Facility, date: _currentDate));
+      print("Upgraded Scouting Facility to Level $_scoutingFacilityLevel. Cost: $cost. Balance: ${_financeService.balance}");
+       _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Scouting Facility upgraded to Level $_scoutingFacilityLevel. Scout capacity increased to $_maxScouts.", type: NewsItemType.Facility, date: _timeService.currentDate));
       notifyListeners(); return true;
-    } else { print("Cannot upgrade Scouting Facility. Cost: $cost, Balance: $_balance"); return false; }
+    } else { print("Cannot upgrade Scouting Facility. Cost: $cost, Balance: ${_financeService.balance}"); return false; }
   }
 
   bool upgradeMedicalBay() {
     int cost = getMedicalBayUpgradeCost();
-    if (_balance >= cost) {
-      _balance -= cost; _medicalBayLevel++;
+    if (_financeService.canAfford(cost.toDouble())) {
+      _financeService.deductExpense(cost.toDouble());
+      _medicalBayLevel++;
       _updateStaffCapsFromFacilities();
-      print("Upgraded Medical Bay to Level $_medicalBayLevel. Cost: $cost. Balance: $_balance");
-       _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Medical Bay upgraded to Level $_medicalBayLevel. Physio capacity increased to $_maxPhysios.", type: NewsItemType.Facility, date: _currentDate));
+      print("Upgraded Medical Bay to Level $_medicalBayLevel. Cost: $cost. Balance: ${_financeService.balance}");
+       _addNewsItem(NewsItem.create(title: "Facility Upgraded", description: "Medical Bay upgraded to Level $_medicalBayLevel. Physio capacity increased to $_maxPhysios.", type: NewsItemType.Facility, date: _timeService.currentDate));
       notifyListeners(); return true;
-    } else { print("Cannot upgrade Medical Bay. Cost: $cost, Balance: $_balance"); return false; }
+    } else { print("Cannot upgrade Medical Bay. Cost: $cost, Balance: ${_financeService.balance}"); return false; }
   }
 
   bool upgradeMerchandiseStore() {
     int cost = getMerchandiseStoreUpgradeCost();
-    if (_balance >= cost) {
-      _balance -= cost;
+    if (_financeService.canAfford(cost.toDouble())) {
+      _financeService.deductExpense(cost.toDouble());
       _merchandiseStoreLevel++;
       _academyReputation += 3; // Smaller reputation boost for merch store
       _updateStaffCapsFromFacilities(); // This will update _maxStoreManagers
-      print("Upgraded Merchandise Store to Level $_merchandiseStoreLevel. Cost: $cost. Balance: $_balance. Rep: $_academyReputation. Max Store Managers: $_maxStoreManagers");
+      print("Upgraded Merchandise Store to Level $_merchandiseStoreLevel. Cost: $cost. Balance: ${_financeService.balance}. Rep: $_academyReputation. Max Store Managers: $_maxStoreManagers");
       _addNewsItem(NewsItem.create(
           title: "Facility Upgraded",
           description: "Merchandise Store upgraded to Level $_merchandiseStoreLevel. Store Manager capacity increased to $_maxStoreManagers. Academy reputation increased.",
           type: NewsItemType.Facility,
-          date: _currentDate));
+          date: _timeService.currentDate));
       notifyListeners();
       return true;
     } else {
-      print("Cannot upgrade Merchandise Store. Cost: $cost, Balance: $_balance");
+      print("Cannot upgrade Merchandise Store. Cost: $cost, Balance: ${_financeService.balance}");
       return false;
     }
   }
@@ -2561,27 +2625,30 @@ class GameStateManager with ChangeNotifier {
     try {
       print("--- SAVING GAME STATE ---");
       final gameStateToSave = SerializableGameState(
-        currentDate: _currentDate,
+        currentDate: _timeService.currentDate,
         academyName: _academyName,
         academyPlayers: _academyPlayers,
         hiredStaff: _hiredStaff,
-        balance: _balance,
-        weeklyIncome: _weeklyIncome,
-        totalWeeklyWages: _totalWeeklyWages,
+        balance: _financeService.balance,
+        weeklyIncome: _financeService.weeklyIncome,
+        totalWeeklyWages: _financeService.totalWeeklyWages,
         activeTournaments: _activeTournaments,
         completedTournaments: _completedTournaments,
         trainingFacilityLevel: _trainingFacilityLevel,
         scoutingFacilityLevel: _scoutingFacilityLevel,
         medicalBayLevel: _medicalBayLevel,
-        merchandiseStoreLevel: _merchandiseStoreLevel, // Save merchandise store level
-        fans: _fans, // Save fans
+        merchandiseStoreLevel: _merchandiseStoreLevel,
+        fans: _fans,
         academyReputation: _academyReputation,
         newsItems: _newsItems,
         difficulty: _difficulty,
          themeMode: _themeMode,
-         rivalAcademies: _rivalAcademies, // Save Rivals
-         aiClubs: _aiClubs, // <-- Add missing required argument
-         playerAcademyTier: _playerAcademyTier, // <-- ADD: Save player tier
+         rivalAcademies: _rivalAcademies,
+         aiClubs: _aiClubs,
+         playerAcademyTier: _playerAcademyTier,
+         consecutiveNegativeWeeks: _financeService.consecutiveNegativeWeeks,
+         isGameOver: _isGameOver,
+         isForcedSellActive: _isForcedSellActive,
        );
        final jsonMap = gameStateToSave.toJson();
       final jsonString = jsonEncode(jsonMap);
@@ -2666,13 +2733,24 @@ class GameStateManager with ChangeNotifier {
       final loadedState = SerializableGameState.fromJson(jsonMap);
 
       // Apply loaded state
-      _currentDate = loadedState.currentDate;
+      _timeService.initialize(loadedState.currentDate);
+      _financeService.initialize(
+        balance: loadedState.balance,
+        weeklyIncome: loadedState.weeklyIncome,
+        totalWeeklyWages: loadedState.totalWeeklyWages,
+        consecutiveNegativeWeeks: loadedState.consecutiveNegativeWeeks ?? 0,
+        // merchStockValue: loadedState.merchStockValue // Not in save yet
+      );
+
+      _isGameOver = loadedState.isGameOver ?? false;
+      _isForcedSellActive = loadedState.isForcedSellActive ?? false;
+
       _academyName = loadedState.academyName;
       _academyPlayers = loadedState.academyPlayers;
       _hiredStaff = loadedState.hiredStaff;
-      _balance = loadedState.balance;
-      _weeklyIncome = loadedState.weeklyIncome;
-      _totalWeeklyWages = loadedState.totalWeeklyWages;
+      // _balance = loadedState.balance; // Handled by service
+      // _weeklyIncome = loadedState.weeklyIncome; // Handled by service
+      // _totalWeeklyWages = loadedState.totalWeeklyWages; // Handled by service
       _activeTournaments = loadedState.activeTournaments;
       _completedTournaments = loadedState.completedTournaments;
       _trainingFacilityLevel = loadedState.trainingFacilityLevel;
@@ -2755,7 +2833,7 @@ class GameStateManager with ChangeNotifier {
                       club.tier = targetTier;
                       club.reputation += 25; // Reputation boost for promotion
                       print("   -> ${club.name} promoted to Tier $targetTier. New Rep: ${club.reputation}");
-                      _addNewsItem(NewsItem.create(title: "Club Promoted!", description: "${club.name} has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}!", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                      _addNewsItem(NewsItem.create(title: "Club Promoted!", description: "${club.name} has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}!", type: NewsItemType.LeagueUpdate, date: _timeService.currentDate));
                   } else {
                       print("   -> ${club.name} finished in promotion spot but is already in Tier ${club.tier}. No change.");
                   }
@@ -2765,7 +2843,7 @@ class GameStateManager with ChangeNotifier {
                       _playerAcademyTier = targetTier;
                       _academyReputation += 40; // Player rep boost for promotion
                       print("   -> Player Academy promoted to Tier $targetTier! New Rep: $_academyReputation");
-                      _addNewsItem(NewsItem.create(title: "PROMOTED!", description: "Your academy has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}!", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                      _addNewsItem(NewsItem.create(title: "PROMOTED!", description: "Your academy has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}!", type: NewsItemType.LeagueUpdate, date: _timeService.currentDate));
                   } else {
                       print("   -> Player Academy finished in promotion spot but is already in Tier $_playerAcademyTier. No change.");
                   }
@@ -2777,7 +2855,7 @@ class GameStateManager with ChangeNotifier {
                           academy.tier = targetTier;
                           academy.reputation += 30; // Rival rep boost for promotion
                           print("   -> Rival Academy ${academy.name} promoted to Tier $targetTier. New Rep: ${academy.reputation}");
-                          _addNewsItem(NewsItem.create(title: "Rival Promoted", description: "${academy.name} has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                          _addNewsItem(NewsItem.create(title: "Rival Promoted", description: "${academy.name} has been promoted to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _timeService.currentDate));
                       } else {
                           print("   -> Rival Academy ${academy.name} finished in promotion spot but is already in Tier ${academy.tier}. No change.");
                       }
@@ -2800,7 +2878,7 @@ class GameStateManager with ChangeNotifier {
                       club.tier = targetTier;
                       club.reputation = max(10, club.reputation - 15); // Reputation hit for relegation
                       print("   -> ${club.name} relegated to Tier $targetTier. New Rep: ${club.reputation}");
-                      _addNewsItem(NewsItem.create(title: "Club Relegated", description: "${club.name} has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                      _addNewsItem(NewsItem.create(title: "Club Relegated", description: "${club.name} has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _timeService.currentDate));
                   } else {
                       print("   -> ${club.name} finished in relegation spot but is already in Tier ${club.tier}. No change.");
                   }
@@ -2810,7 +2888,7 @@ class GameStateManager with ChangeNotifier {
                       _playerAcademyTier = targetTier;
                       _academyReputation = max(10, _academyReputation - 20); // Player rep hit for relegation
                       print("   -> Player Academy relegated to Tier $targetTier. New Rep: $_academyReputation");
-                      _addNewsItem(NewsItem.create(title: "RELEGATED!", description: "Your academy has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                      _addNewsItem(NewsItem.create(title: "RELEGATED!", description: "Your academy has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _timeService.currentDate));
                   } else {
                       print("   -> Player Academy finished in relegation spot but is already in Tier $_playerAcademyTier. No change.");
                   }
@@ -2822,7 +2900,7 @@ class GameStateManager with ChangeNotifier {
                           academy.tier = targetTier;
                           academy.reputation = max(10, academy.reputation - 15); // Rival rep hit for relegation
                           print("   -> Rival Academy ${academy.name} relegated to Tier $targetTier. New Rep: ${academy.reputation}");
-                          _addNewsItem(NewsItem.create(title: "Rival Relegated", description: "${academy.name} has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _currentDate));
+                          _addNewsItem(NewsItem.create(title: "Rival Relegated", description: "${academy.name} has been relegated to Tier $targetTier after finishing ${sortedStandings.indexOf(standing) + 1}${_getOrdinalSuffix(sortedStandings.indexOf(standing) + 1)} in ${league.name}.", type: NewsItemType.LeagueUpdate, date: _timeService.currentDate));
                       } else {
                           print("   -> Rival Academy ${academy.name} finished in relegation spot but is already in Tier ${academy.tier}. No change.");
                       }
@@ -2989,10 +3067,10 @@ class GameStateManager with ChangeNotifier {
 
   // --- NEW: Schedule Initial Pro Leagues (at Game Start/Reset) ---
   void _scheduleInitialProLeagues() {
-    int initialYear = _currentDate.year; // Use the starting year
+    int initialYear = _timeService.currentDate.year; // Use the starting year
     print("--- Scheduling Initial Pro Leagues for $initialYear ---");
     // Use the current date directly as the scheduling date, matches will start based on this.
-    DateTime schedulingDate = _currentDate;
+    DateTime schedulingDate = _timeService.currentDate;
 
     List<Tournament> proLeagueTemplates = _availableTournamentTemplates
         .where((t) => t.name.startsWith("Pro Youth League"))
@@ -3021,7 +3099,7 @@ class GameStateManager with ChangeNotifier {
       int youthRepReq = template.youthAcademyMinReputation ?? template.requiredReputation;
       if (leagueTier == 3 || (leagueTier == 2 && youthRepReq >= 400)) {
          eligibleYouthAcademies.addAll(_rivalAcademies.where((rival) => rival.reputation >= youthRepReq && rival.balance >= template.entryFee && rival.players.length >= template.requiredPlayers));
-         playerEligible = _academyReputation >= youthRepReq && _balance >= template.entryFee && _academyPlayers.length >= template.requiredPlayers;
+         playerEligible = _academyReputation >= youthRepReq && _financeService.canAfford(template.entryFee.toDouble()) && _academyPlayers.length >= template.requiredPlayers;
          eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation));
       }
       print(" -> Found ${eligibleAIClubs.length} eligible AI Clubs and ${eligibleYouthAcademies.length} eligible Youth Academies (Player eligible: $playerEligible) for Initial Tier $leagueTier League.");
@@ -3058,7 +3136,7 @@ class GameStateManager with ChangeNotifier {
         String joinWindow = (leagueTier == 3 && playerEligible)
             ? "You can join this league if you meet the requirements."
             : "This league is for AI clubs and high-reputation academies."; // Generic message for T1/T2
-        _addNewsItem(NewsItem.create(title: "Pro League Scheduled", description: "${newTournament.name} is scheduled to start soon with ${participants.length} teams confirmed. $joinWindow", type: NewsItemType.Tournament, date: _currentDate));
+        _addNewsItem(NewsItem.create(title: "Pro League Scheduled", description: "${newTournament.name} is scheduled to start soon with ${participants.length} teams confirmed. $joinWindow", type: NewsItemType.Tournament, date: _timeService.currentDate));
         print(" -> Scheduled Initial ${newTournament.name} (ID: ${newTournament.id}) starting around ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
       }
     }
@@ -3113,7 +3191,7 @@ class GameStateManager with ChangeNotifier {
             title: "Merchandise Mismanagement",
             description: "Poor handling at the club store led to a loss of ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(lossAmount.abs())} this week.",
             type: NewsItemType.Finance, // Or a new type like Merch
-            date: _currentDate));
+            date: _timeService.currentDate));
       }
       merchandiseIncomeThisWeek += storeIncome;
     } else if (_merchandiseStoreLevel > 0 && merchManager == null) {
@@ -3129,18 +3207,18 @@ class GameStateManager with ChangeNotifier {
             title: "Merch Store Issues",
             description: "The unmanaged club store incurred a small loss of ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(lossAmount.abs())} this week.",
             type: NewsItemType.Finance,
-            date: _currentDate));
+            date: _timeService.currentDate));
       }
     }
 
     if (merchandiseIncomeThisWeek.abs() > 0.01) { // Only add to balance and news if there's actual income/loss
-        _balance += merchandiseIncomeThisWeek;
+        _financeService.addIncome(merchandiseIncomeThisWeek);
         String incomeOrLossString = merchandiseIncomeThisWeek >= 0 ? "income" : "loss";
         _addNewsItem(NewsItem.create(
             title: "Merchandise Sales Update",
             description: "This week's merchandise $incomeOrLossString: ${NumberFormat.currency(locale: 'en_US', symbol: '\$').format(merchandiseIncomeThisWeek)}. Current fans: $_fans.",
             type: NewsItemType.Finance, // Or a new type
-            date: _currentDate));
+            date: _timeService.currentDate));
     }
     // print("Merchandise income this week: $merchandiseIncomeThisWeek. Fans: $_fans"); // Less verbose
   }

@@ -36,6 +36,11 @@ class SerializableGameState {
   final List<AIClub> aiClubs; // <-- ADDED AI Clubs Field Declaration
   final int playerAcademyTier; // Add Player Academy Tier
 
+  // New State Fields
+  final int? consecutiveNegativeWeeks;
+  final bool? isGameOver;
+  final bool? isForcedSellActive;
+
   SerializableGameState({
     required this.currentDate,
     required this.academyName, // Moved up
@@ -58,6 +63,9 @@ class SerializableGameState {
     required this.rivalAcademies,
     required this.aiClubs, // <-- ADDED AI Clubs to constructor
     required this.playerAcademyTier, // Add Player Academy Tier
+    this.consecutiveNegativeWeeks,
+    this.isGameOver,
+    this.isForcedSellActive,
   });
 
   // Connect to the generated functions

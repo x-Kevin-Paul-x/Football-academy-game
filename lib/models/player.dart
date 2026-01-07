@@ -552,19 +552,116 @@ class Player {
   }
   // --- End Training Logic ---
   
-  // --- ADDED: Method to set initial skill for assigned position ---
-  void setInitialSkillForAssignedPosition(int desiredCurrentSkill) {
-    if (positionalAffinity.containsKey(assignedPosition)) {
-      positionalAffinity[assignedPosition] = desiredCurrentSkill.clamp(0, potentialSkill);
-    } else {
-      // This case should ideally not happen if assignedPosition is always a valid key
-      // and _calculatePositionalAffinities has been called.
-      // However, as a fallback, initialize it.
-      positionalAffinity[assignedPosition] = desiredCurrentSkill.clamp(0, potentialSkill);
+  // --- Factory: Create Player with Specific Target Skill (Consistency Fix) ---
+  factory Player.createWithTargetSkill({
+    required String id,
+    required String name,
+    required int age,
+    required PlayerPosition naturalPosition,
+    required int targetSkill,
+    required int potentialSkill,
+    required int weeklyWage,
+    required int reputation,
+    TournamentType preferredFormat = TournamentType.elevenVeleven,
+    PlayerStatus status = PlayerStatus.Reserve,
+    double fatigue = 0.0,
+    bool isScouted = false,
+  }) {
+    final random = Random();
+
+    // 1. Calculate target average attribute value (1-20) based on target skill (15-99)
+    // Formula derived from _scaleAndClamp logic: Skill = ((AvgAttr - 1) / 19) * 84 + 15
+    // AvgAttr = 1 + (Skill - 15) * (19/84)
+    double targetAvgAttr = 1.0 + (targetSkill - 15) * (19.0 / 84.0);
+    targetAvgAttr = targetAvgAttr.clamp(1.0, 20.0);
+
+    // 2. Generate attributes centered around this average
+    int generateAttr() {
+      // Generate value with some variance around the target
+      double variance = 2.0; // +/- 2 points on average
+      double val = targetAvgAttr + (random.nextDouble() * 2 * variance) - variance;
+      // Add occasional spikes/drops for realism
+      if (random.nextDouble() < 0.1) val += (random.nextBool() ? 3 : -3);
+      return val.round().clamp(1, 20);
     }
-    // No need to call updatePositionalAffinities() here as we are directly setting
-    // the affinity for the already assigned position.
+
+    // Helper to generate positional bias
+    // If player is a GK, boost GK stats and maybe reduce others
+    int generatePositionalAttr(String attrName) {
+      int base = generateAttr();
+      // Apply simple bias based on natural position and key attributes
+      List<String>? keyAttrs = _positionKeyAttributes[naturalPosition];
+      if (keyAttrs != null && keyAttrs.contains(attrName)) {
+        return (base + random.nextInt(3)).clamp(1, 20); // Boost key attributes slightly
+      }
+      return base;
+    }
+
+    // Determine preferred positions
+    List<PlayerPosition> preferred = [naturalPosition]; // Always prefer natural position
+    if (random.nextDouble() < 0.3) { // 30% chance to have a secondary preference
+      PlayerPosition secondary;
+      do {
+        secondary = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
+      } while (secondary == naturalPosition);
+      preferred.add(secondary);
+    }
+
+    return Player(
+      id: id,
+      name: name,
+      age: age,
+      naturalPosition: naturalPosition,
+      potentialSkill: potentialSkill,
+      weeklyWage: weeklyWage,
+      reputation: reputation,
+      preferredFormat: preferredFormat,
+      status: status,
+      fatigue: fatigue,
+      isScouted: isScouted,
+      preferredPositions: preferred,
+      // Generate all stats
+      stamina: generatePositionalAttr('stamina'),
+      aggression: generatePositionalAttr('aggression'),
+      composure: generatePositionalAttr('composure'),
+      concentration: generatePositionalAttr('concentration'),
+      decision: generatePositionalAttr('decision'),
+      determination: generatePositionalAttr('determination'),
+      flair: generatePositionalAttr('flair'),
+      leadership: generatePositionalAttr('leadership'),
+      teamwork: generatePositionalAttr('teamwork'),
+      vision: generatePositionalAttr('vision'),
+      workRate: generatePositionalAttr('workRate'),
+      acceleration: generatePositionalAttr('acceleration'),
+      agility: generatePositionalAttr('agility'),
+      balance: generatePositionalAttr('balance'),
+      jumpingReach: generatePositionalAttr('jumpingReach'),
+      naturalFitness: generatePositionalAttr('naturalFitness'),
+      pace: generatePositionalAttr('pace'),
+      strength: generatePositionalAttr('strength'),
+      crossing: generatePositionalAttr('crossing'),
+      dribbling: generatePositionalAttr('dribbling'),
+      finishing: generatePositionalAttr('finishing'),
+      firstTouch: generatePositionalAttr('firstTouch'),
+      heading: generatePositionalAttr('heading'),
+      longShots: generatePositionalAttr('longShots'),
+      passing: generatePositionalAttr('passing'),
+      penaltyTaking: generatePositionalAttr('penaltyTaking'),
+      technique: generatePositionalAttr('technique'),
+      marking: generatePositionalAttr('marking'),
+      tackling: generatePositionalAttr('tackling'),
+      defensivePositioning: generatePositionalAttr('defensivePositioning'),
+      aerialReach: generatePositionalAttr('aerialReach'),
+      commandOfArea: generatePositionalAttr('commandOfArea'),
+      communicationGK: generatePositionalAttr('communicationGK'),
+      eccentricity: generatePositionalAttr('eccentricity'),
+      handling: generatePositionalAttr('handling'),
+      kicking: generatePositionalAttr('kicking'),
+      oneOnOnes: generatePositionalAttr('oneOnOnes'),
+      reflexes: generatePositionalAttr('reflexes'),
+      rushingOut: generatePositionalAttr('rushingOut'),
+      throwing: generatePositionalAttr('throwing'),
+    );
   }
-  // --- END ADDED METHOD ---
 }
 
