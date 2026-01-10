@@ -128,16 +128,19 @@ class PlayerCard extends StatelessWidget {
             SizedBox(
               width: 50,
               height: 50,
-              child: CircularProgressIndicator(
-                value: value / 100.0, // Assuming max skill is 100
-                strokeWidth: 5,
-                backgroundColor: color.withOpacity(0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(color),
+              child: ExcludeSemantics(
+                child: CircularProgressIndicator(
+                  value: value / 100.0, // Assuming max skill is 100
+                  strokeWidth: 5,
+                  backgroundColor: color.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                ),
               ),
             ),
             Text(
               value.toString(),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              semanticsLabel: '$value out of 100',
             ),
           ],
         ),
