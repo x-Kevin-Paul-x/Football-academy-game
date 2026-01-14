@@ -37,13 +37,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 items: Difficulty.values.map((Difficulty difficulty) {
                   return DropdownMenuItem<Difficulty>(
                     value: difficulty,
-                    child: Text(difficulty.toString().split('.').last), // Display enum name nicely
+                    child: Text(difficulty
+                        .toString()
+                        .split('.')
+                        .last), // Display enum name nicely
                   );
                 }).toList(),
                 onChanged: (Difficulty? newValue) {
                   if (newValue != null) {
                     // Call the method in GameStateManager to update the difficulty
-                    Provider.of<GameStateManager>(context, listen: false).setDifficulty(newValue);
+                    Provider.of<GameStateManager>(context, listen: false)
+                        .setDifficulty(newValue);
                   }
                 },
               ),
@@ -58,9 +62,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 items: ThemeMode.values.map((ThemeMode themeMode) {
                   String themeName;
                   switch (themeMode) {
-                    case ThemeMode.system: themeName = 'System Default'; break;
-                    case ThemeMode.light: themeName = 'Light'; break;
-                    case ThemeMode.dark: themeName = 'Dark'; break;
+                    case ThemeMode.system:
+                      themeName = 'System Default';
+                      break;
+                    case ThemeMode.light:
+                      themeName = 'Light';
+                      break;
+                    case ThemeMode.dark:
+                      themeName = 'Dark';
+                      break;
                   }
                   return DropdownMenuItem<ThemeMode>(
                     value: themeMode,
@@ -70,7 +80,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (ThemeMode? newValue) {
                   if (newValue != null) {
                     // Call the method in GameStateManager to update the theme mode
-                    Provider.of<GameStateManager>(context, listen: false).setThemeMode(newValue);
+                    Provider.of<GameStateManager>(context, listen: false)
+                        .setThemeMode(newValue);
                   }
                 },
               ),
@@ -138,14 +149,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                onPressed: () async { // Make async for dialog
+                onPressed: () async {
+                  // Make async for dialog
                   // Show confirmation dialog
                   final bool? confirmReset = await showDialog<bool>(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
                         title: const Text('Confirm Reset'),
-                        content: const Text('Are you sure you want to reset all game progress? This action cannot be undone.'),
+                        content: const Text(
+                            'Are you sure you want to reset all game progress? This action cannot be undone.'),
                         actions: <Widget>[
                           TextButton(
                             child: const Text('Cancel'),
@@ -154,7 +167,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             },
                           ),
                           TextButton(
-                            child: const Text('Reset', style: TextStyle(color: Colors.redAccent)),
+                            child: const Text('Reset',
+                                style: TextStyle(color: Colors.redAccent)),
                             onPressed: () {
                               Navigator.of(context).pop(true); // Return true
                             },

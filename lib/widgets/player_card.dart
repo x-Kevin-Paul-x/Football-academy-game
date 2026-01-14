@@ -55,9 +55,11 @@ class PlayerCard extends StatelessWidget {
               spacing: 8.0, // Horizontal space between chips
               runSpacing: 4.0, // Vertical space between lines of chips
               children: [
-                _buildInfoChip(Icons.cake_outlined, 'Age: ${player.age}'),
-                _buildInfoChip(Icons.attach_money_outlined, 'Wage: \$${player.weeklyWage}/wk'),
-                _buildInfoChip(Icons.star_outline, 'Rep: ${player.reputation}'), // Display Reputation
+                _buildInfoChip(context, Icons.cake_outlined, 'Age: ${player.age}'),
+                _buildInfoChip(
+                    context, Icons.attach_money_outlined, 'Wage: \$${player.weeklyWage}/wk'),
+                _buildInfoChip(context, Icons.star_outline,
+                    'Rep: ${player.reputation}'), // Display Reputation
               ],
             ),
             const SizedBox(height: 10),
@@ -106,42 +108,55 @@ class PlayerCard extends StatelessWidget {
     ); // End Card
   }
 
-  Widget _buildInfoChip(IconData icon, String text) {
+  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Chip(
-      avatar: Icon(icon, size: 16, color: Colors.grey[700]),
+      avatar: Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
       label: Text(text),
-      backgroundColor: Colors.grey[800], // Darker chip background for dark theme
-      labelStyle: TextStyle(color: Colors.grey[300]),
+      backgroundColor: colorScheme.surfaceContainerHighest,
+      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      side: BorderSide.none,
     );
   }
 
   Widget _buildSkillIndicator(BuildContext context, {required String label, required int value, required Color color}) {
-    return Column(
-      children: [
-        Text(label, style: Theme.of(context).textTheme.labelMedium),
-        const SizedBox(height: 4),
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            SizedBox(
-              width: 50,
-              height: 50,
-              child: CircularProgressIndicator(
-                value: value / 100.0, // Assuming max skill is 100
-                strokeWidth: 5,
-                backgroundColor: color.withOpacity(0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(color),
+    // UX: Wrap in Semantics to provide a clear, consolidated label for screen readers
+    return Semantics(
+      label: '$label: $value out of 100',
+      child: Column(
+        children: [
+          ExcludeSemantics(
+            child: Text(label, style: Theme.of(context).textTheme.labelMedium),
+          ),
+          const SizedBox(height: 4),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 50,
+                height: 50,
+                child: ExcludeSemantics(
+                  child: CircularProgressIndicator(
+                    value: value / 100.0, // Assuming max skill is 100
+                    strokeWidth: 5,
+                    backgroundColor: color.withOpacity(0.2),
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  ),
+                ),
               ),
-            ),
-            Text(
-              value.toString(),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ],
+              ExcludeSemantics(
+                child: Text(
+                  value.toString(),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
