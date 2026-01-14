@@ -18,8 +18,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     // Access the GameStateManager
     final gameState = Provider.of<GameStateManager>(context);
-    final scaffoldMessenger =
-        ScaffoldMessenger.of(context); // Capture context for SnackBars
+    // Capture the ScaffoldMessenger to ensure we can show SnackBars even if context is deactivated (e.g. after navigation)
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -94,12 +94,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: ElevatedButton.icon(
                 icon: _isSaving
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white, // Match icon color if possible
-                        ),
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.save),
                 label: const Text('Save Game'),
@@ -117,12 +114,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _isSaving = true;
                         });
 
-                        final gameStateManager = Provider.of<GameStateManager>(
-                            context,
-                            listen: false);
+                        final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
 
-                        // Artificial delay for better UX if save is too fast
-                        // await Future.delayed(const Duration(milliseconds: 500));
+                        // Minimum delay to show the spinner even if save is instant
+                        await Future.delayed(const Duration(milliseconds: 500));
 
                         bool success = await gameStateManager.saveGame();
 
@@ -130,12 +125,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           setState(() {
                             _isSaving = false;
                           });
+
                           scaffoldMessenger.showSnackBar(
-                            // Use captured context
                             SnackBar(
-                              content: Text(success
-                                  ? 'Game Saved!'
-                                  : 'Error saving game.'),
+                              content: Text(success ? 'Game Saved!' : 'Error saving game.'),
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -186,25 +179,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
 
                   // If confirmed, reset the game and navigate back to start screen
-                  if (confirmReset == true) {
-                    if (context.mounted) {
-                      Provider.of<GameStateManager>(context, listen: false)
-                          .resetGame();
-                      // Navigate back to the StartScreen
-                      // Use pushAndRemoveUntil to clear the navigation stack
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const StartScreen()), // Navigate to StartScreen
-                        (Route<dynamic> route) =>
-                            false, // Remove all previous routes
-                      );
-                      scaffoldMessenger.showSnackBar(
-                        // Use captured context
-                        const SnackBar(
-                            content: Text('Game Reset Successfully!')),
-                      );
-                    }
+                  if (confirmReset == true && mounted) {
+                    Provider.of<GameStateManager>(context, listen: false).resetGame();
+                    // Navigate back to the StartScreen
+                    // Use pushAndRemoveUntil to clear the navigation stack
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const StartScreen()), // Navigate to StartScreen
+                      (Route<dynamic> route) => false, // Remove all previous routes
+                    );
+                     // Use captured scaffoldMessenger because context might be deactivated after navigation
+                     scaffoldMessenger.showSnackBar(
+                       const SnackBar(content: Text('Game Reset Successfully!')),
+                     );
                   }
                 },
                 // child: const Text('Reset Game Data', style: TextStyle(fontSize: 16)), // Label is now in ElevatedButton.icon
