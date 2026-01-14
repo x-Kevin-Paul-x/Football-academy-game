@@ -55,9 +55,11 @@ class PlayerCard extends StatelessWidget {
               spacing: 8.0, // Horizontal space between chips
               runSpacing: 4.0, // Vertical space between lines of chips
               children: [
-                _buildInfoChip(Icons.cake_outlined, 'Age: ${player.age}'),
-                _buildInfoChip(Icons.attach_money_outlined, 'Wage: \$${player.weeklyWage}/wk'),
-                _buildInfoChip(Icons.star_outline, 'Rep: ${player.reputation}'), // Display Reputation
+                _buildInfoChip(context, Icons.cake_outlined, 'Age: ${player.age}'),
+                _buildInfoChip(
+                    context, Icons.attach_money_outlined, 'Wage: \$${player.weeklyWage}/wk'),
+                _buildInfoChip(context, Icons.star_outline,
+                    'Rep: ${player.reputation}'), // Display Reputation
               ],
             ),
             const SizedBox(height: 10),
@@ -106,14 +108,17 @@ class PlayerCard extends StatelessWidget {
     ); // End Card
   }
 
-  Widget _buildInfoChip(IconData icon, String text) {
+  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Chip(
-      avatar: Icon(icon, size: 16, color: Colors.grey[700]),
+      avatar: Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
       label: Text(text),
-      backgroundColor: Colors.grey[800], // Darker chip background for dark theme
-      labelStyle: TextStyle(color: Colors.grey[300]),
+      backgroundColor: colorScheme.surfaceContainerHighest,
+      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      side: BorderSide.none,
     );
   }
 
