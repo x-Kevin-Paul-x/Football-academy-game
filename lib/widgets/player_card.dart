@@ -122,39 +122,35 @@ class PlayerCard extends StatelessWidget {
     );
   }
 
-  Widget _buildSkillIndicator(BuildContext context,
-      {required String label, required int value, required Color color}) {
-    return Tooltip(
-      message: '$label: $value/100',
-      child: Semantics(
-        label: label,
-        value: '$value out of 100',
-        child: Column(
-          children: [
-            Text(label, style: Theme.of(context).textTheme.labelMedium),
-            const SizedBox(height: 4),
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: CircularProgressIndicator(
-                    value: value / 100.0, // Assuming max skill is 100
-                    strokeWidth: 5,
-                    backgroundColor: color.withOpacity(0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
+  Widget _buildSkillIndicator(BuildContext context, {required String label, required int value, required Color color}) {
+    return Semantics(
+      label: label,
+      value: '$value out of 100',
+      excludeSemantics: true,
+      child: Column(
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          const SizedBox(height: 4),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 50,
+                height: 50,
+                child: CircularProgressIndicator(
+                  value: value / 100.0, // Assuming max skill is 100
+                  strokeWidth: 5,
+                  backgroundColor: color.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
                 ),
-                Text(
-                  value.toString(),
-                  style: Theme.of(context).textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              Text(
+                value.toString(),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
