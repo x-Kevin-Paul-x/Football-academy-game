@@ -10,6 +10,7 @@ import 'models/match_event.dart'; // Import MatchEventType
 import 'models/news_item.dart';
 import 'models/difficulty.dart'; // Import Difficulty enum
 import 'dart:math';
+import 'dart:collection'; // For UnmodifiableListView and UnmodifiableMapView
 import 'package:collection/collection.dart'; // <-- ADD: Import collection
 import 'package:flutter/material.dart'; // Import for ThemeMode
 import 'package:intl/intl.dart'; // Import for number formatting
@@ -148,22 +149,22 @@ class GameStateManager with ChangeNotifier {
 
   DateTime get currentDate => _timeService.currentDate;
   String get academyName => _academyName;
-  List<Player> get academyPlayers => List<Player>.unmodifiable(_academyPlayers);
-  List<Staff> get hiredStaff => List<Staff>.unmodifiable(_hiredStaff);
-  List<Player> get scoutedPlayers => List<Player>.unmodifiable(_scoutedPlayers);
-  List<Staff> get availableStaff => List<Staff>.unmodifiable(_availableStaff);
+  List<Player> get academyPlayers => UnmodifiableListView(_academyPlayers);
+  List<Staff> get hiredStaff => UnmodifiableListView(_hiredStaff);
+  List<Player> get scoutedPlayers => UnmodifiableListView(_scoutedPlayers);
+  List<Staff> get availableStaff => UnmodifiableListView(_availableStaff);
   double get balance => _financeService.balance;
   int get weeklyIncome => _financeService.weeklyIncome;
   int get totalWeeklyWages => _financeService.totalWeeklyWages;
-  List<Tournament> get activeTournaments => List<Tournament>.unmodifiable(_activeTournaments);
-  List<Tournament> get completedTournaments => List<Tournament>.unmodifiable(_completedTournaments);
-  List<Tournament> get availableTournamentTemplates => List<Tournament>.unmodifiable(_availableTournamentTemplates);
+  List<Tournament> get activeTournaments => UnmodifiableListView(_activeTournaments);
+  List<Tournament> get completedTournaments => UnmodifiableListView(_completedTournaments);
+  List<Tournament> get availableTournamentTemplates => UnmodifiableListView(_availableTournamentTemplates);
   // Rival Academy Getters
-  List<RivalAcademy> get rivalAcademies => List<RivalAcademy>.unmodifiable(_rivalAcademies);
-  Map<String, RivalAcademy> get rivalAcademyMap => Map<String, RivalAcademy>.unmodifiable(_rivalAcademyMap);
+  List<RivalAcademy> get rivalAcademies => UnmodifiableListView(_rivalAcademies);
+  Map<String, RivalAcademy> get rivalAcademyMap => UnmodifiableMapView(_rivalAcademyMap);
   // AI Club Getters
-  List<AIClub> get aiClubs => List<AIClub>.unmodifiable(_aiClubs);
-  Map<String, AIClub> get aiClubMap => Map<String, AIClub>.unmodifiable(_aiClubMap); // <-- ADDED GETTER
+  List<AIClub> get aiClubs => UnmodifiableListView(_aiClubs);
+  Map<String, AIClub> get aiClubMap => UnmodifiableMapView(_aiClubMap); // <-- ADDED GETTER
   // Facility Getters
   int get trainingFacilityLevel => _trainingFacilityLevel;
   int get scoutingFacilityLevel => _scoutingFacilityLevel;
@@ -178,7 +179,7 @@ class GameStateManager with ChangeNotifier {
   int get fans => _fans;
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
-  List<Map<String, dynamic>> get transferOffers => List<Map<String, dynamic>>.unmodifiable(_transferOffers);
+  List<Map<String, dynamic>> get transferOffers => UnmodifiableListView(_transferOffers);
   List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
