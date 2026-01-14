@@ -30,6 +30,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
+  bool _isAdvancing = false;
   // final Random _random = Random(); // Removed unused field
   final DateFormat _dateFormatter = DateFormat('MMMM d, yyyy');
 
@@ -37,6 +38,45 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     // Initialization logic is handled by GameStateManager
+  }
+
+  Future<void> _handleAdvanceWeek() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Advance Week?'),
+        content: const Text(
+            'This will simulate matches, training, and finances for the week. You cannot undo this.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Advance'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      setState(() {
+        _isAdvancing = true;
+      });
+
+      // Artificial delay to ensure UI updates and shows the spinner/disabled state
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
+      Provider.of<GameStateManager>(context, listen: false).advanceWeek();
+
+      if (mounted) {
+        setState(() {
+          _isAdvancing = false;
+        });
+      }
+    }
   }
 
   // --- Callbacks (Simplified - No longer passing state down) ---
@@ -110,13 +150,18 @@ class _DashboardState extends State<Dashboard> {
                 Tooltip(
                   message: 'Simulate matches, training & finances',
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      Provider.of<GameStateManager>(context, listen: false).advanceWeek();
-                    },
-                    icon: const Icon(Icons.fast_forward),
+                    onPressed: _isAdvancing ? null : _handleAdvanceWeek,
+                    icon: _isAdvancing
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.fast_forward),
                     label: const Text('Advance 1 Week'),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       textStyle: const TextStyle(fontSize: 18),
                     ),
                   ),
