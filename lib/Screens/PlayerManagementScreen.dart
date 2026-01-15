@@ -29,16 +29,16 @@ class PlayerManagementScreen extends StatelessWidget {
                   child: Column(
                  mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person_search, size: 80, color: Colors.grey[400]),
+                  Icon(Icons.person_search, size: 80, color: Theme.of(context).colorScheme.outline),
                   const SizedBox(height: 16),
                   Text(
                     'No players in the academy yet.',
-                     style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
                   ),
-                   const SizedBox(height: 8),
-                   Text(
+                  const SizedBox(height: 8),
+                  Text(
                     'Scout and sign players to build your team!',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -56,13 +56,15 @@ class PlayerManagementScreen extends StatelessWidget {
                   showPotential: true, // Optionally show potential for academy players too
                   actions: [
                     // Add Release Button
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.person_remove_outlined),
-                      label: const Text('Release'),
-                      onPressed: () {
-                        // Show confirmation dialog before releasing
-                        showDialog(
-                          context: context,
+                    Tooltip(
+                      message: 'Release player from academy',
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.person_remove_outlined),
+                        label: const Text('Release'),
+                        onPressed: () {
+                          // Show confirmation dialog before releasing
+                          showDialog(
+                            context: context,
                           builder: (BuildContext dialogContext) {
                             return AlertDialog(
                               title: Text('Confirm Release'),
@@ -89,11 +91,12 @@ class PlayerManagementScreen extends StatelessWidget {
                               ],
                             );
                           },
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange[800], // Use a distinct color like orange/brown
-                        foregroundColor: Colors.white,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                          foregroundColor: Theme.of(context).colorScheme.onError,
+                        ),
                       ),
                     ),
                     // Add other actions like 'View Details' or 'Train' later
