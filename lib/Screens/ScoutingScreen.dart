@@ -28,21 +28,37 @@ class ScoutingScreen extends StatelessWidget {
 
           return players.isEmpty
               ? Center( // Empty state
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No new players found this week.',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                   Text(
-                    'Hire more scouts or improve existing ones!',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Semantics(
+                      label: 'Scouting Report Empty',
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 80,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No new players found this week.',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Hire more scouts or improve existing ones to find more talent!',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 )
               : ListView.builder( // List view for players
@@ -53,22 +69,28 @@ class ScoutingScreen extends StatelessWidget {
                     // Use the PlayerCard widget for consistent display
                     return PlayerCard(
                       player: player,
-                  showPotential: true, // Show potential for scouted players
-                  actions: [
-                    TextButton.icon(
-                      icon: const Icon(Icons.check_circle_outline, color: Colors.green),
-                      label: const Text('Sign', style: TextStyle(color: Colors.green)),
-                      onPressed: () => signPlayerCallback(player),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.cancel_outlined, color: Colors.red),
-                      label: const Text('Reject', style: TextStyle(color: Colors.red)),
-                      onPressed: () => rejectPlayerCallback(player),
-                    ),
-                  ],
-                );
-              },
-            ); // ListView.builder ends
+                      showPotential: true, // Show potential for scouted players
+                      actions: [
+                        Tooltip(
+                          message: 'Sign player to your academy',
+                          child: TextButton.icon(
+                            icon: Icon(Icons.check_circle_outline, color: Theme.of(context).colorScheme.primary),
+                            label: Text('Sign', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                            onPressed: () => signPlayerCallback(player),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Reject this player',
+                          child: TextButton.icon(
+                            icon: Icon(Icons.cancel_outlined, color: Theme.of(context).colorScheme.error),
+                            label: Text('Reject', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            onPressed: () => rejectPlayerCallback(player),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ); // ListView.builder ends
         }, // Consumer builder ends
       ), // Consumer ends
     ); // Scaffold ends
