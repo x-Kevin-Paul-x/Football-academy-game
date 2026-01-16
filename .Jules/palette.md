@@ -8,3 +8,7 @@
 ## 2024-05-24 - Composite Widget Accessibility
 **Learning:** Composite indicators (Stack of CircularProgressIndicator + Text) are read as fragmented nodes by screen readers, confusing users.
 **Action:** Wrap composite visual widgets in `Semantics` with `excludeSemantics: true` to provide a single, coherent label and value (e.g., "Skill: 85 out of 100").
+
+## 2024-05-24 - Semantic Empty States
+**Learning:** Empty states often lack focus for screen readers. Wrapping the entire empty state container (Icon + Text) in a single `Semantics` widget with a descriptive `label` provides a faster, clearer status update than traversing individual elements.
+**Action:** Wrap empty state `Column`s in `Semantics(label: '...', child: ...)` instead of relying on individual text nodes.
