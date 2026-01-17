@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../game_state_manager.dart';
 import '../models/news_item.dart';
+import '../widgets/empty_state.dart';
 
 class NewsScreen extends StatelessWidget {
   const NewsScreen({super.key});
@@ -36,7 +37,11 @@ class NewsScreen extends StatelessWidget {
           final newsItems = gameStateManager.newsItems; // Get the list
 
           if (newsItems.isEmpty) {
-            return const Center(child: Text('No news yet.'));
+            return const EmptyState(
+              icon: Icons.newspaper,
+              title: 'No news yet.',
+              message: 'Check back later for match results and updates.',
+            );
           }
 
           // Display news items in a ListView
