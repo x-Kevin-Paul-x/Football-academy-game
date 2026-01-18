@@ -41,22 +41,28 @@ class ScoutingScreen extends StatelessWidget {
                     // Use the PlayerCard widget for consistent display
                     return PlayerCard(
                       player: player,
-                  showPotential: true, // Show potential for scouted players
-                  actions: [
-                    TextButton.icon(
-                      icon: const Icon(Icons.check_circle_outline, color: Colors.green),
-                      label: const Text('Sign', style: TextStyle(color: Colors.green)),
-                      onPressed: () => signPlayerCallback(player),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.cancel_outlined, color: Colors.red),
-                      label: const Text('Reject', style: TextStyle(color: Colors.red)),
-                      onPressed: () => rejectPlayerCallback(player),
-                    ),
-                  ],
-                );
-              },
-            ); // ListView.builder ends
+                      showPotential: true, // Show potential for scouted players
+                      actions: [
+                        Tooltip(
+                          message: 'Sign player to your academy',
+                          child: TextButton.icon(
+                            icon: Icon(Icons.check_circle_outline, color: Theme.of(context).colorScheme.primary),
+                            label: Text('Sign', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                            onPressed: () => signPlayerCallback(player),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Reject this player',
+                          child: TextButton.icon(
+                            icon: Icon(Icons.cancel_outlined, color: Theme.of(context).colorScheme.error),
+                            label: Text('Reject', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            onPressed: () => rejectPlayerCallback(player),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ); // ListView.builder ends
         }, // Consumer builder ends
       ), // Consumer ends
     ); // Scaffold ends
