@@ -254,24 +254,31 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
        tooltipMessage = 'Need ${currencyFormat.format(tournamentTemplate.entryFee)} (Have ${currencyFormat.format(gameStateManager.balance)})';
     }
 
-    Widget buttonChild = Text(buttonText);
+    // Create the button widget first
+    Widget joinButton = ElevatedButton(
+      onPressed: canJoinOverall
+          ? () {
+              _showJoinConfirmationDialog(
+                  context, tournamentTemplate, gameStateManager);
+            }
+          : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: buttonColor,
+        foregroundColor: textColor,
+      ),
+      child: Text(buttonText),
+    );
+
+    // If there's a tooltip message (e.g. reasoning for being disabled), wrap the button
+    // Wrapping the entire button is necessary for tooltips to work on disabled buttons
     if (tooltipMessage != null && !canJoinOverall) {
-       buttonChild = Tooltip(
-         message: tooltipMessage,
-         child: buttonChild, // Wrap the Text widget
-       );
+      return Tooltip(
+        message: tooltipMessage,
+        child: joinButton,
+      );
     }
 
-    return ElevatedButton(
-      onPressed: canJoinOverall ? () {
-        _showJoinConfirmationDialog(context, tournamentTemplate, gameStateManager);
-      } : null,
-      style: ElevatedButton.styleFrom(
-         backgroundColor: buttonColor,
-         foregroundColor: textColor,
-      ),
-      child: buttonChild, // Use the potentially wrapped child
-    );
+    return joinButton;
   }
 
   // Helper to get team name
