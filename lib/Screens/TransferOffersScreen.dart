@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import 'package:intl/intl.dart'; // For number formatting
+import '../widgets/empty_state.dart';
 
 class TransferOffersScreen extends StatelessWidget {
   const TransferOffersScreen({Key? key}) : super(key: key);
@@ -28,11 +29,10 @@ class TransferOffersScreen extends StatelessWidget {
           }).toList();
 
           if (offers.isEmpty) {
-            return const Center(
-              child: Text(
-                'No transfer offers received this week.',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+            return const EmptyState(
+              icon: Icons.move_to_inbox,
+              title: 'No transfer offers.',
+              message: 'Perform well to attract attention from other clubs.',
             );
           }
 

@@ -12,3 +12,7 @@
 ## 2024-05-25 - Tooltips on Disabled Buttons
 **Learning:** Placing a `Tooltip` inside a disabled button (wrapping the child text) prevents the tooltip from appearing because the disabled button consumes or blocks hit testing.
 **Action:** Always wrap the *entire* button widget (e.g., `ElevatedButton`) with the `Tooltip` widget to ensure the message is accessible even when the button is disabled.
+ 
+ ## 2024-05-25 - Empty State Consistency
+**Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
+**Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).

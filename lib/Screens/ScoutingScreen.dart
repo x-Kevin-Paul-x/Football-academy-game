@@ -3,6 +3,7 @@ import 'package:provider/provider.dart'; // Import Provider
 import '../models/player.dart';
 import '../game_state_manager.dart'; // Import GameStateManager
 import '../widgets/player_card.dart'; // Assuming a PlayerCard widget exists
+import '../widgets/empty_state.dart';
 
 typedef PlayerActionCallback = void Function(Player player);
 
@@ -27,23 +28,10 @@ class ScoutingScreen extends StatelessWidget {
           final players = gameStateManager.scoutedPlayers; // Get list from provider
 
           return players.isEmpty
-              ? Center( // Empty state
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No new players found this week.',
-                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                   Text(
-                    'Hire more scouts or improve existing ones!',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                  ),
-                ],
-                  ),
+              ? const EmptyState(
+                  icon: Icons.search_off,
+                  title: 'No new players found this week.',
+                  message: 'Hire more scouts or improve existing ones!',
                 )
               : ListView.builder( // List view for players
                   padding: const EdgeInsets.all(8.0),
@@ -53,22 +41,28 @@ class ScoutingScreen extends StatelessWidget {
                     // Use the PlayerCard widget for consistent display
                     return PlayerCard(
                       player: player,
-                  showPotential: true, // Show potential for scouted players
-                  actions: [
-                    TextButton.icon(
-                      icon: const Icon(Icons.check_circle_outline, color: Colors.green),
-                      label: const Text('Sign', style: TextStyle(color: Colors.green)),
-                      onPressed: () => signPlayerCallback(player),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.cancel_outlined, color: Colors.red),
-                      label: const Text('Reject', style: TextStyle(color: Colors.red)),
-                      onPressed: () => rejectPlayerCallback(player),
-                    ),
-                  ],
-                );
-              },
-            ); // ListView.builder ends
+                      showPotential: true, // Show potential for scouted players
+                      actions: [
+                        Tooltip(
+                          message: 'Sign player to your academy',
+                          child: TextButton.icon(
+                            icon: Icon(Icons.check_circle_outline, color: Theme.of(context).colorScheme.primary),
+                            label: Text('Sign', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                            onPressed: () => signPlayerCallback(player),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Reject this player',
+                          child: TextButton.icon(
+                            icon: Icon(Icons.cancel_outlined, color: Theme.of(context).colorScheme.error),
+                            label: Text('Reject', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            onPressed: () => rejectPlayerCallback(player),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ); // ListView.builder ends
         }, // Consumer builder ends
       ), // Consumer ends
     ); // Scaffold ends
