@@ -3213,7 +3213,12 @@ class GameStateManager with ChangeNotifier {
     }
 
     if (merchandiseIncomeThisWeek.abs() > 0.01) { // Only add to balance and news if there's actual income/loss
-        _financeService.addIncome(merchandiseIncomeThisWeek);
+        if (merchandiseIncomeThisWeek >= 0) {
+          _financeService.addIncome(merchandiseIncomeThisWeek);
+        } else {
+          _financeService.deductExpense(merchandiseIncomeThisWeek.abs());
+        }
+
         String incomeOrLossString = merchandiseIncomeThisWeek >= 0 ? "income" : "loss";
         _addNewsItem(NewsItem.create(
             title: "Merchandise Sales Update",

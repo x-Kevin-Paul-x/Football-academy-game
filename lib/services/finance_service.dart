@@ -114,21 +114,21 @@ class FinanceService {
   // Transaction Methods
   void addIncome(double amount) {
     if (amount < 0) {
-      throw ArgumentError("Income amount cannot be negative: $amount");
+      throw ArgumentError('Amount must be non-negative. Use deductExpense for losses.');
     }
     _balance += amount;
   }
 
   void deductExpense(double amount) {
     if (amount < 0) {
-      throw ArgumentError("Expense amount cannot be negative: $amount");
+      throw ArgumentError('Amount must be non-negative. Use addIncome for refunds/gains.');
     }
     _balance -= amount;
   }
 
   bool canAfford(double amount) {
     if (amount < 0) {
-      throw ArgumentError("Cost check amount cannot be negative: $amount");
+      throw ArgumentError('Amount to check affordability for must be non-negative.');
     }
     return _balance >= amount;
   }
