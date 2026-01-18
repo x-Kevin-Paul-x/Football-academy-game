@@ -132,7 +132,7 @@ class GameStateManager with ChangeNotifier {
   List<Map<String, dynamic>> _transferOffers = [];
 
   // News Feed
-  List<NewsItem> _newsItems = [];
+  List<NewsItem> _newsItems = []; // Stores news items, newest first
 
   // Settings
   Difficulty _difficulty = Difficulty.Normal;
@@ -180,7 +180,7 @@ class GameStateManager with ChangeNotifier {
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
   List<Map<String, dynamic>> get transferOffers => UnmodifiableListView(_transferOffers);
-  List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
+  List<NewsItem> get newsItems => UnmodifiableListView(_newsItems);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
   int get playerAcademyTier => _playerAcademyTier;
@@ -2594,9 +2594,9 @@ class GameStateManager with ChangeNotifier {
   }
 
   void _addNewsItem(NewsItem item) {
-    _newsItems.add(item);
+    _newsItems.insert(0, item); // Insert at the beginning (Newest first)
     if (_newsItems.length > 100) { // Limit news items
-        _newsItems.removeAt(0);
+        _newsItems.removeLast(); // Remove oldest (which is now at the end)
     }
     // print("News Added: ${item.title}"); // Verbose
   }
@@ -2761,6 +2761,8 @@ class GameStateManager with ChangeNotifier {
       _fans = loadedState.fans ?? 100; // Load fans, default to 100 if not present
       _academyReputation = loadedState.academyReputation;
       _newsItems = loadedState.newsItems;
+      // Ensure news items are sorted newest first (handles migration from old saves)
+      _newsItems.sort((a, b) => b.date.compareTo(a.date));
       _difficulty = loadedState.difficulty;
       _themeMode = loadedState.themeMode;
       _rivalAcademies = loadedState.rivalAcademies; // Load Rivals
