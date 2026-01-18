@@ -3,6 +3,7 @@ import 'package:provider/provider.dart'; // Import Provider
 import '../models/player.dart';
 import '../game_state_manager.dart'; // Import GameStateManager
 import '../widgets/player_card.dart'; // Assuming a PlayerCard widget exists
+import '../widgets/empty_state.dart';
 
 typedef PlayerActionCallback = void Function(Player player);
 
@@ -27,39 +28,10 @@ class ScoutingScreen extends StatelessWidget {
           final players = gameStateManager.scoutedPlayers; // Get list from provider
 
           return players.isEmpty
-              ? Center( // Empty state
-                  child: Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Semantics(
-                      label: 'Scouting Report Empty',
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 80,
-                            color: Theme.of(context).colorScheme.outline,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No new players found this week.',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Hire more scouts or improve existing ones to find more talent!',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+              ? const EmptyState(
+                  icon: Icons.search_off,
+                  title: 'No new players found this week.',
+                  message: 'Hire more scouts or improve existing ones!',
                 )
               : ListView.builder( // List view for players
                   padding: const EdgeInsets.all(8.0),

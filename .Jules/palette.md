@@ -9,6 +9,6 @@
 **Learning:** Composite indicators (Stack of CircularProgressIndicator + Text) are read as fragmented nodes by screen readers, confusing users.
 **Action:** Wrap composite visual widgets in `Semantics` with `excludeSemantics: true` to provide a single, coherent label and value (e.g., "Skill: 85 out of 100").
 
-## 2024-05-24 - Semantic Empty States
-**Learning:** Empty states often lack focus for screen readers. Wrapping the entire empty state container (Icon + Text) in a single `Semantics` widget with a descriptive `label` provides a faster, clearer status update than traversing individual elements.
-**Action:** Wrap empty state `Column`s in `Semantics(label: '...', child: ...)` instead of relying on individual text nodes.
+## 2024-05-25 - Empty State Consistency
+**Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
+**Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
