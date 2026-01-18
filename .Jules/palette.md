@@ -8,3 +8,7 @@
 ## 2024-05-24 - Composite Widget Accessibility
 **Learning:** Composite indicators (Stack of CircularProgressIndicator + Text) are read as fragmented nodes by screen readers, confusing users.
 **Action:** Wrap composite visual widgets in `Semantics` with `excludeSemantics: true` to provide a single, coherent label and value (e.g., "Skill: 85 out of 100").
+
+## 2024-05-25 - Tooltips on Disabled Buttons
+**Learning:** Placing a `Tooltip` inside a disabled button (wrapping the child text) prevents the tooltip from appearing because the disabled button consumes or blocks hit testing.
+**Action:** Always wrap the *entire* button widget (e.g., `ElevatedButton`) with the `Tooltip` widget to ensure the message is accessible even when the button is disabled.
