@@ -292,10 +292,37 @@ class FinanceScreen extends StatelessWidget {
                           icon: const Icon(Icons.cancel, color: Colors.red),
                           tooltip: 'Reject Offer',
                           onPressed: () {
-                             gameStateManager.rejectTransferOffer(offer);
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text('Rejected offer for ${offer['playerName']}')),
-                             );
+                            // Show confirmation dialog before rejecting
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext dialogContext) {
+                                return AlertDialog(
+                                  title: const Text('Reject Offer'),
+                                  content: Text(
+                                      'Are you sure you want to reject the offer for ${offer['playerName']} from ${offer['offeringClubName']}?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop(); // Close the dialog
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text('Reject', style: TextStyle(color: Colors.red)),
+                                      onPressed: () {
+                                        gameStateManager.rejectTransferOffer(offer);
+                                        Navigator.of(dialogContext).pop(); // Close the dialog
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'Rejected offer for ${offer['playerName']}')),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           },
                         ),
                       ],
