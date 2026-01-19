@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Cross-Screen Interaction Consistency
+**Learning:** Users form mental models based on their first interaction. If "Reject Offer" requires confirmation on one screen but is instant on another, it leads to accidental data loss and frustration.
+**Action:** Audit destructive actions across ALL screens to ensure interaction patterns (dialogs, snacks) are identical, regardless of where the action is triggered.
