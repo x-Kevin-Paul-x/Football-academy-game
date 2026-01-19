@@ -113,22 +113,22 @@ class FinanceService {
 
   // Transaction Methods
   void addIncome(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use deductExpense for losses.');
+    if (!amount.isFinite || amount < 0) {
+      throw ArgumentError('Amount must be a non-negative finite number. Use deductExpense for losses.');
     }
     _balance += amount;
   }
 
   void deductExpense(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use addIncome for refunds/gains.');
+    if (!amount.isFinite || amount < 0) {
+      throw ArgumentError('Amount must be a non-negative finite number. Use addIncome for refunds/gains.');
     }
     _balance -= amount;
   }
 
   bool canAfford(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount to check affordability for must be non-negative.');
+    if (!amount.isFinite || amount < 0) {
+      throw ArgumentError('Amount to check affordability for must be a non-negative finite number.');
     }
     return _balance >= amount;
   }
