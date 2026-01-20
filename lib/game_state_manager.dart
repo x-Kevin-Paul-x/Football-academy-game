@@ -2622,6 +2622,25 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Save/Load Logic ---
+
+  // Checksum generation for integrity verification
+  String _generateChecksum(String input) {
+    int hash = 0x811c9dc5;
+    for (int i = 0; i < input.length; i++) {
+      hash ^= input.codeUnitAt(i);
+      hash *= 0x01000193;
+      hash &= 0xFFFFFFFF; // Force 32-bit
+    }
+    // Salt to prevent trivial editing
+    const String salt = "SentinelProtection2024";
+    for (int i = 0; i < salt.length; i++) {
+      hash ^= salt.codeUnitAt(i);
+      hash *= 0x01000193;
+      hash &= 0xFFFFFFFF;
+    }
+    return hash.toRadixString(16);
+  }
+
   Future<bool> saveGame() async {
     try {
       print("--- SAVING GAME STATE ---");
@@ -2654,14 +2673,18 @@ class GameStateManager with ChangeNotifier {
        final jsonMap = gameStateToSave.toJson();
       final jsonString = jsonEncode(jsonMap);
 
+      // Add Checksum for Integrity
+      final checksum = _generateChecksum(jsonString);
+      final secureContent = "$checksum|$jsonString";
+
       if (kIsWeb) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_prefsSaveKey, jsonString);
+        await prefs.setString(_prefsSaveKey, secureContent);
         print("--- GAME STATE SAVED successfully (Web) ---");
       } else {
         final filePath = await _getSaveFilePath();
         final file = File(filePath);
-        await file.writeAsString(jsonString);
+        await file.writeAsString(secureContent);
         print("--- GAME STATE SAVED successfully to $filePath (Non-Web) ---");
       }
       return true;
@@ -2694,6 +2717,23 @@ class GameStateManager with ChangeNotifier {
       }
 
       if (jsonString == null) { print("--- ERROR: jsonString is null after platform check ---"); return false; }
+
+      // Verify Integrity
+      if (!jsonString.startsWith('{')) {
+        int separatorIndex = jsonString.indexOf('|');
+        if (separatorIndex != -1) {
+          final storedChecksum = jsonString.substring(0, separatorIndex);
+          final data = jsonString.substring(separatorIndex + 1);
+          final calculatedChecksum = _generateChecksum(data);
+
+          if (storedChecksum != calculatedChecksum) {
+             print("--- ERROR: Save file integrity check failed! File may be corrupted or tampered. ---");
+             return false;
+          }
+          jsonString = data; // Proceed with verified data
+          print("--- Save file integrity verified ---");
+        }
+      }
 
       final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
       // Check if rivalAcademies data exists in save, handle potential old saves
