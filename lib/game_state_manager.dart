@@ -180,7 +180,7 @@ class GameStateManager with ChangeNotifier {
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
   List<Map<String, dynamic>> get transferOffers => UnmodifiableListView(_transferOffers);
-  List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
+  List<NewsItem> get newsItems => UnmodifiableListView(_newsItems);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
   int get playerAcademyTier => _playerAcademyTier;
@@ -2594,9 +2594,9 @@ class GameStateManager with ChangeNotifier {
   }
 
   void _addNewsItem(NewsItem item) {
-    _newsItems.add(item);
+    _newsItems.insert(0, item);
     if (_newsItems.length > 100) { // Limit news items
-        _newsItems.removeAt(0);
+        _newsItems.removeLast();
     }
     // print("News Added: ${item.title}"); // Verbose
   }
@@ -2760,7 +2760,15 @@ class GameStateManager with ChangeNotifier {
       _merchandiseStoreLevel = loadedState.merchandiseStoreLevel ?? 0; // Load merchandise store level, default to 0 if not present
       _fans = loadedState.fans ?? 100; // Load fans, default to 100 if not present
       _academyReputation = loadedState.academyReputation;
-      _newsItems = loadedState.newsItems;
+      // If loaded news items are in old order (oldest first), reverse them
+      if (loadedState.newsItems.isNotEmpty &&
+          loadedState.newsItems.length > 1 &&
+          loadedState.newsItems.first.date.isBefore(loadedState.newsItems.last.date)) {
+        _newsItems = loadedState.newsItems.reversed.toList();
+      } else {
+        _newsItems = List.from(loadedState.newsItems);
+      }
+
       _difficulty = loadedState.difficulty;
       _themeMode = loadedState.themeMode;
       _rivalAcademies = loadedState.rivalAcademies; // Load Rivals
