@@ -2622,6 +2622,35 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Save/Load Logic ---
+
+  // --- Security: Validate Save Data ---
+  static void validateSaveData(Map<String, dynamic> jsonMap) {
+    const int maxPlayers = 200;
+    const int maxStaff = 100;
+    const int maxRivals = 100;
+    const int maxAIClubs = 200;
+    const int maxNews = 500;
+    const int maxActiveTournaments = 200;
+    const int maxCompletedTournaments = 5000;
+
+    _checkListSize(jsonMap, 'academyPlayers', maxPlayers);
+    _checkListSize(jsonMap, 'hiredStaff', maxStaff);
+    _checkListSize(jsonMap, 'rivalAcademies', maxRivals);
+    _checkListSize(jsonMap, 'aiClubs', maxAIClubs);
+    _checkListSize(jsonMap, 'newsItems', maxNews);
+    _checkListSize(jsonMap, 'activeTournaments', maxActiveTournaments);
+    _checkListSize(jsonMap, 'completedTournaments', maxCompletedTournaments);
+  }
+
+  static void _checkListSize(Map<String, dynamic> jsonMap, String key, int limit) {
+    if (jsonMap.containsKey(key)) {
+      final list = jsonMap[key];
+      if (list is List && list.length > limit) {
+        throw Exception("Save file corrupted or tampered: '$key' size (${list.length}) exceeds limit ($limit).");
+      }
+    }
+  }
+
   Future<bool> saveGame() async {
     try {
       print("--- SAVING GAME STATE ---");
@@ -2696,6 +2725,11 @@ class GameStateManager with ChangeNotifier {
       if (jsonString == null) { print("--- ERROR: jsonString is null after platform check ---"); return false; }
 
       final jsonMap = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      // --- Security Check: Validate Save Data Size ---
+      validateSaveData(jsonMap);
+      // ------------------------------------------------
+
       // Check if rivalAcademies data exists in save, handle potential old saves
       if (!jsonMap.containsKey('rivalAcademies')) {
           print("--- Save file is from an older version (missing rivalAcademies). Loading might be incomplete or fail. ---");
