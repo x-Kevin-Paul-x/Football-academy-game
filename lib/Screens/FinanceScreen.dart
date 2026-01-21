@@ -292,10 +292,33 @@ class FinanceScreen extends StatelessWidget {
                           icon: const Icon(Icons.cancel, color: Colors.red),
                           tooltip: 'Reject Offer',
                           onPressed: () {
-                             gameStateManager.rejectTransferOffer(offer);
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text('Rejected offer for ${offer['playerName']}')),
-                             );
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext dialogContext) {
+                                return AlertDialog(
+                                  title: const Text('Reject Offer'),
+                                  content: Text('Are you sure you want to reject the offer for ${offer['playerName']}?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        Navigator.of(dialogContext).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text('Reject'),
+                                      onPressed: () {
+                                        gameStateManager.rejectTransferOffer(offer);
+                                        Navigator.of(dialogContext).pop();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Rejected offer for ${offer['playerName']}')),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                           },
                         ),
                       ],
