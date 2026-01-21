@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-25 - Symmetric Confirmation Patterns
+**Learning:** Inconsistent confirmation patterns (e.g. Accept has confirmation, Reject does not) create a false sense of security for the user, increasing the risk of accidental destructive actions.
+**Action:** Ensure symmetric actions (Accept/Reject, Buy/Sell) have symmetric safeguards (both require confirmation) to maintain a consistent safety model.
