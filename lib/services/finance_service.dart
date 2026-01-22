@@ -32,6 +32,16 @@ class FinanceService {
     double merchStockValue = 0.0,
     int consecutiveNegativeWeeks = 0,
   }) {
+    if (balance.isNaN || balance.isInfinite) {
+      throw ArgumentError('Balance must be a finite number.');
+    }
+    if (weeklyIncome < 0) {
+      throw ArgumentError('Weekly income cannot be negative.');
+    }
+    if (totalWeeklyWages < 0) {
+      throw ArgumentError('Total weekly wages cannot be negative.');
+    }
+
     _balance = balance;
     _weeklyIncome = weeklyIncome;
     _totalWeeklyWages = totalWeeklyWages;
