@@ -3,6 +3,7 @@ import 'package:intl/intl.dart'; // Import for formatting
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/tournament.dart';
+import '../widgets/empty_state.dart';
 import 'TournamentDetailsScreen.dart'; // To potentially reuse details view
 
 class TournamentHistoryScreen extends StatelessWidget {
@@ -21,11 +22,10 @@ class TournamentHistoryScreen extends StatelessWidget {
           final List<Tournament> completedTournaments = gameStateManager.completedTournaments;
 
           if (completedTournaments.isEmpty) {
-            return const Center(
-              child: Text(
-                'No tournaments completed yet.',
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
+            return const EmptyState(
+              icon: Icons.emoji_events,
+              title: 'No tournaments completed yet.',
+              message: 'Finish your first tournament to see history here!',
             );
           }
 
