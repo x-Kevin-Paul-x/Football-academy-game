@@ -4,6 +4,7 @@ import '../models/staff.dart';
 import 'package:intl/intl.dart'; // For currency formatting
 import 'package:provider/provider.dart'; // Import Provider
 import '../game_state_manager.dart'; // Import GameStateManager
+import '../widgets/empty_state.dart';
 
 class FinanceScreen extends StatelessWidget {
   // REMOVED constructor parameters - data will come from GameStateManager via Consumer
@@ -188,7 +189,13 @@ class FinanceScreen extends StatelessWidget {
         leading: const Icon(Icons.work_history_outlined),
         childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: hiredStaff.isEmpty
-            ? [const ListTile(title: Text('No staff hired.'))]
+            ? [
+                const EmptyState(
+                  icon: Icons.person_off_outlined,
+                  title: 'No staff hired.',
+                  message: 'Hire staff to see them listed here.',
+                )
+              ]
             : hiredStaff.map((staff) => ListTile( // Use the passed list
                   title: Text(staff.name),
                   subtitle: Text(staff.role.name),
@@ -208,7 +215,13 @@ class FinanceScreen extends StatelessWidget {
         leading: const Icon(Icons.sports_soccer),
          childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: academyPlayers.isEmpty
-            ? [const ListTile(title: Text('No players signed to the academy.'))]
+            ? [
+                const EmptyState(
+                  icon: Icons.sports_soccer_outlined,
+                  title: 'No academy players.',
+                  message: 'Sign players to see them listed here.',
+                )
+              ]
             : academyPlayers.map((player) => ListTile( // Use the passed list
                   title: Text(player.name),
                   subtitle: Text('${player.positionString}, Age: ${player.age}'),
@@ -236,9 +249,10 @@ class FinanceScreen extends StatelessWidget {
             ),
             const Divider(height: 20, thickness: 1),
             if (offers.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                child: Center(child: Text('No current transfer offers.')),
+              const EmptyState(
+                icon: Icons.swap_horiz_outlined,
+                title: 'No current transfer offers.',
+                message: 'Offers from other clubs will appear here.',
               )
             else
               ListView.builder(
