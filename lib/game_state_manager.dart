@@ -2733,6 +2733,9 @@ class GameStateManager with ChangeNotifier {
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
 
+      // Validate loaded state (Security/Integrity Check)
+      _validateSaveData(loadedState);
+
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
       _financeService.initialize(
@@ -2792,6 +2795,29 @@ class GameStateManager with ChangeNotifier {
       // resetGame(); // Maybe too drastic?
       return false;
     }
+  }
+
+  // --- Security: Validate Save Data ---
+  void _validateSaveData(SerializableGameState state) {
+    // 1. Financial Integrity
+    if (state.balance.isNaN || state.balance.isInfinite) {
+      throw FormatException("Corrupted save file: Balance is invalid (NaN or Infinite).");
+    }
+    if (state.weeklyIncome < 0) {
+      throw FormatException("Corrupted save file: Weekly income cannot be negative.");
+    }
+    if (state.totalWeeklyWages < 0) {
+      throw FormatException("Corrupted save file: Total weekly wages cannot be negative.");
+    }
+
+    // 2. Data Size Limits (DoS Prevention)
+    if (state.academyPlayers.length > 200) {
+       throw FormatException("Corrupted save file: Player count exceeds limit (200).");
+    }
+    if (state.newsItems.length > 500) {
+       throw FormatException("Corrupted save file: News items exceed limit (500).");
+    }
+    // Additional checks can be added here
   }
 
   // --- NEW: Handle League Promotion/Relegation ---
