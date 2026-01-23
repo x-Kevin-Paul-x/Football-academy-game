@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
+import '../models/difficulty.dart'; // Import Difficulty
 import 'Dashboard.dart'; // To navigate to the main game screen
 
 class StartScreen extends StatefulWidget {
@@ -44,15 +45,7 @@ class _StartScreenState extends State<StartScreen> {
               onPressed: _isLoading
                   ? null
                   : () {
-                      // Reset game state for a new game
-                      gameStateManager.resetGame();
-                      // Navigate to the main dashboard
-                      Navigator.pushReplacement(
-                        // Use pushReplacement so user can't go back to start screen
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
+                      _showNewGameDialog(context, gameStateManager);
                     },
             ),
             const SizedBox(height: 20),
@@ -117,6 +110,103 @@ class _StartScreenState extends State<StartScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // Show dialog to input Academy Name and select Difficulty
+  void _showNewGameDialog(BuildContext context, GameStateManager gameStateManager) {
+    final TextEditingController nameController = TextEditingController();
+    Difficulty selectedDifficulty = Difficulty.Normal;
+    String? errorMessage; // Local state for error message in dialog is tricky without StatefulWidget
+                          // Better to use a StatefulBuilder inside the dialog
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Force user to choose or cancel
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('New Academy'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Enter your Academy Name:'),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: 'e.g. Future Stars FC',
+                        border: const OutlineInputBorder(),
+                        errorText: errorMessage, // Show error if validation fails
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('Select Difficulty:'),
+                    DropdownButton<Difficulty>(
+                      value: selectedDifficulty,
+                      isExpanded: true,
+                      items: Difficulty.values.map((Difficulty difficulty) {
+                        return DropdownMenuItem<Difficulty>(
+                          value: difficulty,
+                          child: Text(difficulty.toString().split('.').last),
+                        );
+                      }).toList(),
+                      onChanged: (Difficulty? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedDifficulty = newValue;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop(); // Close dialog
+                  },
+                ),
+                ElevatedButton(
+                  child: const Text('Start Game'),
+                  onPressed: () {
+                    final String name = nameController.text.trim();
+
+                    // --- SECURITY: Input Validation ---
+                    if (!GameStateManager.isValidAcademyName(name)) {
+                      setState(() {
+                        errorMessage = "Invalid name. Use 3-25 alphanumeric chars.";
+                      });
+                      return; // Stop execution
+                    }
+
+                    // If valid, close dialog and start game
+                    Navigator.of(dialogContext).pop();
+
+                    // Reset game with validated name and difficulty
+                    gameStateManager.resetGame(
+                      academyName: name,
+                      difficulty: selectedDifficulty
+                    );
+
+                    // Navigate to dashboard
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Dashboard()),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
