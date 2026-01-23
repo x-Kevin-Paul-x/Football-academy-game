@@ -460,11 +460,32 @@ class GameStateManager with ChangeNotifier {
      print("Applied difficulty settings for $_difficulty. Rep=$_academyReputation");
   }
 
+  // Input Validation for Academy Name
+  static bool isValidAcademyName(String name) {
+    if (name.isEmpty) return false;
+    if (name.length < 3 || name.length > 25) return false;
+    // Allow alphanumeric and spaces only
+    final validCharacters = RegExp(r'^[a-zA-Z0-9 ]+$');
+    return validCharacters.hasMatch(name);
+  }
+
   // Reset Game
-  void resetGame() {
+  void resetGame({String? academyName, Difficulty? difficulty}) {
     print("--- RESETTING GAME STATE ---");
     _timeService.initialize(DateTime(2025, 1, 1)); // Reset Date
-    _academyName = "My Academy";
+
+    // Set Academy Name with Validation
+    if (academyName != null && isValidAcademyName(academyName)) {
+      _academyName = academyName;
+    } else {
+      _academyName = "My Academy"; // Default if invalid or null
+    }
+
+    // Set Difficulty if provided
+    if (difficulty != null) {
+      _difficulty = difficulty;
+    }
+
     // _difficulty = Difficulty.Normal; // Keep selected difficulty or reset? Let's keep it.
     _themeMode = ThemeMode.system;
     _academyPlayers.clear();
