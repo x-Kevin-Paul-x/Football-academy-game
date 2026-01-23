@@ -33,49 +33,54 @@ class _StartScreenState extends State<StartScreen> {
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.play_arrow),
-              label: const Text('New Game'),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
+            Tooltip(
+              message: 'Start a new academy career',
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.play_arrow),
+                label: const Text('New Game'),
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        // Reset game state for a new game
+                        gameStateManager.resetGame();
+                        // Navigate to the main dashboard
+                        Navigator.pushReplacement(
+                          // Use pushReplacement so user can't go back to start screen
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Dashboard()),
+                        );
+                      },
               ),
-              onPressed: _isLoading
-                  ? null
-                  : () {
-                      // Reset game state for a new game
-                      gameStateManager.resetGame();
-                      // Navigate to the main dashboard
-                      Navigator.pushReplacement(
-                        // Use pushReplacement so user can't go back to start screen
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
-                    },
             ),
             const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.folder_open),
-              label: const Text('Load Game'),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-              onPressed: _isLoading
-                  ? null
-                  : () async {
+            Tooltip(
+              message: 'Load an existing save file',
+              child: ElevatedButton.icon(
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.folder_open),
+                label: const Text('Load Game'),
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                onPressed: _isLoading
+                    ? null
+                    : () async {
                       setState(() {
                         _isLoading = true;
                       });
@@ -112,6 +117,7 @@ class _StartScreenState extends State<StartScreen> {
                         );
                       }
                     },
+              ),
             ),
             // Add Settings button later if needed here, or keep it within the main game UI
           ],

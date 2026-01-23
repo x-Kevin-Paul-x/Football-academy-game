@@ -91,49 +91,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // --- Save Game Button ---
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
-              child: ElevatedButton.icon(
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.save),
-                label: const Text('Save Game'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  textStyle: const TextStyle(fontSize: 16),
-                  // Optional: Add specific styling
-                  // backgroundColor: Theme.of(context).colorScheme.primary,
-                  // foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-                onPressed: _isSaving
-                    ? null
-                    : () async {
-                        setState(() {
-                          _isSaving = true;
-                        });
-
-                        final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
-
-                        // Minimum delay to show the spinner even if save is instant
-                        await Future.delayed(const Duration(milliseconds: 500));
-
-                        bool success = await gameStateManager.saveGame();
-
-                        if (mounted) {
+              child: Tooltip(
+                message: 'Save current progress',
+                child: ElevatedButton.icon(
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save),
+                  label: const Text('Save Game'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    textStyle: const TextStyle(fontSize: 16),
+                    // Optional: Add specific styling
+                    // backgroundColor: Theme.of(context).colorScheme.primary,
+                    // foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  onPressed: _isSaving
+                      ? null
+                      : () async {
                           setState(() {
-                            _isSaving = false;
+                            _isSaving = true;
                           });
 
-                          scaffoldMessenger.showSnackBar(
-                            SnackBar(
-                              content: Text(success ? 'Game Saved!' : 'Error saving game.'),
-                              duration: const Duration(seconds: 2),
-                            ),
-                          );
-                        }
-                      },
+                          final gameStateManager =
+                              Provider.of<GameStateManager>(context, listen: false);
+
+                          // Minimum delay to show the spinner even if save is instant
+                          await Future.delayed(const Duration(milliseconds: 500));
+
+                          bool success = await gameStateManager.saveGame();
+
+                          if (mounted) {
+                            setState(() {
+                              _isSaving = false;
+                            });
+
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                content: Text(success ? 'Game Saved!' : 'Error saving game.'),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        },
+                ),
               ),
             ),
             const Divider(), // Separator
@@ -141,59 +145,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // --- Reset Game Button ---
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.warning_amber_rounded),
-                label: const Text('Reset Game Data'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent, // Warning color
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                ),
-                onPressed: () async {
-                  // Make async for dialog
-                  // Show confirmation dialog
-                  final bool? confirmReset = await showDialog<bool>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Confirm Reset'),
-                        content: const Text(
-                            'Are you sure you want to reset all game progress? This action cannot be undone.'),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text('Cancel'),
-                            onPressed: () {
-                              Navigator.of(context).pop(false); // Return false
-                            },
-                          ),
-                          TextButton(
-                            child: const Text('Reset',
-                                style: TextStyle(color: Colors.redAccent)),
-                            onPressed: () {
-                              Navigator.of(context).pop(true); // Return true
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  // If confirmed, reset the game and navigate back to start screen
-                  if (confirmReset == true && mounted) {
-                    Provider.of<GameStateManager>(context, listen: false).resetGame();
-                    // Navigate back to the StartScreen
-                    // Use pushAndRemoveUntil to clear the navigation stack
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => const StartScreen()), // Navigate to StartScreen
-                      (Route<dynamic> route) => false, // Remove all previous routes
+              child: Tooltip(
+                message: 'Reset all progress and start over',
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.warning_amber_rounded),
+                  label: const Text('Reset Game Data'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  onPressed: () async {
+                    // Make async for dialog
+                    // Show confirmation dialog
+                    final bool? confirmReset = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirm Reset'),
+                          content: const Text(
+                              'Are you sure you want to reset all game progress? This action cannot be undone.'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop(false); // Return false
+                              },
+                            ),
+                            TextButton(
+                              child: Text('Reset',
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.error)),
+                              onPressed: () {
+                                Navigator.of(context).pop(true); // Return true
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     );
-                     // Use captured scaffoldMessenger because context might be deactivated after navigation
-                     scaffoldMessenger.showSnackBar(
-                       const SnackBar(content: Text('Game Reset Successfully!')),
-                     );
-                  }
-                },
-                // child: const Text('Reset Game Data', style: TextStyle(fontSize: 16)), // Label is now in ElevatedButton.icon
+
+                    // If confirmed, reset the game and navigate back to start screen
+                    if (confirmReset == true && mounted) {
+                      Provider.of<GameStateManager>(context, listen: false).resetGame();
+                      // Navigate back to the StartScreen
+                      // Use pushAndRemoveUntil to clear the navigation stack
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const StartScreen()), // Navigate to StartScreen
+                        (Route<dynamic> route) => false, // Remove all previous routes
+                      );
+                      // Use captured scaffoldMessenger because context might be deactivated after navigation
+                      scaffoldMessenger.showSnackBar(
+                        const SnackBar(content: Text('Game Reset Successfully!')),
+                      );
+                    }
+                  },
+                  // child: const Text('Reset Game Data', style: TextStyle(fontSize: 16)), // Label is now in ElevatedButton.icon
+                ),
               ),
             ),
           ],
