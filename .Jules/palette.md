@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Number Formatting for Costs
+**Learning:** Large numbers (e.g., facility costs) are hard to read without separators.
+**Action:** Use `NumberFormat.decimalPattern()` to format currency or large integers for better readability.
