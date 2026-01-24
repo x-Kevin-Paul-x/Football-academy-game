@@ -180,7 +180,7 @@ class GameStateManager with ChangeNotifier {
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
   List<Map<String, dynamic>> get transferOffers => UnmodifiableListView(_transferOffers);
-  List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
+  List<NewsItem> get newsItems => UnmodifiableListView(_newsItems);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
   int get playerAcademyTier => _playerAcademyTier;
@@ -223,6 +223,11 @@ class GameStateManager with ChangeNotifier {
     }
     final directory = await getApplicationDocumentsDirectory();
     return '${directory.path}/$_saveFileName';
+  }
+
+  @visibleForTesting
+  void addNewsItemForTest(NewsItem item) {
+    _addNewsItem(item);
   }
 
   // --- Initialization & Reset ---
@@ -2594,9 +2599,9 @@ class GameStateManager with ChangeNotifier {
   }
 
   void _addNewsItem(NewsItem item) {
-    _newsItems.add(item);
+    _newsItems.insert(0, item);
     if (_newsItems.length > 100) { // Limit news items
-        _newsItems.removeAt(0);
+        _newsItems.removeLast();
     }
     // print("News Added: ${item.title}"); // Verbose
   }
@@ -2761,6 +2766,10 @@ class GameStateManager with ChangeNotifier {
       _fans = loadedState.fans ?? 100; // Load fans, default to 100 if not present
       _academyReputation = loadedState.academyReputation;
       _newsItems = loadedState.newsItems;
+      // Ensure news items are sorted by date descending (Newest First)
+      // This handles migration from older saves where they were stored Oldest First
+      _newsItems.sort((a, b) => b.date.compareTo(a.date));
+
       _difficulty = loadedState.difficulty;
       _themeMode = loadedState.themeMode;
       _rivalAcademies = loadedState.rivalAcademies; // Load Rivals
