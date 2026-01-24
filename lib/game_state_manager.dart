@@ -2622,6 +2622,44 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Save/Load Logic ---
+
+  // --- Validation Logic ---
+  bool _validateSaveData(SerializableGameState data) {
+    // 1. Financial Integrity
+    if (data.balance.isNaN || data.balance.isInfinite) {
+      print("Security Alert: Invalid balance detected in save data.");
+      return false;
+    }
+    if (data.weeklyIncome < 0 || data.totalWeeklyWages < 0) {
+       print("Security Alert: Invalid financial values detected.");
+       return false;
+    }
+
+    // 2. Data Size Limits (DoS Prevention)
+    if (data.academyPlayers.length > 200) {
+      print("Security Alert: Academy player list exceeds safe limit (200).");
+      return false;
+    }
+    if (data.newsItems.length > 500) {
+      print("Security Alert: News item list exceeds safe limit (500).");
+      return false;
+    }
+    if (data.rivalAcademies.length > 100 || data.aiClubs.length > 100) {
+       print("Security Alert: Entity lists exceed safe limit.");
+       return false;
+    }
+
+    // 3. String Sanitization (XSS/Injection Prevention)
+    // Academy name should be alphanumeric + spaces/common punctuation, 3-30 chars
+    final nameRegExp = RegExp(r"^[a-zA-Z0-9\s'.\-]{3,30}$");
+    if (!nameRegExp.hasMatch(data.academyName)) {
+      print("Security Alert: Invalid academy name format: ${data.academyName}");
+      return false;
+    }
+
+    return true;
+  }
+
   Future<bool> saveGame() async {
     try {
       print("--- SAVING GAME STATE ---");
@@ -2732,6 +2770,13 @@ class GameStateManager with ChangeNotifier {
        }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
+
+      // --- Security Check ---
+      if (!_validateSaveData(loadedState)) {
+        print("--- LOAD FAILED: Save data failed security validation ---");
+        return false;
+      }
+      // --- End Security Check ---
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
