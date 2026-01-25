@@ -38,5 +38,65 @@ void main() {
       financeService.deductExpense(100);
       expect(financeService.balance, initialBalance - 100);
     });
+
+    // NaN and Infinity Tests
+
+    test('initialize should throw ArgumentError if balance is NaN', () {
+      expect(
+        () => financeService.initialize(
+          balance: double.nan,
+          weeklyIncome: 1000,
+          totalWeeklyWages: 0,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('initialize should throw ArgumentError if balance is Infinity', () {
+      expect(
+        () => financeService.initialize(
+          balance: double.infinity,
+          weeklyIncome: 1000,
+          totalWeeklyWages: 0,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('initialize should throw ArgumentError if merchStockValue is NaN', () {
+      expect(
+        () => financeService.initialize(
+          balance: 50000.0,
+          weeklyIncome: 1000,
+          totalWeeklyWages: 0,
+          merchStockValue: double.nan,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('addIncome should throw ArgumentError if amount is NaN', () {
+      expect(() => financeService.addIncome(double.nan), throwsArgumentError);
+    });
+
+    test('addIncome should throw ArgumentError if amount is Infinity', () {
+      expect(() => financeService.addIncome(double.infinity), throwsArgumentError);
+    });
+
+    test('deductExpense should throw ArgumentError if amount is NaN', () {
+      expect(() => financeService.deductExpense(double.nan), throwsArgumentError);
+    });
+
+    test('deductExpense should throw ArgumentError if amount is Infinity', () {
+      expect(() => financeService.deductExpense(double.infinity), throwsArgumentError);
+    });
+
+    test('canAfford should throw ArgumentError if amount is NaN', () {
+      expect(() => financeService.canAfford(double.nan), throwsArgumentError);
+    });
+
+    test('canAfford should throw ArgumentError if amount is Infinity', () {
+      expect(() => financeService.canAfford(double.infinity), throwsArgumentError);
+    });
   });
 }
