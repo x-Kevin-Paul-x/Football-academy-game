@@ -70,45 +70,61 @@ class TransferOffersScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton.icon(
-                            icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent),
-                            label: const Text('Reject', style: TextStyle(color: Colors.redAccent)),
-                            onPressed: () {
-                              // Show confirmation dialog before rejecting
-                              _showConfirmationDialog(
-                                context: context,
-                                title: 'Reject Offer',
-                                content: 'Are you sure you want to reject the offer for $playerName from $offeringClub?',
-                                onConfirm: () {
-                                  gameStateManager.rejectTransferOffer(offer);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Rejected offer for $playerName.'), backgroundColor: Colors.orangeAccent),
-                                  );
-                                },
-                              );
-                            },
+                          Tooltip(
+                            message: 'Reject this offer',
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.cancel_outlined),
+                              label: const Text('Reject'),
+                              onPressed: () {
+                                // Show confirmation dialog before rejecting
+                                _showConfirmationDialog(
+                                  context: context,
+                                  title: 'Reject Offer',
+                                  content:
+                                      'Are you sure you want to reject the offer for $playerName from $offeringClub?',
+                                  onConfirm: () {
+                                    gameStateManager.rejectTransferOffer(offer);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Rejected offer for $playerName.'),
+                                          backgroundColor: Colors.orangeAccent),
+                                    );
+                                  },
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.error,
+                                side: BorderSide(
+                                    color: Theme.of(context).colorScheme.error),
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.check_circle_outline),
-                            label: const Text('Accept'),
-                            onPressed: () {
-                              // Show confirmation dialog before accepting
-                               _showConfirmationDialog(
-                                context: context,
-                                title: 'Accept Offer',
-                                content: 'Are you sure you want to accept the offer for $playerName from $offeringClub for ${currencyFormat.format(offerAmount)}?\nThe player will leave the academy immediately.',
-                                onConfirm: () {
-                                  gameStateManager.acceptTransferOffer(offer);
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Accepted offer for $playerName! Received ${currencyFormat.format(offerAmount)}.'), backgroundColor: Colors.lightGreen),
-                                  );
-                                },
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
+                          Tooltip(
+                            message: 'Accept offer and sell player',
+                            child: FilledButton.icon(
+                              icon: const Icon(Icons.check_circle_outline),
+                              label: const Text('Accept'),
+                              onPressed: () {
+                                // Show confirmation dialog before accepting
+                                _showConfirmationDialog(
+                                  context: context,
+                                  title: 'Accept Offer',
+                                  content:
+                                      'Are you sure you want to accept the offer for $playerName from $offeringClub for ${currencyFormat.format(offerAmount)}?\nThe player will leave the academy immediately.',
+                                  onConfirm: () {
+                                    gameStateManager.acceptTransferOffer(offer);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Accepted offer for $playerName! Received ${currencyFormat.format(offerAmount)}.'),
+                                          backgroundColor: Colors.lightGreen),
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ),
                         ],
