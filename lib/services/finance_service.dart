@@ -32,6 +32,12 @@ class FinanceService {
     double merchStockValue = 0.0,
     int consecutiveNegativeWeeks = 0,
   }) {
+    if (!balance.isFinite) {
+      throw ArgumentError('Balance must be a finite number');
+    }
+    if (!merchStockValue.isFinite) {
+      throw ArgumentError('MerchStockValue must be a finite number');
+    }
     _balance = balance;
     _weeklyIncome = weeklyIncome;
     _totalWeeklyWages = totalWeeklyWages;
@@ -113,22 +119,22 @@ class FinanceService {
 
   // Transaction Methods
   void addIncome(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use deductExpense for losses.');
+    if (!amount.isFinite || amount < 0) {
+      throw ArgumentError('Amount must be non-negative and finite. Use deductExpense for losses.');
     }
     _balance += amount;
   }
 
   void deductExpense(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use addIncome for refunds/gains.');
+    if (!amount.isFinite || amount < 0) {
+      throw ArgumentError('Amount must be non-negative and finite. Use addIncome for refunds/gains.');
     }
     _balance -= amount;
   }
 
   bool canAfford(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount to check affordability for must be non-negative.');
+    if (!amount.isFinite || amount < 0) {
+      throw ArgumentError('Amount to check affordability for must be non-negative and finite.');
     }
     return _balance >= amount;
   }
