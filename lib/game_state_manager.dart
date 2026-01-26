@@ -131,6 +131,10 @@ class GameStateManager with ChangeNotifier {
   // Transfer Offers
   List<Map<String, dynamic>> _transferOffers = [];
 
+  // Coach-Player Assignment Cache (PlayerID -> CoachID)
+  // Optimization to allow O(1) lookup of a player's coach
+  Map<String, String> _playerCoachMap = {};
+
   // News Feed
   List<NewsItem> _newsItems = [];
 
@@ -226,6 +230,18 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Initialization & Reset ---
+
+  void _rebuildPlayerCoachMap() {
+    _playerCoachMap.clear();
+    for (var staff in _hiredStaff) {
+      if (staff.role == StaffRole.Coach) {
+        for (var playerId in staff.assignedPlayerIds) {
+          _playerCoachMap[playerId] = staff.id;
+        }
+      }
+    }
+  }
+
    void _generateInitialAvailableStaff() {
     _availableStaff = List<Staff>.generate(5, (index) { // Added <Staff> type argument
       StaffRole role = StaffRole.values[_random.nextInt(StaffRole.values.length)];
@@ -504,6 +520,7 @@ class GameStateManager with ChangeNotifier {
       _clearWebSaveData();
     }
 
+    _rebuildPlayerCoachMap(); // Clear/Rebuild map on reset
     notifyListeners();
     print("--- GAME STATE RESET COMPLETE ---");
   }
@@ -1969,6 +1986,7 @@ class GameStateManager with ChangeNotifier {
     if (coach.assignedPlayerIds.contains(playerId)) { print("Info: Player ${player.name} is already assigned to coach ${coach.name}."); return true; }
     unassignPlayerFromAnyCoach(playerId); // Ensure player is removed from any other coach first
     coach.assignedPlayerIds.add(playerId);
+    _playerCoachMap[playerId] = coach.id; // Update cache
     print("Assigned player ${player.name} to coach ${coach.name}."); notifyListeners(); return true;
   }
 
@@ -1977,16 +1995,33 @@ class GameStateManager with ChangeNotifier {
     if (coach == null) { print("Error: Coach with ID $coachId not found or is not a coach."); return false; }
     Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId); String playerName = player?.name ?? 'ID: $playerId';
     bool removed = coach.assignedPlayerIds.remove(playerId);
-    if (removed) { print("Unassigned player $playerName from coach ${coach.name}."); notifyListeners(); }
+    if (removed) {
+      if (_playerCoachMap[playerId] == coachId) {
+        _playerCoachMap.remove(playerId); // Update cache
+      }
+      print("Unassigned player $playerName from coach ${coach.name}."); notifyListeners();
+    }
     else { print("Info: Player $playerName was not assigned to coach ${coach.name}."); }
     return removed;
   }
 
   void unassignPlayerFromAnyCoach(String playerId) {
-    for (var coach in _hiredStaff.where((s) => s.role == StaffRole.Coach)) { if (coach.assignedPlayerIds.contains(playerId)) { unassignPlayerFromCoach(playerId, coach.id); break; } }
+    // Optimization: Use the map to find the coach directly instead of iterating all coaches
+    String? coachId = _playerCoachMap[playerId];
+    if (coachId != null) {
+      unassignPlayerFromCoach(playerId, coachId);
+    } else {
+      // Fallback
+      for (var coach in _hiredStaff.where((s) => s.role == StaffRole.Coach)) { if (coach.assignedPlayerIds.contains(playerId)) { unassignPlayerFromCoach(playerId, coach.id); break; } }
+    }
   }
 
-  Staff? getCoachForPlayer(String playerId) { return _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Coach && s.assignedPlayerIds.contains(playerId)); }
+  Staff? getCoachForPlayer(String playerId) {
+    // Optimization: Use the cache map for O(1) lookup
+    String? coachId = _playerCoachMap[playerId];
+    if (coachId == null) return null;
+    return _hiredStaff.firstWhereOrNull((s) => s.id == coachId);
+  }
 
   // Get Team Skill
   int _getTeamSkill(String teamId, List<Player> selectedLineup) {
@@ -2779,6 +2814,8 @@ class GameStateManager with ChangeNotifier {
            _aiClubMap[club.id] = club;
       }
       _updateStaffCapsFromFacilities();
+
+      _rebuildPlayerCoachMap(); // Rebuild map after loading
 
       print("--- GAME STATE LOADED successfully ---");
       notifyListeners();
