@@ -1463,6 +1463,11 @@ class GameStateManager with ChangeNotifier {
       if (tournament.status == TournamentStatus.InProgress) {
         bool matchesSimulatedThisWeek = false;
         for (var match in tournament.matches) {
+          // Optimization: Matches are sorted by date. If we reach a future match, stop.
+          if (match.matchDate.isAfter(endOfWeek)) {
+            break;
+          }
+
           // Simulate matches scheduled for the *current* week (or slightly before if missed)
           if (!match.isSimulated && !match.matchDate.isAfter(endOfWeek)) {
             // print("Preparing detailed simulation for match: ${match.id} scheduled for ${match.matchDate}"); // Less verbose
@@ -2753,6 +2758,11 @@ class GameStateManager with ChangeNotifier {
       // _weeklyIncome = loadedState.weeklyIncome; // Handled by service
       // _totalWeeklyWages = loadedState.totalWeeklyWages; // Handled by service
       _activeTournaments = loadedState.activeTournaments;
+      // Ensure matches are sorted by date to support optimization in _simulateMatchesForWeek
+      for (var tournament in _activeTournaments) {
+        tournament.matches.sort((a, b) => a.matchDate.compareTo(b.matchDate));
+      }
+
       _completedTournaments = loadedState.completedTournaments;
       _trainingFacilityLevel = loadedState.trainingFacilityLevel;
       _scoutingFacilityLevel = loadedState.scoutingFacilityLevel;
