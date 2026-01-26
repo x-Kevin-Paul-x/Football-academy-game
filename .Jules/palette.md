@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-27 - Dynamic Feedback in Disabled States
+**Learning:** Disabled buttons often leave users guessing the reason (e.g., "Why can't I upgrade?"). Providing specific context (e.g., "Need $200 more") transforms a blocker into a clear goal.
+**Action:** For action buttons disabled by resource constraints, use a `Tooltip` to explicitly state the missing requirement (e.g., resource delta) alongside the action description.
