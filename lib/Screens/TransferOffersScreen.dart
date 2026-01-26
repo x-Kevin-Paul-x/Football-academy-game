@@ -71,8 +71,8 @@ class TransferOffersScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton.icon(
-                            icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent),
-                            label: const Text('Reject', style: TextStyle(color: Colors.redAccent)),
+                            icon: Icon(Icons.cancel_outlined, color: Theme.of(context).colorScheme.error),
+                            label: Text('Reject', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                             onPressed: () {
                               // Show confirmation dialog before rejecting
                               _showConfirmationDialog(

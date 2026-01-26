@@ -4,6 +4,7 @@ import '../game_state_manager.dart'; // Import GameStateManager
 import '../models/staff.dart';
 import '../models/player.dart'; // Import Player model
 import '../widgets/staff_card.dart'; // Assuming a StaffCard widget exists
+import '../widgets/empty_state.dart';
 
 // REMOVED typedef HireStaffCallback = void Function(Staff staff);
 
@@ -100,11 +101,12 @@ class StaffManagementScreen extends StatelessWidget {
 
   Widget _buildStaffList(BuildContext context, List<Staff> staffList, {required bool isHiredList}) {
     if (staffList.isEmpty) {
-      return Center(
-        child: Text(
-          isHiredList ? 'No staff hired yet.' : 'No staff currently available for hire.',
-          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-        ),
+      return EmptyState(
+        icon: isHiredList ? Icons.group_off : Icons.no_accounts,
+        title: isHiredList ? 'No staff hired yet.' : 'No staff available.',
+        message: isHiredList
+            ? 'Hire managers, coaches, and scouts to improve your academy.'
+            : 'Check back later for new applicants.',
       );
     }
 
