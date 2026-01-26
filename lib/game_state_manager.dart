@@ -2674,6 +2674,27 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
+  @visibleForTesting
+  bool validateLoadedState(SerializableGameState state) {
+    if (state.balance.isNaN || state.balance.isInfinite) {
+      print("Validation Error: Balance is invalid (${state.balance}).");
+      return false;
+    }
+    if (state.academyName.length > 25) {
+      print("Validation Error: Academy Name too long (${state.academyName.length}).");
+      return false;
+    }
+    if (state.newsItems.length > 500) {
+      print("Validation Error: Too many news items (${state.newsItems.length}).");
+      return false;
+    }
+    if (state.academyPlayers.length > 200) {
+      print("Validation Error: Too many players (${state.academyPlayers.length}).");
+      return false;
+    }
+    return true;
+  }
+
   Future<bool> loadGame() async {
     try {
       print("--- LOADING GAME STATE ---");
@@ -2732,6 +2753,11 @@ class GameStateManager with ChangeNotifier {
        }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
+
+      if (!validateLoadedState(loadedState)) {
+        print("--- ERROR: Save file validation failed. Aborting load. ---");
+        return false;
+      }
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
