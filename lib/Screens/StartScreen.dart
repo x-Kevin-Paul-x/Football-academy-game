@@ -43,17 +43,7 @@ class _StartScreenState extends State<StartScreen> {
               ),
               onPressed: _isLoading
                   ? null
-                  : () {
-                      // Reset game state for a new game
-                      gameStateManager.resetGame();
-                      // Navigate to the main dashboard
-                      Navigator.pushReplacement(
-                        // Use pushReplacement so user can't go back to start screen
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
-                    },
+                  : () => _showNewGameDialog(context, gameStateManager),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -118,5 +108,76 @@ class _StartScreenState extends State<StartScreen> {
         ),
       ),
     );
+  }
+
+  void _showNewGameDialog(
+      BuildContext context, GameStateManager gameStateManager) {
+    final TextEditingController _nameController = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Name Your Academy'),
+        content: Form(
+          key: _formKey,
+          child: TextFormField(
+            controller: _nameController,
+            decoration: const InputDecoration(
+              labelText: 'Academy Name',
+              hintText: 'e.g. Rising Stars FC',
+              border: OutlineInputBorder(),
+              helperText: '3-25 characters (letters & numbers)',
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.done,
+            validator: (value) {
+              if (value == null || value.trim().length < 3) {
+                return 'Name must be at least 3 characters.';
+              }
+              if (value.length > 25) {
+                return 'Name must be at most 25 characters.';
+              }
+              final validCharacters = RegExp(r'^[a-zA-Z0-9 ]+$');
+              if (!validCharacters.hasMatch(value)) {
+                return 'Alphanumeric characters only.';
+              }
+              return null;
+            },
+            onFieldSubmitted: (_) => _submitNewGame(dialogContext, context,
+                gameStateManager, _nameController, _formKey),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => _submitNewGame(
+                dialogContext, context, gameStateManager, _nameController, _formKey),
+            child: const Text('Start Game'),
+          ),
+        ],
+      ),
+    ).then((_) => _nameController.dispose());
+  }
+
+  void _submitNewGame(
+      BuildContext dialogContext,
+      BuildContext parentContext,
+      GameStateManager gameStateManager,
+      TextEditingController controller,
+      GlobalKey<FormState> formKey) {
+    if (formKey.currentState!.validate()) {
+      final name = controller.text.trim();
+      gameStateManager.resetGame(academyName: name);
+      Navigator.pop(dialogContext); // Close dialog
+      Navigator.pushReplacement(
+        parentContext,
+        MaterialPageRoute(builder: (context) => const Dashboard()),
+      );
+    }
   }
 }
