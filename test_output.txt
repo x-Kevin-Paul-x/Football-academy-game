@@ -1,0 +1,3061 @@
+00:00 +0: loading /app/test/scouting_screen_test.dart                                                                                                                                                  00:01 +0: loading /app/test/scouting_screen_test.dart                                                                                                                                                  00:02 +0: loading /app/test/scouting_screen_test.dart                                                                                                                                                  00:02 +0: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:02 +1: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:02 +2: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:02 +3: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:02 +4: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:02 +5: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:02 +5: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly
+Applied difficulty settings for Difficulty.Normal. Rep=10
+Populated Rival Academy Map with 35 academies.
+Populated AI Club Map with 30 clubs.
+Generated 8 tournament templates.
+--- Scheduling Initial Pro Leagues for 2025 ---
+ -> Attempting to schedule initial Pro Youth League - Tier 1 for 2025 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Initial Tier 1 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Initial Pro Youth League - Tier 1 (ID: 348cd56b-b5f1-45e7-b0b6-40711ecc66a6) starting around Jul 1, 2025 with 10 teams.
+ -> Attempting to schedule initial Pro Youth League - Tier 2 for 2025 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Initial Tier 2 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Initial Pro Youth League - Tier 2 (ID: 0e48f4ab-04b9-4cd0-b93d-a8f29cc076a4) starting around Jul 1, 2025 with 10 teams.
+ -> Attempting to schedule initial Pro Youth League - Tier 3 for 2025 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Initial Tier 3 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Initial Pro Youth League - Tier 3 (ID: f8666347-b303-4e95-b89b-539c7b5a122c) starting around Jul 1, 2025 with 10 teams.
+--- Finished Scheduling Initial Pro Leagues ---
+00:03 +6: /app/test/scouting_screen_test.dart: ScoutingScreen renders empty state correctly                                                                                                            00:03 +6: loading /app/test/news_performance_benchmark_test.dart                                                                                                                                       00:03 +6: /app/test/news_performance_benchmark_test.dart: Benchmark newsItems getter performance                                                                                                       00:03 +6: /app/test/news_performance_benchmark_test.dart: Benchmark newsItems getter performance
+Applied difficulty settings for Difficulty.Normal. Rep=10
+Populated Rival Academy Map with 35 academies.
+Populated AI Club Map with 30 clubs.
+Generated 8 tournament templates.
+--- Scheduling Initial Pro Leagues for 2025 ---
+ -> Attempting to schedule initial Pro Youth League - Tier 1 for 2025 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Initial Tier 1 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Initial Pro Youth League - Tier 1 (ID: f7503b0a-e5ef-4a36-a959-b2b10e6c29dd) starting around Jul 1, 2025 with 10 teams.
+ -> Attempting to schedule initial Pro Youth League - Tier 2 for 2025 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Initial Tier 2 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Initial Pro Youth League - Tier 2 (ID: 5d14c06a-3d7f-43ca-b39f-e5b564fc2710) starting around Jul 1, 2025 with 10 teams.
+ -> Attempting to schedule initial Pro Youth League - Tier 3 for 2025 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Initial Tier 3 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Initial Pro Youth League - Tier 3 (ID: a1fece8d-a1a5-4c2f-8549-a576f1f78450) starting around Jul 1, 2025 with 10 teams.
+--- Finished Scheduling Initial Pro Leagues ---
+Advancing week to: 2025-01-08 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 0 offers. ---
+Advancing week to: 2025-01-15 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 2 offers. ---
+Advancing week to: 2025-01-22 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 5 offers. ---
+Advancing week to: 2025-01-29 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 6 offers. ---
+Advancing week to: 2025-02-05 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.80)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 68cfa3a1-e975-4289-a764-90abe27be9a1) starting Feb 17, 2025 with 6 teams.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.84)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.51)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.88)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 8 offers. ---
+Advancing week to: 2025-02-12 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 11 offers. ---
+Advancing week to: 2025-02-19 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 68cfa3a1-e975-4289-a764-90abe27be9a1) is due to start.
+Generating matches for Round 1 (6 teams) starting around 2025-02-17 00:00:00.000
+ -> Generated 3 matches for Round 1.
+-> [Tournament 68cfa3a1-e975-4289-a764-90abe27be9a1] generateMatchesForStart: Generated 3 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match a609f4a5-27d4-444d-85dc-7d52ecffbadf ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_11 (3 - 1)
+DEBUG: Checking Away Team ID: rival_35
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_32
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match f04d2348-8378-4399-b125-31f137b83e45 ended in a draw (2-2). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match f04d2348-8378-4399-b125-31f137b83e45
+Warning: Ran out of away penalty takers in shootout for match f04d2348-8378-4399-b125-31f137b83e45
+ -> Penalty shootout completed. Winner: rival_32 (2 - 3)
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 3
+Expected matches this round: 3
+Found 3 winners in round 1: rival_11, rival_13, rival_32
+Total participants for next round (3): rival_11, rival_13, rival_32
+Generating matches for Round 2 (3 teams) starting around 2025-02-23 00:00:00.000
+Info: rival_11 gets a bye in Round 2.
+ -> Generated 1 matches for Round 2.
+Generated round 2 with 2 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 15 offers. ---
+Advancing week to: 2025-02-26 00:00:00.000
+DEBUG: Checking Away Team ID: rival_32
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match baecd9ec-647d-470a-8774-bdc18f72f8db ended in a draw (0-0). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match baecd9ec-647d-470a-8774-bdc18f72f8db
+Warning: Ran out of away penalty takers in shootout for match baecd9ec-647d-470a-8774-bdc18f72f8db
+ -> Penalty shootout completed. Winner: rival_13 (5 - 4)
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 1
+Expected matches this round: 1
+Found 1 winners in round 2: rival_13
+Teams with byes in round 2: rival_11
+Total participants for next round (2): rival_13, rival_11
+Generating matches for Round 3 (2 teams) starting around 2025-02-27 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 15 offers. ---
+Advancing week to: 2025-03-05 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.94)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.87)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: rival_11
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_13
+Total participants for next round (1): rival_13
+Tournament Kickabout Cup (3v3) completed. Winner: rival_13
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy M won Kickabout Cup (3v3). Prize: 1000. New Balance: 9428.0. New Rep: 37
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 18 offers. ---
+Advancing week to: 2025-03-12 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 21 offers. ---
+Advancing week to: 2025-03-19 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 23 offers. ---
+Advancing week to: 2025-03-26 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 26 offers. ---
+Advancing week to: 2025-04-02 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Kickabout Cup (3v3) as none scheduled yet.
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.90)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 04a96a06-c192-4d02-b0ca-fc17b1c83217) starting Apr 14, 2025 with 11 teams.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.82)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.84)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.52)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 29 offers. ---
+Advancing week to: 2025-04-09 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 31 offers. ---
+Advancing week to: 2025-04-16 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 04a96a06-c192-4d02-b0ca-fc17b1c83217) is due to start.
+Generating matches for Round 1 (11 teams) starting around 2025-04-14 00:00:00.000
+Info: rival_30 gets a bye in Round 1.
+ -> Generated 5 matches for Round 1.
+-> [Tournament 04a96a06-c192-4d02-b0ca-fc17b1c83217] generateMatchesForStart: Generated 5 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: rival_35
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_20
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 39 offers. ---
+Advancing week to: 2025-04-23 00:00:00.000
+DEBUG: Checking Away Team ID: rival_1
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_5
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match df0d03f2-9ed7-4e39-8bc4-793740fa80e4 ended in a draw (2-2). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_5 (1 - 3)
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 5
+Expected matches this round: 5
+Found 5 winners in round 1: rival_33, rival_8, rival_13, rival_11, rival_5
+Teams with byes in round 1: rival_30
+Total participants for next round (6): rival_33, rival_8, rival_13, rival_11, rival_5, rival_30
+Generating matches for Round 2 (6 teams) starting around 2025-04-22 00:00:00.000
+ -> Generated 3 matches for Round 2.
+Generated round 2 with 6 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 42 offers. ---
+Advancing week to: 2025-04-30 00:00:00.000
+DEBUG: Checking Away Team ID: rival_30
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 30e56d21-7e44-4255-bb2b-1273480f4c81 ended in a draw (2-2). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_13 (3 - 2)
+DEBUG: Checking Away Team ID: rival_5
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_8
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 3
+Expected matches this round: 3
+Found 3 winners in round 2: rival_13, rival_5, rival_8
+Total participants for next round (3): rival_13, rival_5, rival_8
+Generating matches for Round 3 (3 teams) starting around 2025-04-28 00:00:00.000
+Info: rival_5 gets a bye in Round 3.
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 42 offers. ---
+Advancing week to: 2025-05-07 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Local Youth Cup (5v5) as none scheduled yet.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.87)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: rival_8
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_13
+Teams with byes in round 3: rival_5
+Total participants for next round (2): rival_13, rival_5
+Generating matches for Round 4 (2 teams) starting around 2025-05-02 00:00:00.000
+ -> Generated 1 matches for Round 4.
+Generated round 4 with 2 teams
+Generated next knockout round (4) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 46 offers. ---
+Advancing week to: 2025-05-14 00:00:00.000
+DEBUG: Checking Away Team ID: rival_13
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 4 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 4
+Simulated matches in round 4: 1
+Expected matches this round: 1
+Found 1 winners in round 4: rival_13
+Total participants for next round (1): rival_13
+Tournament Kickabout Cup (3v3) completed. Winner: rival_13
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy M won Kickabout Cup (3v3). Prize: 1000. New Balance: 7678.0. New Rep: 59
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 49 offers. ---
+Advancing week to: 2025-05-21 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 49 offers. ---
+Advancing week to: 2025-05-28 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 52 offers. ---
+Advancing week to: 2025-06-04 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Kickabout Cup (3v3) as none scheduled yet.
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.90)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 0ca73619-418e-46a4-a2e6-1f6e7742d3e2) starting Jun 16, 2025 with 14 teams.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.89)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.91)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 54 offers. ---
+Advancing week to: 2025-06-11 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 56 offers. ---
+Advancing week to: 2025-06-18 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 0ca73619-418e-46a4-a2e6-1f6e7742d3e2) is due to start.
+Generating matches for Round 1 (14 teams) starting around 2025-06-16 00:00:00.000
+ -> Generated 7 matches for Round 1.
+-> [Tournament 0ca73619-418e-46a4-a2e6-1f6e7742d3e2] generateMatchesForStart: Generated 7 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: rival_2
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 1e103f84-856b-4d47-b419-a206fa934125 ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_11 (3 - 2)
+DEBUG: Checking Away Team ID: rival_34
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_32
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 60 offers. ---
+Advancing week to: 2025-06-25 00:00:00.000
+DEBUG: Checking Away Team ID: rival_6
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_10
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_16
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match b0dbd77a-802e-48cf-b83a-b04635eb6297 ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_16 (2 - 3)
+DEBUG: Checking Away Team ID: rival_13
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 7
+Expected matches this round: 7
+Found 7 winners in round 1: rival_11, rival_22, rival_32, rival_6, rival_28, rival_16, rival_15
+Total participants for next round (7): rival_11, rival_22, rival_32, rival_6, rival_28, rival_16, rival_15
+Generating matches for Round 2 (7 teams) starting around 2025-06-26 00:00:00.000
+Info: rival_28 gets a bye in Round 2.
+ -> Generated 3 matches for Round 2.
+Generated round 2 with 6 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 63 offers. ---
+Advancing week to: 2025-07-02 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.83)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Increasing chance for Regional Junior Cup (7v7) as none scheduled yet.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.79)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.94)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+No new tournaments were successfully scheduled this month.
+Tournament Pro Youth League - Tier 1 (ID: f7503b0a-e5ef-4a36-a959-b2b10e6c29dd) is due to start.
+Generating league schedule with 10 teams
+Generating league schedule with 10 teams
+-> [Tournament f7503b0a-e5ef-4a36-a959-b2b10e6c29dd] generateMatchesForStart: Generated 90 initial matches for Pro Youth League - Tier 1 (League).
+ -> Tournament Pro Youth League - Tier 1 is now InProgress.
+Tournament Pro Youth League - Tier 2 (ID: 5d14c06a-3d7f-43ca-b39f-e5b564fc2710) is due to start.
+Generating league schedule with 10 teams
+Generating league schedule with 10 teams
+-> [Tournament 5d14c06a-3d7f-43ca-b39f-e5b564fc2710] generateMatchesForStart: Generated 90 initial matches for Pro Youth League - Tier 2 (League).
+ -> Tournament Pro Youth League - Tier 2 is now InProgress.
+Tournament Pro Youth League - Tier 3 (ID: a1fece8d-a1a5-4c2f-8549-a576f1f78450) is due to start.
+Generating league schedule with 10 teams
+Generating league schedule with 10 teams
+-> [Tournament a1fece8d-a1a5-4c2f-8549-a576f1f78450] generateMatchesForStart: Generated 90 initial matches for Pro Youth League - Tier 3 (League).
+ -> Tournament Pro Youth League - Tier 3 is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_16
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_32
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_22
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 3
+Expected matches this round: 3
+Found 3 winners in round 2: rival_11, rival_32, rival_22
+Teams with byes in round 2: rival_28
+Total participants for next round (4): rival_11, rival_32, rival_22, rival_28
+Generating matches for Round 3 (4 teams) starting around 2025-07-02 00:00:00.000
+ -> Generated 2 matches for Round 3.
+Generated round 3 with 4 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 66 offers. ---
+Advancing week to: 2025-07-09 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_11
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 49244565-ffb6-444c-bedc-e731b97500cf ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_11 (1 - 3)
+DEBUG: Checking Away Team ID: rival_28
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 2
+Expected matches this round: 2
+Found 2 winners in round 3: rival_11, rival_22
+Total participants for next round (2): rival_11, rival_22
+Generating matches for Round 4 (2 teams) starting around 2025-07-07 00:00:00.000
+ -> Generated 1 matches for Round 4.
+Generated round 4 with 2 teams
+Generated next knockout round (4) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 69 offers. ---
+Advancing week to: 2025-07-16 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_11
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match d1b3f43e-185f-4b62-89f3-2d81841f50ea ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_11 (1 - 2)
+Knockout round 4 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 4
+Simulated matches in round 4: 1
+Expected matches this round: 1
+Found 1 winners in round 4: rival_11
+Total participants for next round (1): rival_11
+Tournament Kickabout Cup (3v3) completed. Winner: rival_11
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy K won Kickabout Cup (3v3). Prize: 1000. New Balance: 11725.0. New Rep: 38
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 71 offers. ---
+Advancing week to: 2025-07-23 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 77 offers. ---
+Advancing week to: 2025-07-30 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 82 offers. ---
+Advancing week to: 2025-08-06 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Regional Junior Cup (7v7) as none scheduled yet.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.92)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.84)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 252412cf-1aba-4a5c-8455-8587ba56c63a) starting Aug 18, 2025 with 18 teams.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.82)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.63)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.81)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 85 offers. ---
+Advancing week to: 2025-08-13 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 89 offers. ---
+Advancing week to: 2025-08-20 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 252412cf-1aba-4a5c-8455-8587ba56c63a) is due to start.
+Generating matches for Round 1 (18 teams) starting around 2025-08-18 00:00:00.000
+ -> Generated 9 matches for Round 1.
+-> [Tournament 252412cf-1aba-4a5c-8455-8587ba56c63a] generateMatchesForStart: Generated 9 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_24
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_15
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_5
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match a09a90a3-2660-4e80-8309-a0969c17282d ended in a draw (2-2). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match a09a90a3-2660-4e80-8309-a0969c17282d
+Warning: Ran out of away penalty takers in shootout for match a09a90a3-2660-4e80-8309-a0969c17282d
+ -> Penalty shootout completed. Winner: rival_5 (6 - 7)
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 92 offers. ---
+Advancing week to: 2025-08-27 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_28
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_25
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_14
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_32
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 0c2233a8-3d0d-422e-855d-fa1cbb623d8d ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_23 (3 - 2)
+DEBUG: Checking Away Team ID: rival_17
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match dbbe97db-aa20-4008-80f0-038cbd76184b ended in a draw (1-1). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match dbbe97db-aa20-4008-80f0-038cbd76184b
+Warning: Ran out of away penalty takers in shootout for match dbbe97db-aa20-4008-80f0-038cbd76184b
+ -> Penalty shootout completed. Winner: rival_17 (6 - 7)
+DEBUG: Checking Away Team ID: rival_29
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 9
+Expected matches this round: 9
+Found 9 winners in round 1: rival_24, rival_35, rival_5, rival_28, rival_25, rival_14, rival_23, rival_17, rival_29
+Total participants for next round (9): rival_24, rival_35, rival_5, rival_28, rival_25, rival_14, rival_23, rival_17, rival_29
+Generating matches for Round 2 (9 teams) starting around 2025-08-30 00:00:00.000
+Info: rival_5 gets a bye in Round 2.
+ -> Generated 4 matches for Round 2.
+Generated round 2 with 8 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 92 offers. ---
+Advancing week to: 2025-09-03 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.86)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Skipping Local Youth Cup (5v5) this month (Rolled < 0.90 chance).
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_25
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_29
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_35
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_17
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 612b601c-2937-4d37-87ee-485ccbc5a227 ended in a draw (0-0). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match 612b601c-2937-4d37-87ee-485ccbc5a227
+Warning: Ran out of away penalty takers in shootout for match 612b601c-2937-4d37-87ee-485ccbc5a227
+ -> Penalty shootout completed. Winner: rival_17 (3 - 4)
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 4
+Expected matches this round: 4
+Found 4 winners in round 2: rival_28, rival_23, rival_35, rival_17
+Teams with byes in round 2: rival_5
+Total participants for next round (5): rival_28, rival_23, rival_35, rival_17, rival_5
+Generating matches for Round 3 (5 teams) starting around 2025-09-06 00:00:00.000
+Info: rival_23 gets a bye in Round 3.
+ -> Generated 2 matches for Round 3.
+Generated round 3 with 4 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 95 offers. ---
+Advancing week to: 2025-09-10 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_5
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_35
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 2
+Expected matches this round: 2
+Found 2 winners in round 3: rival_28, rival_17
+Teams with byes in round 3: rival_23
+Total participants for next round (3): rival_28, rival_17, rival_23
+Generating matches for Round 4 (3 teams) starting around 2025-09-11 00:00:00.000
+Info: rival_23 gets a bye in Round 4.
+ -> Generated 1 matches for Round 4.
+Generated round 4 with 2 teams
+Generated next knockout round (4) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 99 offers. ---
+Advancing week to: 2025-09-17 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_17
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 4 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 4
+Simulated matches in round 4: 1
+Expected matches this round: 1
+Found 1 winners in round 4: rival_28
+Teams with byes in round 4: rival_23
+Total participants for next round (2): rival_28, rival_23
+Generating matches for Round 5 (2 teams) starting around 2025-09-15 00:00:00.000
+ -> Generated 1 matches for Round 5.
+Generated round 5 with 2 teams
+Generated next knockout round (5) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 105 offers. ---
+Advancing week to: 2025-09-24 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_28
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 5 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 5
+Simulated matches in round 5: 1
+Expected matches this round: 1
+Found 1 winners in round 5: rival_23
+Total participants for next round (1): rival_23
+Tournament Kickabout Cup (3v3) completed. Winner: rival_23
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy W won Kickabout Cup (3v3). Prize: 1000. New Balance: 20380.0. New Rep: 35
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 108 offers. ---
+Advancing week to: 2025-10-01 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for National U18 Championship (11v11) as none scheduled yet.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.80)...
+ -> Scheduled Kickabout Cup (3v3) (ID: ceace8df-9d48-4867-9f05-1e726edc52a8) starting Oct 13, 2025 with 14 teams.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.82)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.88)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.85)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 112 offers. ---
+Advancing week to: 2025-10-08 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 116 offers. ---
+Advancing week to: 2025-10-15 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: ceace8df-9d48-4867-9f05-1e726edc52a8) is due to start.
+Generating matches for Round 1 (14 teams) starting around 2025-10-13 00:00:00.000
+ -> Generated 7 matches for Round 1.
+-> [Tournament ceace8df-9d48-4867-9f05-1e726edc52a8] generateMatchesForStart: Generated 7 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_28
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 117 offers. ---
+Advancing week to: 2025-10-22 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_12
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_7
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_23
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 90897e16-2440-4b3b-8688-64101b3b8efa ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_26 (2 - 1)
+DEBUG: Checking Away Team ID: rival_33
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 7
+Expected matches this round: 7
+Found 7 winners in round 1: rival_18, rival_4, rival_28, rival_12, rival_7, rival_26, rival_16
+Total participants for next round (7): rival_18, rival_4, rival_28, rival_12, rival_7, rival_26, rival_16
+Generating matches for Round 2 (7 teams) starting around 2025-10-23 00:00:00.000
+Info: rival_7 gets a bye in Round 2.
+ -> Generated 3 matches for Round 2.
+Generated round 2 with 6 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 120 offers. ---
+Advancing week to: 2025-10-29 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_26
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match ee50af0f-fca4-419c-adfc-2110cb4e4f2c ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_26 (2 - 3)
+DEBUG: Checking Away Team ID: rival_12
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 5a2edcfa-ab0a-4262-84c1-6d1b745bc6c8 ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_12 (0 - 3)
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 3
+Expected matches this round: 3
+Found 3 winners in round 2: rival_26, rival_12, rival_18
+Teams with byes in round 2: rival_7
+Total participants for next round (4): rival_26, rival_12, rival_18, rival_7
+Generating matches for Round 3 (4 teams) starting around 2025-10-29 00:00:00.000
+ -> Generated 2 matches for Round 3.
+Generated round 3 with 4 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 122 offers. ---
+Advancing week to: 2025-11-05 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Local Youth Cup (5v5) as none scheduled yet.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Skipping Elite Youth League (11v11) this month (Rolled < 0.84 chance).
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.94)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_26
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_12
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 2
+Expected matches this round: 2
+Found 2 winners in round 3: rival_7, rival_18
+Total participants for next round (2): rival_7, rival_18
+Generating matches for Round 4 (2 teams) starting around 2025-11-03 00:00:00.000
+ -> Generated 1 matches for Round 4.
+Generated round 4 with 2 teams
+Generated next knockout round (4) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 126 offers. ---
+Advancing week to: 2025-11-12 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_7
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 4 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 4
+Simulated matches in round 4: 1
+Expected matches this round: 1
+Found 1 winners in round 4: rival_18
+Total participants for next round (1): rival_18
+Tournament Kickabout Cup (3v3) completed. Winner: rival_18
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy R won Kickabout Cup (3v3). Prize: 1000. New Balance: 12473.0. New Rep: 38
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 128 offers. ---
+Advancing week to: 2025-11-19 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 130 offers. ---
+Advancing week to: 2025-11-26 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 135 offers. ---
+Advancing week to: 2025-12-03 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Regional Junior Cup (7v7) as none scheduled yet.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.59)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Skipping National U18 Championship (11v11) this month (Rolled < 0.95 chance).
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.89)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.88)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 631904bf-1a8b-4195-8e7d-4a6ab0193aae) starting Dec 15, 2025 with 7 teams.
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 138 offers. ---
+Advancing week to: 2025-12-10 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 143 offers. ---
+Advancing week to: 2025-12-17 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 631904bf-1a8b-4195-8e7d-4a6ab0193aae) is due to start.
+Generating matches for Round 1 (7 teams) starting around 2025-12-15 00:00:00.000
+Info: rival_11 gets a bye in Round 1.
+ -> Generated 3 matches for Round 1.
+-> [Tournament 631904bf-1a8b-4195-8e7d-4a6ab0193aae] generateMatchesForStart: Generated 3 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_14
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 53dd543e-68cd-4d32-9cf5-667b011557d1 ended in a draw (2-2). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_14 (2 - 3)
+DEBUG: Checking Away Team ID: rival_25
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match df0e9345-d921-4373-9148-d32d21485189 ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_9 (3 - 2)
+DEBUG: Checking Away Team ID: rival_19
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 3
+Expected matches this round: 3
+Found 3 winners in round 1: rival_14, rival_9, rival_19
+Teams with byes in round 1: rival_11
+Total participants for next round (4): rival_14, rival_9, rival_19, rival_11
+Generating matches for Round 2 (4 teams) starting around 2025-12-21 00:00:00.000
+ -> Generated 2 matches for Round 2.
+Generated round 2 with 4 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 145 offers. ---
+Advancing week to: 2025-12-24 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_9
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match e143ec93-977f-4e57-b101-ad8d18c1ca91 ended in a draw (0-0). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_14 (3 - 2)
+DEBUG: Checking Away Team ID: rival_19
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 5688c08e-438f-47aa-9ebc-2d634006f0c9 ended in a draw (2-2). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match 5688c08e-438f-47aa-9ebc-2d634006f0c9
+Warning: Ran out of away penalty takers in shootout for match 5688c08e-438f-47aa-9ebc-2d634006f0c9
+ -> Penalty shootout completed. Winner: rival_11 (4 - 3)
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 2
+Expected matches this round: 2
+Found 2 winners in round 2: rival_14, rival_11
+Total participants for next round (2): rival_14, rival_11
+Generating matches for Round 3 (2 teams) starting around 2025-12-26 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 149 offers. ---
+Advancing week to: 2025-12-31 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_11
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_14
+Total participants for next round (1): rival_14
+Tournament Kickabout Cup (3v3) completed. Winner: rival_14
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy N won Kickabout Cup (3v3). Prize: 1000. New Balance: 15325.0. New Rep: 37
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 152 offers. ---
+Advancing week to: 2026-01-07 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Kickabout Cup (3v3) as none scheduled yet.
+ -> Skipping Kickabout Cup (3v3) this month (Rolled < 0.90 chance).
+ -> Skipping Regional Junior Cup (7v7) this month (Rolled < 0.85 chance).
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.86)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.67)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 157 offers. ---
+Advancing week to: 2026-01-14 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 161 offers. ---
+Advancing week to: 2026-01-21 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 167 offers. ---
+Advancing week to: 2026-01-28 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 168 offers. ---
+Advancing week to: 2026-02-04 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Skipping Local Youth Cup (5v5) this month (Rolled < 0.85 chance).
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.87)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.90)...
+ -> Scheduled Kickabout Cup (3v3) (ID: e26e5f0c-165b-4dc7-9e38-6f9493fb0567) starting Feb 16, 2026 with 5 teams.
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 175 offers. ---
+Advancing week to: 2026-02-11 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 176 offers. ---
+Advancing week to: 2026-02-18 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: e26e5f0c-165b-4dc7-9e38-6f9493fb0567) is due to start.
+Generating matches for Round 1 (5 teams) starting around 2026-02-16 00:00:00.000
+Info: rival_18 gets a bye in Round 1.
+ -> Generated 2 matches for Round 1.
+-> [Tournament e26e5f0c-165b-4dc7-9e38-6f9493fb0567] generateMatchesForStart: Generated 2 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_3
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_7
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_26
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 2
+Expected matches this round: 2
+Found 2 winners in round 1: rival_4, rival_29
+Teams with byes in round 1: rival_18
+Total participants for next round (3): rival_4, rival_29, rival_18
+Generating matches for Round 2 (3 teams) starting around 2026-02-21 00:00:00.000
+Info: rival_4 gets a bye in Round 2.
+ -> Generated 1 matches for Round 2.
+Generated round 2 with 2 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 179 offers. ---
+Advancing week to: 2026-02-25 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_29
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 1
+Expected matches this round: 1
+Found 1 winners in round 2: rival_18
+Teams with byes in round 2: rival_4
+Total participants for next round (2): rival_18, rival_4
+Generating matches for Round 3 (2 teams) starting around 2026-02-25 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 187 offers. ---
+Advancing week to: 2026-03-04 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.86)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Skipping Local Youth Cup (5v5) this month (Rolled < 0.88 chance).
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_4
+Total participants for next round (1): rival_4
+Tournament Kickabout Cup (3v3) completed. Winner: rival_4
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy D won Kickabout Cup (3v3). Prize: 1000. New Balance: 21309.0. New Rep: 34
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 190 offers. ---
+Advancing week to: 2026-03-11 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+ -> League Pro Youth League - Tier 1 (ID: f7503b0a-e5ef-4a36-a959-b2b10e6c29dd) has completed all matches.
+Handling completion of tournament: Pro Youth League - Tier 1
+City Westfield Athletic won Pro Youth League - Tier 1. Prize: 75000. New Balance: 2236438.6936307857. New Rep: 326
+Handling Promotion/Relegation for Pro Youth League - Tier 1
+ -> No promotion from Tier 1.
+ -> Relegating to Tier 2: ai_club_5, ai_club_0
+   -> Athletic Bridgewater City relegated to Tier 2. New Rep: 245
+   -> Athletic Maple Creek Town relegated to Tier 2. New Rep: 249
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_15
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+ -> League Pro Youth League - Tier 2 (ID: 5d14c06a-3d7f-43ca-b39f-e5b564fc2710) has completed all matches.
+Handling completion of tournament: Pro Youth League - Tier 2
+County Glenwood United won Pro Youth League - Tier 2. Prize: 40000. New Balance: 1195286.2096603033. New Rep: 282
+Handling Promotion/Relegation for Pro Youth League - Tier 2
+ -> Promoting to Tier 1: ai_club_17, ai_club_11
+   -> County Glenwood United promoted to Tier 1. New Rep: 307
+   -> City Lakeside promoted to Tier 1. New Rep: 287
+ -> Relegating to Tier 3: ai_club_12, ai_club_15
+   -> Summit Olympic SC relegated to Tier 3. New Rep: 201
+   -> Wanderers Westfield City relegated to Tier 3. New Rep: 218
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+ -> League Pro Youth League - Tier 3 (ID: a1fece8d-a1a5-4c2f-8549-a576f1f78450) has completed all matches.
+Handling completion of tournament: Pro Youth League - Tier 3
+Real Hillcrest Athletic won Pro Youth League - Tier 3. Prize: 20000. New Balance: 454448.2932324055. New Rep: 269
+Handling Promotion/Relegation for Pro Youth League - Tier 3
+ -> Promoting to Tier 2: ai_club_22, ai_club_21
+   -> Real Hillcrest Athletic promoted to Tier 2. New Rep: 294
+   -> Rovers Hillcrest SC promoted to Tier 2. New Rep: 207
+ -> No relegation from Tier 3.
+Moved 3 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 191 offers. ---
+Advancing week to: 2026-03-18 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 195 offers. ---
+Advancing week to: 2026-03-25 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 202 offers. ---
+Advancing week to: 2026-04-01 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.80)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 0d01eabc-9997-434c-a2fa-53c7d24a0be4) starting Apr 13, 2026 with 5 teams.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Skipping Local Youth Cup (5v5) this month (Rolled < 0.87 chance).
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.85)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 205 offers. ---
+Advancing week to: 2026-04-08 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 212 offers. ---
+Advancing week to: 2026-04-15 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 0d01eabc-9997-434c-a2fa-53c7d24a0be4) is due to start.
+Generating matches for Round 1 (5 teams) starting around 2026-04-13 00:00:00.000
+Info: rival_21 gets a bye in Round 1.
+ -> Generated 2 matches for Round 1.
+-> [Tournament 0d01eabc-9997-434c-a2fa-53c7d24a0be4] generateMatchesForStart: Generated 2 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_16
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 2
+Expected matches this round: 2
+Found 2 winners in round 1: rival_4, rival_16
+Teams with byes in round 1: rival_21
+Total participants for next round (3): rival_4, rival_16, rival_21
+Generating matches for Round 2 (3 teams) starting around 2026-04-18 00:00:00.000
+Info: rival_16 gets a bye in Round 2.
+ -> Generated 1 matches for Round 2.
+Generated round 2 with 2 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 220 offers. ---
+Advancing week to: 2026-04-22 00:00:00.000
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 94e4189d-e590-47d8-a3bc-b979fc9c7a6b ended in a draw (1-1). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_4 (1 - 2)
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 1
+Expected matches this round: 1
+Found 1 winners in round 2: rival_4
+Teams with byes in round 2: rival_16
+Total participants for next round (2): rival_4, rival_16
+Generating matches for Round 3 (2 teams) starting around 2026-04-22 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 225 offers. ---
+Advancing week to: 2026-04-29 00:00:00.000
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_16
+Total participants for next round (1): rival_16
+Tournament Kickabout Cup (3v3) completed. Winner: rival_16
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy P won Kickabout Cup (3v3). Prize: 1000. New Balance: 7830.0. New Rep: 34
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 229 offers. ---
+Advancing week to: 2026-05-06 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Kickabout Cup (3v3) as none scheduled yet.
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.90)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 38b325b9-6a7a-421f-adf2-69a433e32440) starting May 18, 2026 with 8 teams.
+ -> Skipping Elite Youth League (11v11) this month (Rolled < 0.51 chance).
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.84)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 234 offers. ---
+00:04 +6: /app/test/widget_test.dart: Start screen smoke test
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following ProviderNotFoundException was thrown building Consumer<GameStateManager>(dirty):
+Error: Could not find the correct Provider<GameStateManager> above this Consumer<GameStateManager>
+Widget
+
+This happens because you used a `BuildContext` that does not include the provider
+of your choice. There are a few common scenarios:
+
+- You added a new provider in your `main.dart` and performed a hot-reload.
+  To fix, perform a hot-restart.
+
+- The provider you are trying to read is in a different route.
+
+  Providers are "scoped". So if you insert of provider inside a route, then
+  other routes will not be able to access that provider.
+
+- You used a `BuildContext` that is an ancestor of the provider you are trying to read.
+
+  Make sure that Consumer<GameStateManager> is under your MultiProvider/Provider<GameStateManager>.
+  This usually happens when you are creating a provider and trying to read it immediately.
+
+  For example, instead of:
+
+  ```
+  Widget build(BuildContext context) {
+    return Provider<Example>(
+      create: (_) => Example(),
+      // Will throw a ProviderNotFoundError, because `context` is associated
+      // to the widget that is the parent of `Provider<Example>`
+      child: Text(context.watch<Example>().toString()),
+    );
+  }
+  ```
+
+  consider using `builder` like so:
+
+  ```
+  Widget build(BuildContext context) {
+    return Provider<Example>(
+      create: (_) => Example(),
+      // we use `builder` to obtain a new `BuildContext` that has access to the provider
+      builder: (context, child) {
+        // No longer throws
+        return Text(context.watch<Example>().toString());
+      }
+    );
+  }
+  ```
+
+If none of these solutions work, consider asking for help on StackOverflow:
+https://stackoverflow.com/questions/tagged/flutter
+
+The relevant error-causing widget was:
+  Consumer<GameStateManager> Consumer:file:///app/lib/main.dart:28:12
+
+When the exception was thrown, this was the stack:
+#0      Provider._inheritedElementOf (package:provider/src/provider.dart:377:7)
+#1      Provider.of (package:provider/src/provider.dart:327:30)
+#2      Consumer.buildWithChild (package:provider/src/consumer.dart:181:16)
+#3      SingleChildStatelessWidget.build (package:nested/nested.dart:259:41)
+#4      StatelessElement.build (package:flutter/src/widgets/framework.dart:5892:49)
+#5      SingleChildStatelessElement.build (package:nested/nested.dart:279:18)
+#6      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5820:15)
+#7      Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#8      ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5802:5)
+#9      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796:5)
+#10     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+...     Normal element mounting (7 frames)
+#17     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#18     Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#19     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#20     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#21     ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#22     _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#23     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#24     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#25     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#26     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#27     StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#28     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#29     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#30     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#31     ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#32     _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#33     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#34     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#35     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#36     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#37     StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#38     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#39     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#40     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#41     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#42     StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#43     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#44     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#45     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#46     ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#47     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#48     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#49     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#50     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#51     StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#52     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#53     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#54     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#55     ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#56     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#57     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#58     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#59     ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#60     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#61     _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#62     _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#63     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#64     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#65     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#66     StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
+#67     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#68     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#69     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#70     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#71     StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#72     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#73     RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
+#74     RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
+#75     RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
+#76     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#77     BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#78     BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#79     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#80     AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#81     RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#82     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#83     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#84     AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#87     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#88     AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#89     WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#92     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#93     WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#94     main.<anonymous closure> (file:///app/test/widget_test.dart:9:18)
+#95     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#96     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +6: /app/test/news_performance_benchmark_test.dart: Benchmark newsItems getter performance
+Advancing week to: 2026-05-13 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 238 offers. ---
+Advancing week to: 2026-05-20 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 38b325b9-6a7a-421f-adf2-69a433e32440) is due to start.
+Generating matches for Round 1 (8 teams) starting around 2026-05-18 00:00:00.000
+ -> Generated 4 matches for Round 1.
+-> [Tournament 38b325b9-6a7a-421f-adf2-69a433e32440] generateMatchesForStart: Generated 4 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: rival_11
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_16
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_29
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 241 offers. ---
+00:04 +6: /app/test/widget_test.dart: Start screen smoke test
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Welcome!": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///app/test/widget_test.dart:12:5)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///app/test/widget_test.dart line 12
+The test description was:
+  Start screen smoke test
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:04 +6 -1: /app/test/widget_test.dart: Start screen smoke test [E]
+  Test failed. See exception logs above.
+  The test description was: Start screen smoke test
+
+
+To run this test again: /opt/flutter/bin/cache/dart-sdk/bin/dart test /app/test/widget_test.dart -p vm --plain-name 'Start screen smoke test'
+00:04 +6 -1: /app/test/news_performance_benchmark_test.dart: Benchmark newsItems getter performance
+Advancing week to: 2026-05-27 00:00:00.000
+--- Scheduling Annual Pro Leagues for 2026 ---
+ -> Attempting to schedule Pro Youth League - Tier 1 for 2026 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Tier 1 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Pro Youth League - Tier 1 (ID: 2b0ad0fa-0e72-4619-a56a-de8599862821) starting Jul 1, 2026 with 10 teams.
+ -> Attempting to schedule Pro Youth League - Tier 2 for 2026 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Tier 2 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Pro Youth League - Tier 2 (ID: 70db43cc-33d8-4580-901e-ce6a4c1f28a5) starting Jul 1, 2026 with 10 teams.
+ -> Attempting to schedule Pro Youth League - Tier 3 for 2026 season.
+ -> Found 10 eligible AI Clubs and 0 eligible Youth Academies (Player eligible: false) for Tier 3 League.
+ -> Added 10 AI Clubs.
+ -> Added 0 Youth Academies.
+ -> Scheduled Pro Youth League - Tier 3 (ID: 809d51f3-572f-4b49-8824-82e63bf08f82) starting Jul 1, 2026 with 10 teams.
+--- Finished Scheduling Annual Pro Leagues ---
+DEBUG: Checking Away Team ID: rival_4
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 4
+Expected matches this round: 4
+Found 4 winners in round 1: rival_9, rival_16, rival_29, rival_18
+Total participants for next round (4): rival_9, rival_16, rival_29, rival_18
+Generating matches for Round 2 (4 teams) starting around 2026-05-25 00:00:00.000
+ -> Generated 2 matches for Round 2.
+Generated round 2 with 4 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 243 offers. ---
+Advancing week to: 2026-06-03 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Skipping Regional Junior Cup (7v7) this month (Rolled < 0.81 chance).
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.87)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: rival_29
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 2
+Expected matches this round: 2
+Found 2 winners in round 2: rival_9, rival_18
+Total participants for next round (2): rival_9, rival_18
+Generating matches for Round 3 (2 teams) starting around 2026-05-30 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 249 offers. ---
+Advancing week to: 2026-06-10 00:00:00.000
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_9
+Total participants for next round (1): rival_9
+Tournament Kickabout Cup (3v3) completed. Winner: rival_9
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy I won Kickabout Cup (3v3). Prize: 1000. New Balance: 14412.0. New Rep: 36
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 252 offers. ---
+Advancing week to: 2026-06-17 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 254 offers. ---
+Advancing week to: 2026-06-24 00:00:00.000
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 258 offers. ---
+Advancing week to: 2026-07-01 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Local Youth Cup (5v5) as none scheduled yet.
+ -> Skipping Local Youth Cup (5v5) this month (Rolled < 0.90 chance).
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.80)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.82)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.90)...
+ -> Scheduled Kickabout Cup (3v3) (ID: d846262f-50c3-4afa-bf6a-a931feabe8f3) starting Jul 13, 2026 with 8 teams.
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+Tournament Pro Youth League - Tier 1 (ID: 2b0ad0fa-0e72-4619-a56a-de8599862821) is due to start.
+Generating league schedule with 10 teams
+Generating league schedule with 10 teams
+-> [Tournament 2b0ad0fa-0e72-4619-a56a-de8599862821] generateMatchesForStart: Generated 90 initial matches for Pro Youth League - Tier 1 (League).
+ -> Tournament Pro Youth League - Tier 1 is now InProgress.
+Tournament Pro Youth League - Tier 2 (ID: 70db43cc-33d8-4580-901e-ce6a4c1f28a5) is due to start.
+Generating league schedule with 10 teams
+Generating league schedule with 10 teams
+-> [Tournament 70db43cc-33d8-4580-901e-ce6a4c1f28a5] generateMatchesForStart: Generated 90 initial matches for Pro Youth League - Tier 2 (League).
+ -> Tournament Pro Youth League - Tier 2 is now InProgress.
+Tournament Pro Youth League - Tier 3 (ID: 809d51f3-572f-4b49-8824-82e63bf08f82) is due to start.
+Generating league schedule with 10 teams
+Generating league schedule with 10 teams
+-> [Tournament 809d51f3-572f-4b49-8824-82e63bf08f82] generateMatchesForStart: Generated 90 initial matches for Pro Youth League - Tier 3 (League).
+ -> Tournament Pro Youth League - Tier 3 is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 264 offers. ---
+Advancing week to: 2026-07-08 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 268 offers. ---
+Advancing week to: 2026-07-15 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: d846262f-50c3-4afa-bf6a-a931feabe8f3) is due to start.
+Generating matches for Round 1 (8 teams) starting around 2026-07-13 00:00:00.000
+ -> Generated 4 matches for Round 1.
+-> [Tournament d846262f-50c3-4afa-bf6a-a931feabe8f3] generateMatchesForStart: Generated 4 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_19
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 4b1fac3e-ab09-46fa-b7a3-262bf2af4dd9 ended in a draw (1-1). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match 4b1fac3e-ab09-46fa-b7a3-262bf2af4dd9
+Warning: Ran out of away penalty takers in shootout for match 4b1fac3e-ab09-46fa-b7a3-262bf2af4dd9
+ -> Penalty shootout completed. Winner: rival_19 (2 - 3)
+DEBUG: Checking Away Team ID: rival_7
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 271 offers. ---
+Advancing week to: 2026-07-22 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_32
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 4
+Expected matches this round: 4
+Found 4 winners in round 1: rival_18, rival_19, rival_7, rival_32
+Total participants for next round (4): rival_18, rival_19, rival_7, rival_32
+Generating matches for Round 2 (4 teams) starting around 2026-07-20 00:00:00.000
+ -> Generated 2 matches for Round 2.
+Generated round 2 with 4 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 278 offers. ---
+Advancing week to: 2026-07-29 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_19
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 4907fa46-5cbd-446a-a15b-f06242a211f1 ended in a draw (0-0). Proceeding to penalty shootout...
+ -> Penalty shootout completed. Winner: rival_19 (2 - 3)
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 2
+Expected matches this round: 2
+Found 2 winners in round 2: rival_18, rival_19
+Total participants for next round (2): rival_18, rival_19
+Generating matches for Round 3 (2 teams) starting around 2026-07-25 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 284 offers. ---
+Advancing week to: 2026-08-05 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Regional Junior Cup (7v7) as none scheduled yet.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.92)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.83)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_19
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_18
+Total participants for next round (1): rival_18
+Tournament Kickabout Cup (3v3) completed. Winner: rival_18
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy R won Kickabout Cup (3v3). Prize: 1000. New Balance: 3733.0. New Rep: 36
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 286 offers. ---
+Advancing week to: 2026-08-12 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 293 offers. ---
+Advancing week to: 2026-08-19 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 299 offers. ---
+Advancing week to: 2026-08-26 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 301 offers. ---
+Advancing week to: 2026-09-02 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Local Youth Cup (5v5) as none scheduled yet.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.87)...
+ -> Scheduled Kickabout Cup (3v3) (ID: 2a319567-aa70-4a99-9e23-4d8fd86265e3) starting Sep 14, 2026 with 6 teams.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.87)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.66)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 307 offers. ---
+Advancing week to: 2026-09-09 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_6
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_5
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_23
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 310 offers. ---
+Advancing week to: 2026-09-16 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: 2a319567-aa70-4a99-9e23-4d8fd86265e3) is due to start.
+Generating matches for Round 1 (6 teams) starting around 2026-09-14 00:00:00.000
+ -> Generated 3 matches for Round 1.
+-> [Tournament 2a319567-aa70-4a99-9e23-4d8fd86265e3] generateMatchesForStart: Generated 3 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_14
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_16
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_26
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 3
+Expected matches this round: 3
+Found 3 winners in round 1: rival_7, rival_16, rival_26
+Total participants for next round (3): rival_7, rival_16, rival_26
+Generating matches for Round 2 (3 teams) starting around 2026-09-20 00:00:00.000
+Info: rival_26 gets a bye in Round 2.
+ -> Generated 1 matches for Round 2.
+Generated round 2 with 2 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 318 offers. ---
+Advancing week to: 2026-09-23 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_0
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_27
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_16
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 1
+Expected matches this round: 1
+Found 1 winners in round 2: rival_7
+Teams with byes in round 2: rival_26
+Total participants for next round (2): rival_7, rival_26
+Generating matches for Round 3 (2 teams) starting around 2026-09-24 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 322 offers. ---
+Advancing week to: 2026-09-30 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_7
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_7
+Total participants for next round (1): rival_7
+Tournament Kickabout Cup (3v3) completed. Winner: rival_7
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy G won Kickabout Cup (3v3). Prize: 1000. New Balance: 17312.0. New Rep: 37
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 327 offers. ---
+Advancing week to: 2026-10-07 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Regional Junior Cup (7v7) as none scheduled yet.
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Skipping Kickabout Cup (3v3) this month (Rolled < 0.85 chance).
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.86)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.57)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Skipping National U18 Championship (11v11) this month (Rolled < 0.85 chance).
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_4
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_19
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_26
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 330 offers. ---
+Advancing week to: 2026-10-14 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 336 offers. ---
+Advancing week to: 2026-10-21 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_11
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_13
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_12
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 340 offers. ---
+Advancing week to: 2026-10-28 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 344 offers. ---
+Advancing week to: 2026-11-04 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Kickabout Cup (3v3) as none scheduled yet.
+ -> Considering scheduling Kickabout Cup (3v3) (Chance: 0.90)...
+ -> Scheduled Kickabout Cup (3v3) (ID: b803938f-98fd-4991-85d8-9273820370d4) starting Nov 16, 2026 with 5 teams.
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.82)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Considering scheduling National U18 Championship (11v11) (Chance: 0.87)...
+ -> Not enough potential participants (0) for Standard Tournament National U18 Championship (11v11). Min required (allowing for player): 35
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.85)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.90)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 351 offers. ---
+Advancing week to: 2026-11-11 00:00:00.000
+DEBUG: Checking Away Team ID: ai_club_17
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_8
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_16
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_21
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_24
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_29
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 354 offers. ---
+Advancing week to: 2026-11-18 00:00:00.000
+Tournament Kickabout Cup (3v3) (ID: b803938f-98fd-4991-85d8-9273820370d4) is due to start.
+Generating matches for Round 1 (5 teams) starting around 2026-11-16 00:00:00.000
+Info: rival_9 gets a bye in Round 1.
+ -> Generated 2 matches for Round 1.
+-> [Tournament b803938f-98fd-4991-85d8-9273820370d4] generateMatchesForStart: Generated 2 initial matches for Kickabout Cup (3v3) (Knockout).
+ -> Tournament Kickabout Cup (3v3) is now InProgress.
+DEBUG: Checking Away Team ID: ai_club_2
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_1
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_7
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_10
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_18
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_14
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_28
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_20
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_19
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+DEBUG: Checking Away Team ID: rival_18
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match b33104a3-7002-4150-ac14-cf90d3bb10f9 ended in a draw (1-1). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match b33104a3-7002-4150-ac14-cf90d3bb10f9
+Warning: Ran out of away penalty takers in shootout for match b33104a3-7002-4150-ac14-cf90d3bb10f9
+ -> Penalty shootout completed. Winner: rival_18 (3 - 4)
+Knockout round 1 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 1
+Simulated matches in round 1: 2
+Expected matches this round: 2
+Found 2 winners in round 1: rival_19, rival_18
+Teams with byes in round 1: rival_9
+Total participants for next round (3): rival_19, rival_18, rival_9
+Generating matches for Round 2 (3 teams) starting around 2026-11-21 00:00:00.000
+Info: rival_19 gets a bye in Round 2.
+ -> Generated 1 matches for Round 2.
+Generated round 2 with 2 teams
+Generated next knockout round (2) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 357 offers. ---
+Advancing week to: 2026-11-25 00:00:00.000
+DEBUG: Checking Away Team ID: rival_9
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout round 2 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 2
+Simulated matches in round 2: 1
+Expected matches this round: 1
+Found 1 winners in round 2: rival_9
+Teams with byes in round 2: rival_19
+Total participants for next round (2): rival_9, rival_19
+Generating matches for Round 3 (2 teams) starting around 2026-11-25 00:00:00.000
+ -> Generated 1 matches for Round 3.
+Generated round 3 with 2 teams
+Generated next knockout round (3) for Kickabout Cup (3v3).
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 360 offers. ---
+Advancing week to: 2026-12-02 00:00:00.000
+Checking for new tournaments to schedule...
+ -> Increasing chance for Elite Youth League (11v11) as none scheduled yet.
+ -> Considering scheduling Elite Youth League (11v11) (Chance: 0.93)...
+ -> Not enough potential participants (0) for Standard Tournament Elite Youth League (11v11). Min required (allowing for player): 10
+ -> Considering scheduling Regional Junior Cup (7v7) (Chance: 0.95)...
+ -> Not enough potential participants (0) for Standard Tournament Regional Junior Cup (7v7). Min required (allowing for player): 16
+ -> Skipping National U18 Championship (11v11) this month (Rolled < 0.84 chance).
+ -> Considering scheduling Local Youth Cup (5v5) (Chance: 0.82)...
+ -> Not enough potential participants (0) for Standard Tournament Local Youth Cup (5v5). Min required (allowing for player): 16
+ -> Instance of Kickabout Cup (3v3) already active. Skipping.
+No new tournaments were successfully scheduled this month.
+DEBUG: Checking Away Team ID: ai_club_9
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_22
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: ai_club_25
+DEBUG: _rivalAcademyMap contains key? false
+DEBUG: _aiClubMap contains key? true
+DEBUG: Checking Away Team ID: rival_9
+DEBUG: _rivalAcademyMap contains key? true
+DEBUG: _aiClubMap contains key? false
+Knockout match 1905334a-ab70-4bac-b304-756e25465b52 ended in a draw (1-1). Proceeding to penalty shootout...
+Warning: Ran out of home penalty takers in shootout for match 1905334a-ab70-4bac-b304-756e25465b52
+Warning: Ran out of away penalty takers in shootout for match 1905334a-ab70-4bac-b304-756e25465b52
+ -> Penalty shootout completed. Winner: rival_19 (4 - 3)
+Knockout round 3 of Kickabout Cup (3v3) completed.
+Generating next knockout round for Kickabout Cup (3v3), current round completed: 3
+Simulated matches in round 3: 1
+Expected matches this round: 1
+Found 1 winners in round 3: rival_19
+Total participants for next round (1): rival_19
+Tournament Kickabout Cup (3v3) completed. Winner: rival_19
+Tournament Kickabout Cup (3v3) completed after generating final round.
+Handling completion of tournament: Kickabout Cup (3v3)
+Academy S won Kickabout Cup (3v3). Prize: 1000. New Balance: 25645.0. New Rep: 34
+Moved 1 tournaments to history/cancelled.
+--- DEBUG: Starting _generateTransferOffers ---
+--- DEBUG: Iterating through 0 academy players for offers ---
+--- DEBUG: Finished _generateTransferOffers. Found 364 offers. ---
+News items populated: 100
+Time taken for 100,000 accesses: 4 ms
+00:04 +7 -1: /app/test/news_performance_benchmark_test.dart: Benchmark newsItems getter performance                                                                                                    00:05 +7 -1: Some tests failed.
