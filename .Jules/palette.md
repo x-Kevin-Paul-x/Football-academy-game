@@ -16,3 +16,11 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Visual Affordance for Costs
+**Learning:** Disabling a button without explaining "why" creates friction. Using specific colors (like `colorScheme.error`) for cost indicators when unaffordable provides faster scanning than just a disabled state.
+**Action:** Change text color to `Theme.of(context).colorScheme.error` when a user cannot afford an action, in addition to disabling the button.
+
+## 2024-05-26 - Provider in Widget Tests
+**Learning:** `WidgetTester` does not automatically provide `Provider` context. Testing widgets that consume a provider requires wrapping the test widget in `ChangeNotifierProvider`.
+**Action:** Ensure `MyApp` or the widget under test is wrapped in the appropriate Provider setup within `testWidgets`, and mock any underlying dependencies like `SharedPreferences`.
