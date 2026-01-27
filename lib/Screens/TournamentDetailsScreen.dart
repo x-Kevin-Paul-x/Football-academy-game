@@ -356,96 +356,19 @@ class TournamentDetailsScreen extends StatelessWidget {
 
 
   // Calculate and build standings table
-  // Calculate and build standings table
   Widget _buildStandingsTable(BuildContext context, Tournament tournament, List<Match> matches, GameStateManager gameState) { // Accept context, tournament, matches, gameState
-    // Calculate points: 3 for win, 1 for draw, 0 for loss
-    Map<String, int> points = {};
-    Map<String, int> goalsFor = {};
-    Map<String, int> goalsAgainst = {};
-    Map<String, int> matchesPlayed = {};
-    Map<String, int> wins = {}; // Declare Wins map
-    Map<String, int> draws = {}; // Declare Draws map
-    Map<String, int> losses = {}; // Declare Losses map
+    // Use pre-calculated league standings from the tournament object
+    List<LeagueStanding> sortedStandings = tournament.leagueStandings.values.toList();
 
-    // Initialize maps for all unique participants to avoid issues with potential duplicates in the source list
-    Set<String> uniqueParticipants = tournament.teamIds.toSet(); // Use teamIds, Ensure uniqueness
-    for (var teamId in uniqueParticipants) { // Iterate over unique IDs
-      points[teamId] = 0;
-      goalsFor[teamId] = 0;
-      goalsAgainst[teamId] = 0;
-      matchesPlayed[teamId] = 0;
-      wins[teamId] = 0; // Initialize Wins
-      draws[teamId] = 0; // Initialize Draws
-      losses[teamId] = 0; // Initialize Losses
-    }
-
-    // Tally results from matches
-    for (var match in matches) {
-      if (match.result == null) continue; // Skip unplayed/unsimulated matches
-
-      // Increment matches played only if team exists in the map (safety check)
-      if (matchesPlayed.containsKey(match.homeTeamId)) {
-        matchesPlayed[match.homeTeamId] = matchesPlayed[match.homeTeamId]! + 1;
-      }
-      if (matchesPlayed.containsKey(match.awayTeamId)) {
-        matchesPlayed[match.awayTeamId] = matchesPlayed[match.awayTeamId]! + 1;
-      }
-
-      // Add goals (safety check)
-      if (goalsFor.containsKey(match.homeTeamId)) {
-        goalsFor[match.homeTeamId] = goalsFor[match.homeTeamId]! + match.homeScore;
-        goalsAgainst[match.homeTeamId] = goalsAgainst[match.homeTeamId]! + match.awayScore;
-      }
-      if (goalsFor.containsKey(match.awayTeamId)) {
-        goalsFor[match.awayTeamId] = goalsFor[match.awayTeamId]! + match.awayScore;
-        goalsAgainst[match.awayTeamId] = goalsAgainst[match.awayTeamId]! + match.homeScore;
-      }
-
-      // Award points and W/D/L (safety check)
-      switch (match.result!) {
-        case MatchResult.homeWin:
-          if (points.containsKey(match.homeTeamId)) {
-            points[match.homeTeamId] = points[match.homeTeamId]! + 3;
-            wins[match.homeTeamId] = wins[match.homeTeamId]! + 1; // Increment Home Wins
-          }
-          if (losses.containsKey(match.awayTeamId)) {
-            losses[match.awayTeamId] = losses[match.awayTeamId]! + 1; // Increment Away Losses
-          }
-          break;
-        case MatchResult.awayWin:
-           if (points.containsKey(match.awayTeamId)) {
-            points[match.awayTeamId] = points[match.awayTeamId]! + 3;
-            wins[match.awayTeamId] = wins[match.awayTeamId]! + 1; // Increment Away Wins
-           }
-           if (losses.containsKey(match.homeTeamId)) {
-             losses[match.homeTeamId] = losses[match.homeTeamId]! + 1; // Increment Home Losses
-           }
-          break;
-        case MatchResult.draw:
-          if (points.containsKey(match.homeTeamId)) {
-            points[match.homeTeamId] = points[match.homeTeamId]! + 1;
-            draws[match.homeTeamId] = draws[match.homeTeamId]! + 1; // Increment Home Draws
-          }
-          if (points.containsKey(match.awayTeamId)) { // Check points map, but increment draws map
-            points[match.awayTeamId] = points[match.awayTeamId]! + 1;
-            draws[match.awayTeamId] = draws[match.awayTeamId]! + 1; // Increment Away Draws
-          }
-          break;
-      }
-    }
-
-    // Sort unique teams by points (descending), then goal difference, then goals for
-    List<String> sortedTeamIds = uniqueParticipants.toList(); // Sort the unique list
-    sortedTeamIds.sort((a, b) {
-      int pointsComparison = (points[b] ?? 0).compareTo(points[a] ?? 0);
+    // Sort standings: Points (desc), Goal Difference (desc), Goals For (desc)
+    sortedStandings.sort((a, b) {
+      int pointsComparison = b.points.compareTo(a.points);
       if (pointsComparison != 0) return pointsComparison;
 
-      int gdA = (goalsFor[a] ?? 0) - (goalsAgainst[a] ?? 0);
-      int gdB = (goalsFor[b] ?? 0) - (goalsAgainst[b] ?? 0);
-      int gdComparison = gdB.compareTo(gdA);
+      int gdComparison = b.goalDifference.compareTo(a.goalDifference);
       if (gdComparison != 0) return gdComparison;
 
-      return (goalsFor[b] ?? 0).compareTo(goalsFor[a] ?? 0);
+      return b.goalsFor.compareTo(a.goalsFor);
     });
 
     // Build the table widget
@@ -463,19 +386,11 @@ class TournamentDetailsScreen extends StatelessWidget {
         DataColumn(label: Text('GD'), numeric: true),
         DataColumn(label: Text('Pts'), numeric: true),
       ],
-      rows: sortedTeamIds.asMap().entries.map((entry) {
+      rows: sortedStandings.asMap().entries.map((entry) {
         int index = entry.key;
-        String teamId = entry.value;
-        String teamName = _getTeamName(context, teamId, gameState); // Pass gameState
-        int mp = matchesPlayed[teamId] ?? 0;
-        int w = wins[teamId] ?? 0; // Get Wins
-        int d = draws[teamId] ?? 0; // Get Draws
-        int l = losses[teamId] ?? 0; // Get Losses
-        int gf = goalsFor[teamId] ?? 0;
-        int ga = goalsAgainst[teamId] ?? 0;
-        int gd = gf - ga;
-        int pts = points[teamId] ?? 0;
-        bool isPlayer = teamId == GameStateManager.playerAcademyId;
+        LeagueStanding standing = entry.value;
+        String teamName = _getTeamName(context, standing.teamId, gameState); // Pass gameState
+        bool isPlayer = standing.teamId == GameStateManager.playerAcademyId;
 
         return DataRow(
           color: MaterialStateProperty.resolveWith<Color?>(
@@ -486,14 +401,14 @@ class TournamentDetailsScreen extends StatelessWidget {
           cells: [
             DataCell(Text('${index + 1}')), // Pos
             DataCell(Text(teamName, overflow: TextOverflow.ellipsis)), // Team
-            DataCell(Text('$mp')), // MP
-            DataCell(Text('$w')), // W Cell
-            DataCell(Text('$d')), // D Cell
-            DataCell(Text('$l')), // L Cell
-            DataCell(Text('$gf')), // GF
-            DataCell(Text('$ga')), // GA
-            DataCell(Text('$gd')), // GD
-            DataCell(Text('$pts', style: const TextStyle(fontWeight: FontWeight.bold))), // Pts
+            DataCell(Text('${standing.played}')), // MP
+            DataCell(Text('${standing.wins}')), // W Cell
+            DataCell(Text('${standing.draws}')), // D Cell
+            DataCell(Text('${standing.losses}')), // L Cell
+            DataCell(Text('${standing.goalsFor}')), // GF
+            DataCell(Text('${standing.goalsAgainst}')), // GA
+            DataCell(Text('${standing.goalDifference}')), // GD
+            DataCell(Text('${standing.points}', style: const TextStyle(fontWeight: FontWeight.bold))), // Pts
           ],
         );
       }).toList(),
