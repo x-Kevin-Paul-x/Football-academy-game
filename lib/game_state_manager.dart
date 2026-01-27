@@ -2674,6 +2674,57 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
+  @visibleForTesting
+  Map<String, dynamic> validateLoadedState(Map<String, dynamic> jsonMap) {
+    Map<String, dynamic> validated = Map.from(jsonMap);
+
+    // 1. Validate Academy Name
+    if (validated.containsKey('academyName') && validated['academyName'] is String) {
+      String name = validated['academyName'];
+      if (name.length > 25) {
+        validated['academyName'] = name.substring(0, 25);
+        print("Validation: Truncated academy name to 25 chars.");
+      }
+    }
+
+    // 2. Validate Balance
+    if (validated.containsKey('balance')) {
+      dynamic balanceVal = validated['balance'];
+      if (balanceVal is num) {
+        double balance = balanceVal.toDouble();
+        if (balance.isNaN || balance.isInfinite) {
+          validated['balance'] = 50000.0;
+          print("Validation: Reset invalid balance (NaN/Infinity) to 50000.0.");
+        }
+      } else {
+        // Invalid type (e.g. string or null), reset to default
+        validated['balance'] = 50000.0;
+      }
+    } else {
+      validated['balance'] = 50000.0;
+    }
+
+    // 3. Validate Academy Players List
+    if (validated.containsKey('academyPlayers') && validated['academyPlayers'] is List) {
+      List players = validated['academyPlayers'];
+      if (players.length > 200) {
+        validated['academyPlayers'] = players.sublist(0, 200);
+        print("Validation: Truncated academyPlayers list to 200.");
+      }
+    }
+
+    // 4. Validate News Items List
+    if (validated.containsKey('newsItems') && validated['newsItems'] is List) {
+      List news = validated['newsItems'];
+      if (news.length > 500) {
+        validated['newsItems'] = news.sublist(0, 500);
+        print("Validation: Truncated newsItems list to 500.");
+      }
+    }
+
+    return validated;
+  }
+
   Future<bool> loadGame() async {
     try {
       print("--- LOADING GAME STATE ---");
@@ -2731,7 +2782,9 @@ class GameStateManager with ChangeNotifier {
           jsonMap['aiClubs'] = []; // Add empty list to allow parsing
        }
 
-      final loadedState = SerializableGameState.fromJson(jsonMap);
+      // Validate and sanitize loaded data
+      final validatedMap = validateLoadedState(jsonMap);
+      final loadedState = SerializableGameState.fromJson(validatedMap);
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
