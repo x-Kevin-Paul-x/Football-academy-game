@@ -2674,6 +2674,22 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
+  @visibleForTesting
+  void validateLoadedState(SerializableGameState state) {
+    if (!state.balance.isFinite) {
+      throw FormatException("Integrity Error: Balance is invalid (NaN or Infinity).");
+    }
+    if (state.academyName.length > 25) {
+      throw FormatException("Integrity Error: Academy Name is too long (>25 chars).");
+    }
+    if (state.academyPlayers.length > 200) {
+      throw FormatException("Integrity Error: Player list is excessively large (>200).");
+    }
+    if (state.newsItems.length > 500) {
+      throw FormatException("Integrity Error: News list is excessively large (>500).");
+    }
+  }
+
   Future<bool> loadGame() async {
     try {
       print("--- LOADING GAME STATE ---");
@@ -2733,6 +2749,9 @@ class GameStateManager with ChangeNotifier {
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
 
+      // Validate loaded state integrity
+      validateLoadedState(loadedState);
+
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
       _financeService.initialize(
@@ -2785,8 +2804,12 @@ class GameStateManager with ChangeNotifier {
       return true;
 
     } catch (e, stacktrace) { // Catch stacktrace too
-      print("--- ERROR LOADING GAME STATE: $e ---");
-      print("--- Stacktrace: $stacktrace ---"); // Print stacktrace for debugging
+      if (e is FormatException) {
+        print("--- SAVE FILE INTEGRITY ERROR: ${e.message} ---");
+      } else {
+        print("--- ERROR LOADING GAME STATE: $e ---");
+        print("--- Stacktrace: $stacktrace ---"); // Print stacktrace for debugging
+      }
        if (kIsWeb && e is UnsupportedError) { print("--- NOTE: File system operations are not supported on web. Using SharedPreferences. ---"); }
       // Attempt to reset if loading fails catastrophically?
       // resetGame(); // Maybe too drastic?
