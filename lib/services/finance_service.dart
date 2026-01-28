@@ -94,7 +94,8 @@ class FinanceService {
       case Difficulty.Easy:
         return BankruptcyStatus.Safe; // No consequences
 
-      case Difficulty.Normal: // Was Medium in user prompt, mapping Normal to Medium logic
+      case Difficulty
+            .Normal: // Was Medium in user prompt, mapping Normal to Medium logic
         if (_consecutiveNegativeWeeks >= _maxNegativeWeeksMedium) {
           // Game Over after grace period.
           return BankruptcyStatus.GameOver;
@@ -114,21 +115,24 @@ class FinanceService {
   // Transaction Methods
   void addIncome(double amount) {
     if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use deductExpense for losses.');
+      throw ArgumentError(
+          'Amount must be non-negative. Use deductExpense for losses.');
     }
     _balance += amount;
   }
 
   void deductExpense(double amount) {
     if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use addIncome for refunds/gains.');
+      throw ArgumentError(
+          'Amount must be non-negative. Use addIncome for refunds/gains.');
     }
     _balance -= amount;
   }
 
   bool canAfford(double amount) {
     if (amount < 0) {
-      throw ArgumentError('Amount to check affordability for must be non-negative.');
+      throw ArgumentError(
+          'Amount to check affordability for must be non-negative.');
     }
     return _balance >= amount;
   }

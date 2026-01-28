@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Visualizing Numerical Stats
+**Learning:** Raw numbers for stats like "Stamina: 15/20" or "Fatigue: 40%" require cognitive load to interpret quickly. Visual bars provide immediate "at a glance" understanding of status (good/bad).
+**Action:** Replace key numerical status attributes with `LinearProgressIndicator`s, using consistent color coding (Green=Good, Red=Bad) and ensuring accessible labels via `Semantics`.

@@ -16,7 +16,8 @@ class TournamentHistoryScreen extends StatelessWidget {
       ),
       body: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
-          final List<Tournament> completedTournaments = gameStateManager.completedTournaments;
+          final List<Tournament> completedTournaments =
+              gameStateManager.completedTournaments;
 
           if (completedTournaments.isEmpty) {
             return const Center(
@@ -32,39 +33,44 @@ class TournamentHistoryScreen extends StatelessWidget {
             itemCount: completedTournaments.length,
             itemBuilder: (context, index) {
               // Display tournaments in reverse chronological order (newest first)
-              final tournament = completedTournaments[completedTournaments.length - 1 - index];
-              final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
+              final tournament =
+                  completedTournaments[completedTournaments.length - 1 - index];
+              final currencyFormat =
+                  NumberFormat.currency(locale: 'en_US', symbol: '\$');
 
               String winnerText = 'Winner: Unknown';
               if (tournament.winnerId != null) {
                 if (tournament.winnerId == GameStateManager.playerAcademyId) {
                   winnerText = 'Winner: ${gameStateManager.academyName} (You!)';
                 } else {
-                  winnerText = 'Winner: ${gameStateManager.rivalAcademyMap[tournament.winnerId]?.name ?? tournament.winnerId}';
+                  winnerText =
+                      'Winner: ${gameStateManager.rivalAcademyMap[tournament.winnerId]?.name ?? tournament.winnerId}';
                 }
               } else if (tournament.status == TournamentStatus.Cancelled) {
-                 winnerText = 'Status: Cancelled';
+                winnerText = 'Status: Cancelled';
               }
-
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
                   leading: Icon(_getTournamentIcon(tournament.type)),
-                  title: Text(tournament.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(tournament.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   // Display status, winner, and prize money
-                  subtitle: Text('${tournament.status == TournamentStatus.Cancelled ? 'Cancelled' : winnerText}\nPrize: ${currencyFormat.format(tournament.prizeMoneyBase)}'),
-                  isThreeLine: true, // Keep as true if winner text makes it long
+                  subtitle: Text(
+                      '${tournament.status == TournamentStatus.Cancelled ? 'Cancelled' : winnerText}\nPrize: ${currencyFormat.format(tournament.prizeMoneyBase)}'),
+                  isThreeLine:
+                      true, // Keep as true if winner text makes it long
                   onTap: () {
-                     // Navigate using the tournament ID
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(
-                         builder: (context) => TournamentDetailsScreen(
-                           tournamentId: tournament.id, // Pass only the ID
-                         ),
-                       ),
-                     );
+                    // Navigate using the tournament ID
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TournamentDetailsScreen(
+                          tournamentId: tournament.id, // Pass only the ID
+                        ),
+                      ),
+                    );
                   },
                 ),
               );

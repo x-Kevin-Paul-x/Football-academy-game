@@ -33,11 +33,18 @@ class FinanceScreen extends StatelessWidget {
           final int weeklyIncome = gameStateManager.weeklyIncome;
           final List<Staff> hiredStaff = gameStateManager.hiredStaff;
           final List<Player> academyPlayers = gameStateManager.academyPlayers;
-          final int totalWeeklyWages = gameStateManager.totalWeeklyWages; // Use pre-calculated value
+          final int totalWeeklyWages =
+              gameStateManager.totalWeeklyWages; // Use pre-calculated value
 
           // Calculate derived values
-          final int totalStaffWages = hiredStaff.fold(0, (sum, staff) => sum + staff.weeklyWage); // Still useful for breakdown
-          final int totalPlayerWages = academyPlayers.fold(0, (sum, player) => sum + player.weeklyWage); // Still useful for breakdown
+          final int totalStaffWages = hiredStaff.fold(
+              0,
+              (sum, staff) =>
+                  sum + staff.weeklyWage); // Still useful for breakdown
+          final int totalPlayerWages = academyPlayers.fold(
+              0,
+              (sum, player) =>
+                  sum + player.weeklyWage); // Still useful for breakdown
           final int weeklyNet = weeklyIncome - totalWeeklyWages;
 
           // Return the ListView within the builder
@@ -45,15 +52,20 @@ class FinanceScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             children: [
               // Pass data from gameStateManager/calculations
-              _buildFinanceSummaryCard(context, currencyFormat, balance, weeklyIncome, weeklyNet, totalWeeklyWages),
+              _buildFinanceSummaryCard(context, currencyFormat, balance,
+                  weeklyIncome, weeklyNet, totalWeeklyWages),
               const SizedBox(height: 20),
-              _buildWageBreakdownCard(context, currencyFormat, totalStaffWages, totalPlayerWages, totalWeeklyWages),
+              _buildWageBreakdownCard(context, currencyFormat, totalStaffWages,
+                  totalPlayerWages, totalWeeklyWages),
               const SizedBox(height: 20),
-              _buildStaffWagesList(context, currencyFormat, hiredStaff), // Pass hiredStaff
+              _buildStaffWagesList(
+                  context, currencyFormat, hiredStaff), // Pass hiredStaff
               const SizedBox(height: 20),
-              _buildPlayerWagesList(context, currencyFormat, academyPlayers), // Pass academyPlayers
+              _buildPlayerWagesList(context, currencyFormat,
+                  academyPlayers), // Pass academyPlayers
               const SizedBox(height: 20),
-              _buildTransferOffersCard(context, currencyFormat, gameStateManager), // Add Transfer Offers section
+              _buildTransferOffersCard(context, currencyFormat,
+                  gameStateManager), // Add Transfer Offers section
             ],
           );
         },
@@ -62,7 +74,13 @@ class FinanceScreen extends StatelessWidget {
   }
 
   // Update signature to accept balance and weeklyIncome
-  Widget _buildFinanceSummaryCard(BuildContext context, NumberFormat currencyFormat, double balance, int weeklyIncome, int weeklyNet, int totalWeeklyWages) {
+  Widget _buildFinanceSummaryCard(
+      BuildContext context,
+      NumberFormat currencyFormat,
+      double balance,
+      int weeklyIncome,
+      int weeklyNet,
+      int totalWeeklyWages) {
     return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -73,7 +91,10 @@ class FinanceScreen extends StatelessWidget {
           children: [
             Text(
               'Financial Overview',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(height: 20, thickness: 1),
             _buildSummaryRow(
@@ -81,7 +102,8 @@ class FinanceScreen extends StatelessWidget {
               icon: Icons.account_balance_wallet,
               label: 'Current Balance:',
               value: currencyFormat.format(balance),
-              valueColor: balance >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+              valueColor:
+                  balance >= 0 ? Colors.green.shade700 : Colors.red.shade700,
             ),
             const SizedBox(height: 12),
             _buildSummaryRow(
@@ -105,7 +127,8 @@ class FinanceScreen extends StatelessWidget {
               icon: weeklyNet >= 0 ? Icons.trending_up : Icons.trending_down,
               label: 'Est. Weekly Net:',
               value: currencyFormat.format(weeklyNet),
-              valueColor: weeklyNet >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+              valueColor:
+                  weeklyNet >= 0 ? Colors.green.shade700 : Colors.red.shade700,
             ),
           ],
         ),
@@ -113,7 +136,11 @@ class FinanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryRow(BuildContext context, {required IconData icon, required String label, required String value, Color? valueColor}) {
+  Widget _buildSummaryRow(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required String value,
+      Color? valueColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -128,15 +155,21 @@ class FinanceScreen extends StatelessWidget {
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: valueColor ?? Theme.of(context).textTheme.bodyLarge?.color,
+                color:
+                    valueColor ?? Theme.of(context).textTheme.bodyLarge?.color,
               ),
         ),
       ],
     );
   }
 
-  Widget _buildWageBreakdownCard(BuildContext context, NumberFormat currencyFormat, int staffWages, int playerWages, int totalWages) {
-     return Card(
+  Widget _buildWageBreakdownCard(
+      BuildContext context,
+      NumberFormat currencyFormat,
+      int staffWages,
+      int playerWages,
+      int totalWages) {
+    return Card(
       elevation: 4.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
@@ -144,12 +177,15 @@ class FinanceScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
+            Text(
               'Weekly Wage Breakdown',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(height: 20, thickness: 1),
-             _buildSummaryRow(
+            _buildSummaryRow(
               context,
               icon: Icons.work_outline,
               label: 'Staff Wages:',
@@ -157,15 +193,15 @@ class FinanceScreen extends StatelessWidget {
               valueColor: Colors.orange.shade800,
             ),
             const SizedBox(height: 12),
-             _buildSummaryRow(
+            _buildSummaryRow(
               context,
               icon: Icons.person_outline,
               label: 'Player Wages:',
               value: currencyFormat.format(playerWages),
               valueColor: Colors.orange.shade800,
             ),
-             const SizedBox(height: 12),
-             _buildSummaryRow(
+            const SizedBox(height: 12),
+            _buildSummaryRow(
               context,
               icon: Icons.summarize_outlined,
               label: 'Total Wages:',
@@ -179,47 +215,61 @@ class FinanceScreen extends StatelessWidget {
   }
 
   // Update signature to accept hiredStaff list
-  Widget _buildStaffWagesList(BuildContext context, NumberFormat currencyFormat, List<Staff> hiredStaff) {
+  Widget _buildStaffWagesList(BuildContext context, NumberFormat currencyFormat,
+      List<Staff> hiredStaff) {
     return Card(
       elevation: 2.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: ExpansionTile(
-        title: Text('Hired Staff Wages (${hiredStaff.length})', style: Theme.of(context).textTheme.titleLarge),
+        title: Text('Hired Staff Wages (${hiredStaff.length})',
+            style: Theme.of(context).textTheme.titleLarge),
         leading: const Icon(Icons.work_history_outlined),
-        childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        childrenPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: hiredStaff.isEmpty
             ? [const ListTile(title: Text('No staff hired.'))]
-            : hiredStaff.map((staff) => ListTile( // Use the passed list
-                  title: Text(staff.name),
-                  subtitle: Text(staff.role.name),
-                  trailing: Text(currencyFormat.format(staff.weeklyWage)),
-                )).toList(),
+            : hiredStaff
+                .map((staff) => ListTile(
+                      // Use the passed list
+                      title: Text(staff.name),
+                      subtitle: Text(staff.role.name),
+                      trailing: Text(currencyFormat.format(staff.weeklyWage)),
+                    ))
+                .toList(),
       ),
     );
   }
 
-   // Update signature to accept academyPlayers list
-   Widget _buildPlayerWagesList(BuildContext context, NumberFormat currencyFormat, List<Player> academyPlayers) {
+  // Update signature to accept academyPlayers list
+  Widget _buildPlayerWagesList(BuildContext context,
+      NumberFormat currencyFormat, List<Player> academyPlayers) {
     return Card(
       elevation: 2.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: ExpansionTile(
-        title: Text('Academy Player Wages (${academyPlayers.length})', style: Theme.of(context).textTheme.titleLarge),
+        title: Text('Academy Player Wages (${academyPlayers.length})',
+            style: Theme.of(context).textTheme.titleLarge),
         leading: const Icon(Icons.sports_soccer),
-         childrenPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        childrenPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         children: academyPlayers.isEmpty
             ? [const ListTile(title: Text('No players signed to the academy.'))]
-            : academyPlayers.map((player) => ListTile( // Use the passed list
-                  title: Text(player.name),
-                  subtitle: Text('${player.positionString}, Age: ${player.age}'),
-                  trailing: Text(currencyFormat.format(player.weeklyWage)),
-                )).toList(),
+            : academyPlayers
+                .map((player) => ListTile(
+                      // Use the passed list
+                      title: Text(player.name),
+                      subtitle:
+                          Text('${player.positionString}, Age: ${player.age}'),
+                      trailing: Text(currencyFormat.format(player.weeklyWage)),
+                    ))
+                .toList(),
       ),
     );
   }
 
   // --- Transfer Offers Section ---
-  Widget _buildTransferOffersCard(BuildContext context, NumberFormat currencyFormat, GameStateManager gameStateManager) {
+  Widget _buildTransferOffersCard(BuildContext context,
+      NumberFormat currencyFormat, GameStateManager gameStateManager) {
     final offers = gameStateManager.transferOffers;
 
     return Card(
@@ -232,7 +282,10 @@ class FinanceScreen extends StatelessWidget {
           children: [
             Text(
               'Incoming Transfer Offers (${offers.length})',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Divider(height: 20, thickness: 1),
             if (offers.isEmpty)
@@ -243,19 +296,22 @@ class FinanceScreen extends StatelessWidget {
             else
               ListView.builder(
                 shrinkWrap: true, // Important inside a ListView
-                physics: const NeverScrollableScrollPhysics(), // Disable scrolling for the inner list
+                physics:
+                    const NeverScrollableScrollPhysics(), // Disable scrolling for the inner list
                 itemCount: offers.length,
                 itemBuilder: (context, index) {
                   final offer = offers[index];
                   return ListTile(
                     title: Text('Offer for ${offer['playerName']}'),
-                    subtitle: Text('From: ${offer['offeringClubName']}\nAmount: ${currencyFormat.format(offer['offerAmount'])}'),
+                    subtitle: Text(
+                        'From: ${offer['offeringClubName']}\nAmount: ${currencyFormat.format(offer['offerAmount'])}'),
                     isThreeLine: true,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.check_circle, color: Colors.green),
+                          icon: const Icon(Icons.check_circle,
+                              color: Colors.green),
                           tooltip: 'Accept Offer',
                           onPressed: () {
                             // Show confirmation dialog before accepting
@@ -264,21 +320,28 @@ class FinanceScreen extends StatelessWidget {
                               builder: (BuildContext dialogContext) {
                                 return AlertDialog(
                                   title: const Text('Confirm Transfer'),
-                                  content: Text('Are you sure you want to sell ${offer['playerName']} to ${offer['offeringClubName']} for ${currencyFormat.format(offer['offerAmount'])}?'),
+                                  content: Text(
+                                      'Are you sure you want to sell ${offer['playerName']} to ${offer['offeringClubName']} for ${currencyFormat.format(offer['offerAmount'])}?'),
                                   actions: <Widget>[
                                     TextButton(
                                       child: const Text('Cancel'),
                                       onPressed: () {
-                                        Navigator.of(dialogContext).pop(); // Close the dialog
+                                        Navigator.of(dialogContext)
+                                            .pop(); // Close the dialog
                                       },
                                     ),
                                     TextButton(
                                       child: const Text('Accept'),
                                       onPressed: () {
-                                        gameStateManager.acceptTransferOffer(offer);
-                                        Navigator.of(dialogContext).pop(); // Close the dialog
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Accepted offer for ${offer['playerName']}')),
+                                        gameStateManager
+                                            .acceptTransferOffer(offer);
+                                        Navigator.of(dialogContext)
+                                            .pop(); // Close the dialog
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'Accepted offer for ${offer['playerName']}')),
                                         );
                                       },
                                     ),
@@ -292,10 +355,12 @@ class FinanceScreen extends StatelessWidget {
                           icon: const Icon(Icons.cancel, color: Colors.red),
                           tooltip: 'Reject Offer',
                           onPressed: () {
-                             gameStateManager.rejectTransferOffer(offer);
-                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text('Rejected offer for ${offer['playerName']}')),
-                             );
+                            gameStateManager.rejectTransferOffer(offer);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Rejected offer for ${offer['playerName']}')),
+                            );
                           },
                         ),
                       ],

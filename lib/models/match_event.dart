@@ -6,16 +6,16 @@ enum MatchEventType {
   Goal,
   Assist,
   YellowCard, // Future use
-  RedCard,    // Future use
+  RedCard, // Future use
   Substitution, // Future use
   PenaltyShootout, // Added for shootout events
-  Info,       // General info (e.g., forfeit)
+  Info, // General info (e.g., forfeit)
 }
 
 @JsonSerializable()
 class MatchEvent {
   final String playerId; // ID of the player involved (can be empty for Info)
-  final String teamId;   // ID of the team involved (can be empty for Info)
+  final String teamId; // ID of the team involved (can be empty for Info)
   final MatchEventType type;
   final int minute;
   final String description;
@@ -30,6 +30,7 @@ class MatchEvent {
     this.assistedByPlayerId, // Added to constructor
   });
 
-  factory MatchEvent.fromJson(Map<String, dynamic> json) => _$MatchEventFromJson(json);
+  factory MatchEvent.fromJson(Map<String, dynamic> json) =>
+      _$MatchEventFromJson(json);
   Map<String, dynamic> toJson() => _$MatchEventToJson(this);
 }

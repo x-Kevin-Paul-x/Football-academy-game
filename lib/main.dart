@@ -30,13 +30,15 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Football Academy Manager', // Updated title
-          theme: ThemeData( // Light Theme
+          theme: ThemeData(
+            // Light Theme
             brightness: Brightness.light,
             primarySwatch: Colors.deepPurple,
             useMaterial3: true,
             // Add other light theme specific properties
           ),
-          darkTheme: ThemeData( // Dark Theme
+          darkTheme: ThemeData(
+            // Dark Theme
             brightness: Brightness.dark,
             primarySwatch: Colors.deepPurple,
             scaffoldBackgroundColor: Colors.grey[900],

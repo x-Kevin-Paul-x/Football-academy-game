@@ -62,11 +62,11 @@ class Match {
     List<String>? homeBench,
     List<String>? awayBench,
     this.viewership = 0,
-  }) : eventLog = eventLog ?? [],
-       homeLineup = homeLineup ?? [], // Initialize starters
-       awayLineup = awayLineup ?? [], // Initialize starters
-       homeBench = homeBench ?? [], // Initialize bench
-       awayBench = awayBench ?? []; // Initialize bench
+  })  : eventLog = eventLog ?? [],
+        homeLineup = homeLineup ?? [], // Initialize starters
+        awayLineup = awayLineup ?? [], // Initialize starters
+        homeBench = homeBench ?? [], // Initialize bench
+        awayBench = awayBench ?? []; // Initialize bench
 
   // --- NEW: Winner ID Getter ---
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -92,17 +92,17 @@ class Match {
   // Detailed Simulation Logic
   // TODO: Update this method to accept selected formations and benches
   // Added isKnockout parameter
-  void simulateDetailed(List<Player> homeStarters, List<Player> awayStarters, {
-    required bool isKnockout,
-    Staff? playerManager,
-    Formation? homeFormationUsed,
-    Formation? awayFormationUsed,
-    List<Player>? homeBenchPlayers,
-    List<Player>? awayBenchPlayers,
-    int homeTeamReputation = 50, // Default reputation
-    int awayTeamReputation = 50, // Default reputation
-    int tournamentReputation = 100 // Default tournament reputation
-  }) {
+  void simulateDetailed(List<Player> homeStarters, List<Player> awayStarters,
+      {required bool isKnockout,
+      Staff? playerManager,
+      Formation? homeFormationUsed,
+      Formation? awayFormationUsed,
+      List<Player>? homeBenchPlayers,
+      List<Player>? awayBenchPlayers,
+      int homeTeamReputation = 50, // Default reputation
+      int awayTeamReputation = 50, // Default reputation
+      int tournamentReputation = 100 // Default tournament reputation
+      }) {
     if (isSimulated) return; // Don't re-simulate
 
     // --- Store Lineups, Bench, and Formation ---
@@ -121,20 +121,36 @@ class Match {
     awayPenaltyScore = null;
 
     if (homeStarters.isEmpty || awayStarters.isEmpty) {
-      print("Warning: Cannot simulate match ${id} due to empty starting lineup(s).");
+      print(
+          "Warning: Cannot simulate match ${id} due to empty starting lineup(s).");
       // Assign forfeit?
       if (homeStarters.isEmpty && awayStarters.isNotEmpty) {
         awayScore = 3; // Away wins by forfeit
         result = MatchResult.awayWin;
-        eventLog.add(MatchEvent(playerId: '', teamId: awayTeamId, type: MatchEventType.Info, minute: 0, description: "Home team forfeited."));
+        eventLog.add(MatchEvent(
+            playerId: '',
+            teamId: awayTeamId,
+            type: MatchEventType.Info,
+            minute: 0,
+            description: "Home team forfeited."));
       } else if (awayStarters.isEmpty && homeStarters.isNotEmpty) {
         homeScore = 3; // Home wins by forfeit
         result = MatchResult.homeWin;
-         eventLog.add(MatchEvent(playerId: '', teamId: homeTeamId, type: MatchEventType.Info, minute: 0, description: "Away team forfeited."));
+        eventLog.add(MatchEvent(
+            playerId: '',
+            teamId: homeTeamId,
+            type: MatchEventType.Info,
+            minute: 0,
+            description: "Away team forfeited."));
       } else {
         // Both empty? Draw 0-0 or cancel? Let's call it a 0-0 draw.
         result = MatchResult.draw;
-         eventLog.add(MatchEvent(playerId: '', teamId: '', type: MatchEventType.Info, minute: 0, description: "Both teams forfeited. Match drawn 0-0."));
+        eventLog.add(MatchEvent(
+            playerId: '',
+            teamId: '',
+            type: MatchEventType.Info,
+            minute: 0,
+            description: "Both teams forfeited. Match drawn 0-0."));
       }
       isSimulated = true;
       return;
@@ -149,8 +165,14 @@ class Match {
 
     // 1. Calculate Effective Team Skills (considering fatigue, manager, formation bonus?)
     // TODO: Potentially add formation bonus/penalty based on player fit
-    int homeSkill = _calculateEffectiveTeamSkill(homeStarters, playerManager: homeTeamId == GameStateManager.playerAcademyId ? playerManager : null);
-    int awaySkill = _calculateEffectiveTeamSkill(awayStarters, playerManager: awayTeamId == GameStateManager.playerAcademyId ? playerManager : null);
+    int homeSkill = _calculateEffectiveTeamSkill(homeStarters,
+        playerManager: homeTeamId == GameStateManager.playerAcademyId
+            ? playerManager
+            : null);
+    int awaySkill = _calculateEffectiveTeamSkill(awayStarters,
+        playerManager: awayTeamId == GameStateManager.playerAcademyId
+            ? playerManager
+            : null);
 
     // 2. Determine Base Goal Expectancy
     double skillDiff = (homeSkill - awaySkill).toDouble();
@@ -177,14 +199,23 @@ class Match {
     // --- 6. Knockout Draw Resolution ---
     String? shootoutWinnerId;
     if (isKnockout && homeScore == awayScore) {
-      print("Knockout match ${id} ended in a draw ($homeScore-$awayScore). Proceeding to penalty shootout...");
+      print(
+          "Knockout match ${id} ended in a draw ($homeScore-$awayScore). Proceeding to penalty shootout...");
       // Simulate shootout (using final players on pitch if subs implemented, else starters)
-      shootoutWinnerId = _simulatePenaltyShootout(homeStarters, awayStarters, random);
+      shootoutWinnerId =
+          _simulatePenaltyShootout(homeStarters, awayStarters, random);
 
       String winnerName = shootoutWinnerId == homeTeamId ? "Home" : "Away";
-      String eventDescription = "$winnerName team wins penalty shootout ($homePenaltyScore - $awayPenaltyScore).";
-      eventLog.add(MatchEvent(playerId: '', teamId: shootoutWinnerId, type: MatchEventType.Info, minute: 91, description: eventDescription));
-      print(" -> Penalty shootout completed. Winner: $shootoutWinnerId ($homePenaltyScore - $awayPenaltyScore)");
+      String eventDescription =
+          "$winnerName team wins penalty shootout ($homePenaltyScore - $awayPenaltyScore).";
+      eventLog.add(MatchEvent(
+          playerId: '',
+          teamId: shootoutWinnerId,
+          type: MatchEventType.Info,
+          minute: 91,
+          description: eventDescription));
+      print(
+          " -> Penalty shootout completed. Winner: $shootoutWinnerId ($homePenaltyScore - $awayPenaltyScore)");
     }
     // --- End Knockout Draw Resolution ---
 
@@ -196,7 +227,9 @@ class Match {
     } else {
       // Draw occurred
       if (isKnockout && shootoutWinnerId != null) {
-        result = (shootoutWinnerId == homeTeamId) ? MatchResult.homeWin : MatchResult.awayWin;
+        result = (shootoutWinnerId == homeTeamId)
+            ? MatchResult.homeWin
+            : MatchResult.awayWin;
       } else {
         result = MatchResult.draw;
       }
@@ -205,36 +238,67 @@ class Match {
     // 8. Calculate Viewership
     // Base viewership + bonus from team reputations + bonus from tournament reputation
     double baseViewership = 20.0; // Minimum base viewers
-    double homeRepBonus = homeTeamReputation * 0.5; // 0.5 viewers per home rep point
-    double awayRepBonus = awayTeamReputation * 0.3; // 0.3 viewers per away rep point (less impact than home)
-    double tournamentRepBonus = tournamentReputation * 0.2; // 0.2 viewers per tournament rep point
+    double homeRepBonus =
+        homeTeamReputation * 0.5; // 0.5 viewers per home rep point
+    double awayRepBonus = awayTeamReputation *
+        0.3; // 0.3 viewers per away rep point (less impact than home)
+    double tournamentRepBonus =
+        tournamentReputation * 0.2; // 0.2 viewers per tournament rep point
 
     // Rivalry bonus (if teams are close in reputation, or a derby - simplified for now)
     double rivalryBonus = 0.0; // Initialize with a double
-    if ((homeTeamReputation - awayTeamReputation).abs() < 50) { // Closer reputation = more interest
-        rivalryBonus = (20 + random.nextInt(31)).toDouble(); // 20-50 extra viewers, converted to double
+    if ((homeTeamReputation - awayTeamReputation).abs() < 50) {
+      // Closer reputation = more interest
+      rivalryBonus = (20 + random.nextInt(31))
+          .toDouble(); // 20-50 extra viewers, converted to double
     }
 
     // Star player bonus (simplified - sum of top N players' reputation or skill from both teams)
     // For now, let's use average skill of starters as a proxy
-    double homeStarPower = homeStarters.isNotEmpty ? homeStarters.map((p) => p.currentSkill).reduce((a, b) => a + b).toDouble() / homeStarters.length : 0.0;
-    double awayStarPower = awayStarters.isNotEmpty ? awayStarters.map((p) => p.currentSkill).reduce((a, b) => a + b).toDouble() / awayStarters.length : 0.0;
-    double starPlayerBonus = ((homeStarPower + awayStarPower) / 2.0) * 0.2; // 0.2 viewers per average skill point
+    double homeStarPower = homeStarters.isNotEmpty
+        ? homeStarters
+                .map((p) => p.currentSkill)
+                .reduce((a, b) => a + b)
+                .toDouble() /
+            homeStarters.length
+        : 0.0;
+    double awayStarPower = awayStarters.isNotEmpty
+        ? awayStarters
+                .map((p) => p.currentSkill)
+                .reduce((a, b) => a + b)
+                .toDouble() /
+            awayStarters.length
+        : 0.0;
+    double starPlayerBonus = ((homeStarPower + awayStarPower) / 2.0) *
+        0.2; // 0.2 viewers per average skill point
 
     // Knockout stage multiplier
-    double knockoutMultiplier = isKnockout ? 1.25 : 1.0; // 25% more viewers for knockout matches
+    double knockoutMultiplier =
+        isKnockout ? 1.25 : 1.0; // 25% more viewers for knockout matches
 
-    this.viewership = ( (baseViewership + homeRepBonus + awayRepBonus + tournamentRepBonus + rivalryBonus + starPlayerBonus) * knockoutMultiplier ).round();
-    this.viewership = this.viewership.clamp(10, 10000); // Clamp viewership (e.g., min 10, max 10k for now)
+    this.viewership = ((baseViewership +
+                homeRepBonus +
+                awayRepBonus +
+                tournamentRepBonus +
+                rivalryBonus +
+                starPlayerBonus) *
+            knockoutMultiplier)
+        .round();
+    this.viewership = this
+        .viewership
+        .clamp(10, 10000); // Clamp viewership (e.g., min 10, max 10k for now)
     // Add some randomness
-    this.viewership += random.nextInt((this.viewership * 0.2).round() + 1) - (this.viewership * 0.1).round(); // +/- 10% randomness
-    this.viewership = max(10, this.viewership); // Ensure it doesn't go below 10 after randomness
+    this.viewership += random.nextInt((this.viewership * 0.2).round() + 1) -
+        (this.viewership * 0.1).round(); // +/- 10% randomness
+    this.viewership = max(
+        10, this.viewership); // Ensure it doesn't go below 10 after randomness
 
     isSimulated = true;
   }
 
   // --- NEW: Penalty Shootout Simulation ---
-  String _simulatePenaltyShootout(List<Player> homePlayersOnPitch, List<Player> awayPlayersOnPitch, Random random) {
+  String _simulatePenaltyShootout(List<Player> homePlayersOnPitch,
+      List<Player> awayPlayersOnPitch, Random random) {
     homePenaltyScore = 0;
     awayPenaltyScore = 0;
     int round = 1;
@@ -252,49 +316,75 @@ class Match {
 
       if (homeTaken < homeTakers.length) {
         Player taker = homeTakers[homeTaken];
-        double chance = (0.7 + (taker.currentSkill / 400.0) - (taker.fatigue / 500.0)).clamp(0.5, 0.95);
+        double chance =
+            (0.7 + (taker.currentSkill / 400.0) - (taker.fatigue / 500.0))
+                .clamp(0.5, 0.95);
         homeScores = random.nextDouble() < chance;
         if (homeScores) homePenaltyScore = (homePenaltyScore ?? 0) + 1;
-        eventLog.add(MatchEvent(playerId: taker.id, teamId: homeTeamId, type: MatchEventType.PenaltyShootout, minute: 90 + round, description: "Penalty ${homeScores ? 'scored' : 'missed'} by ${taker.name} ($homePenaltyScore-$awayPenaltyScore)"));
+        eventLog.add(MatchEvent(
+            playerId: taker.id,
+            teamId: homeTeamId,
+            type: MatchEventType.PenaltyShootout,
+            minute: 90 + round,
+            description:
+                "Penalty ${homeScores ? 'scored' : 'missed'} by ${taker.name} ($homePenaltyScore-$awayPenaltyScore)"));
         homeTaken++;
       } else if (round > 5) {
-          print("Warning: Ran out of home penalty takers in shootout for match $id");
+        print(
+            "Warning: Ran out of home penalty takers in shootout for match $id");
       }
 
       if (round >= 3) {
-         int homeRemaining = (round <= 5 ? 5 : round) - homeTaken;
-         int awayRemaining = (round <= 5 ? 5 : round) - awayTaken;
-         if ((homePenaltyScore ?? 0) > (awayPenaltyScore ?? 0) + awayRemaining) return homeTeamId;
-         if ((awayPenaltyScore ?? 0) > (homePenaltyScore ?? 0) + homeRemaining) return awayTeamId;
+        int homeRemaining = (round <= 5 ? 5 : round) - homeTaken;
+        int awayRemaining = (round <= 5 ? 5 : round) - awayTaken;
+        if ((homePenaltyScore ?? 0) > (awayPenaltyScore ?? 0) + awayRemaining)
+          return homeTeamId;
+        if ((awayPenaltyScore ?? 0) > (homePenaltyScore ?? 0) + homeRemaining)
+          return awayTeamId;
       }
 
       if (awayTaken < awayTakers.length) {
         Player taker = awayTakers[awayTaken];
-        double chance = (0.7 + (taker.currentSkill / 400.0) - (taker.fatigue / 500.0)).clamp(0.5, 0.95);
+        double chance =
+            (0.7 + (taker.currentSkill / 400.0) - (taker.fatigue / 500.0))
+                .clamp(0.5, 0.95);
         awayScores = random.nextDouble() < chance;
         if (awayScores) awayPenaltyScore = (awayPenaltyScore ?? 0) + 1;
-        eventLog.add(MatchEvent(playerId: taker.id, teamId: awayTeamId, type: MatchEventType.PenaltyShootout, minute: 90 + round, description: "Penalty ${awayScores ? 'scored' : 'missed'} by ${taker.name} ($homePenaltyScore-$awayPenaltyScore)"));
+        eventLog.add(MatchEvent(
+            playerId: taker.id,
+            teamId: awayTeamId,
+            type: MatchEventType.PenaltyShootout,
+            minute: 90 + round,
+            description:
+                "Penalty ${awayScores ? 'scored' : 'missed'} by ${taker.name} ($homePenaltyScore-$awayPenaltyScore)"));
         awayTaken++;
       } else if (round > 5) {
-          print("Warning: Ran out of away penalty takers in shootout for match $id");
+        print(
+            "Warning: Ran out of away penalty takers in shootout for match $id");
       }
 
       if (round >= 5) {
-        if (homeTaken == awayTaken && (homePenaltyScore ?? 0) != (awayPenaltyScore ?? 0)) {
-          return (homePenaltyScore ?? 0) > (awayPenaltyScore ?? 0) ? homeTeamId : awayTeamId;
+        if (homeTaken == awayTaken &&
+            (homePenaltyScore ?? 0) != (awayPenaltyScore ?? 0)) {
+          return (homePenaltyScore ?? 0) > (awayPenaltyScore ?? 0)
+              ? homeTeamId
+              : awayTeamId;
         }
       }
       if (round >= 3) {
-         int homeRemaining = (round <= 5 ? 5 : round) - homeTaken;
-         int awayRemaining = (round <= 5 ? 5 : round) - awayTaken;
-         if ((awayPenaltyScore ?? 0) > (homePenaltyScore ?? 0) + homeRemaining) return awayTeamId;
+        int homeRemaining = (round <= 5 ? 5 : round) - homeTaken;
+        int awayRemaining = (round <= 5 ? 5 : round) - awayTaken;
+        if ((awayPenaltyScore ?? 0) > (homePenaltyScore ?? 0) + homeRemaining)
+          return awayTeamId;
       }
 
-      if (round > 5 && homeTaken >= homeTakers.length && awayTaken >= awayTakers.length) {
-          homeTaken = 0;
-          awayTaken = 0;
-          homeTakers.shuffle(random);
-          awayTakers.shuffle(random);
+      if (round > 5 &&
+          homeTaken >= homeTakers.length &&
+          awayTaken >= awayTakers.length) {
+        homeTaken = 0;
+        awayTaken = 0;
+        homeTakers.shuffle(random);
+        awayTakers.shuffle(random);
       }
 
       round++;
@@ -315,7 +405,8 @@ class Match {
   }
 
   // Helper to calculate effective skill considering fatigue
-  int _calculateEffectiveTeamSkill(List<Player> players, {Staff? playerManager}) {
+  int _calculateEffectiveTeamSkill(List<Player> players,
+      {Staff? playerManager}) {
     if (players.isEmpty) return 10;
     double totalEffectiveSkill = 0;
     for (var player in players) {
@@ -326,18 +417,20 @@ class Match {
     int averageSkill = (totalEffectiveSkill / players.length).round();
 
     if (playerManager != null) {
-        int managerBonus = (playerManager.skill / 15).floor();
-        averageSkill += managerBonus;
+      int managerBonus = (playerManager.skill / 15).floor();
+      averageSkill += managerBonus;
     }
 
     return averageSkill.clamp(1, 100);
   }
 
   // Helper to simulate individual goal events
-  void _simulateGoalEvents(int goals, List<Player> teamPlayers, String teamId, Random random) {
+  void _simulateGoalEvents(
+      int goals, List<Player> teamPlayers, String teamId, Random random) {
     if (goals <= 0 || teamPlayers.isEmpty) return;
 
-    double totalSkill = teamPlayers.fold(0, (sum, p) => sum + p.currentSkill.toDouble());
+    double totalSkill =
+        teamPlayers.fold(0, (sum, p) => sum + p.currentSkill.toDouble());
     if (totalSkill <= 0) totalSkill = 1;
 
     List<Player> potentialAssisters = List.from(teamPlayers);
@@ -348,12 +441,15 @@ class Match {
       Player scorer = _selectPlayerWeighted(teamPlayers, totalSkill, random);
 
       Player? assister;
-      List<Player> eligibleAssisters = potentialAssisters.where((p) => p.id != scorer.id).toList();
+      List<Player> eligibleAssisters =
+          potentialAssisters.where((p) => p.id != scorer.id).toList();
       if (eligibleAssisters.isNotEmpty) {
-        double assistTotalSkill = eligibleAssisters.fold(0, (sum, p) => sum + p.currentSkill.toDouble());
+        double assistTotalSkill = eligibleAssisters.fold(
+            0, (sum, p) => sum + p.currentSkill.toDouble());
         if (assistTotalSkill <= 0) assistTotalSkill = 1;
         if (random.nextDouble() < 0.7) {
-           assister = _selectPlayerWeighted(eligibleAssisters, assistTotalSkill, random);
+          assister = _selectPlayerWeighted(
+              eligibleAssisters, assistTotalSkill, random);
         }
       }
 
@@ -379,8 +475,10 @@ class Match {
   }
 
   // Helper to select player based on weighted skill
-  Player _selectPlayerWeighted(List<Player> players, double totalSkill, Random random) {
-    if (players.isEmpty) throw Exception("Cannot select player from empty list");
+  Player _selectPlayerWeighted(
+      List<Player> players, double totalSkill, Random random) {
+    if (players.isEmpty)
+      throw Exception("Cannot select player from empty list");
     if (totalSkill <= 0) totalSkill = players.length.toDouble();
 
     double roll = random.nextDouble() * totalSkill;

@@ -5,7 +5,8 @@ import 'package:football_academy_game/Screens/ScoutingScreen.dart';
 import 'package:football_academy_game/game_state_manager.dart';
 
 void main() {
-  testWidgets('ScoutingScreen renders empty state correctly', (WidgetTester tester) async {
+  testWidgets('ScoutingScreen renders empty state correctly',
+      (WidgetTester tester) async {
     // Create a real GameStateManager (default state has empty scoutedPlayers)
     final gameStateManager = GameStateManager();
 

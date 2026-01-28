@@ -10,7 +10,8 @@ class TournamentHistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$'); // Formatter
+    final currencyFormat =
+        NumberFormat.currency(locale: 'en_US', symbol: '\$'); // Formatter
 
     return Scaffold(
       appBar: AppBar(
@@ -18,7 +19,8 @@ class TournamentHistoryScreen extends StatelessWidget {
       ),
       body: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
-          final List<Tournament> completedTournaments = gameStateManager.completedTournaments;
+          final List<Tournament> completedTournaments =
+              gameStateManager.completedTournaments;
 
           if (completedTournaments.isEmpty) {
             return const Center(
@@ -34,30 +36,35 @@ class TournamentHistoryScreen extends StatelessWidget {
             itemCount: completedTournaments.length,
             itemBuilder: (context, index) {
               // Display tournaments in reverse chronological order (newest first)
-              final tournament = completedTournaments[completedTournaments.length - 1 - index];
+              final tournament =
+                  completedTournaments[completedTournaments.length - 1 - index];
               String winnerText = 'Winner: N/A';
               if (tournament.winnerId != null) {
-                 winnerText = 'Winner: ${gameStateManager.rivalAcademyMap[tournament.winnerId]?.name ?? (tournament.winnerId == GameStateManager.playerAcademyId ? gameStateManager.academyName : 'Unknown')}';
+                winnerText =
+                    'Winner: ${gameStateManager.rivalAcademyMap[tournament.winnerId]?.name ?? (tournament.winnerId == GameStateManager.playerAcademyId ? gameStateManager.academyName : 'Unknown')}';
               }
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
-                  leading: Icon(_getTournamentIcon(tournament.type)), // Reuse icon logic
-                  title: Text(tournament.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  leading: Icon(
+                      _getTournamentIcon(tournament.type)), // Reuse icon logic
+                  title: Text(tournament.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   // Use tournament.status.toString() and prizeMoneyBase
-                  subtitle: Text('Status: ${tournament.status.toString().split('.').last}\nPrize: ${currencyFormat.format(tournament.prizeMoneyBase)}\n$winnerText'), // Use prizeMoneyBase and add winner
+                  subtitle: Text(
+                      'Status: ${tournament.status.toString().split('.').last}\nPrize: ${currencyFormat.format(tournament.prizeMoneyBase)}\n$winnerText'), // Use prizeMoneyBase and add winner
                   isThreeLine: true,
                   onTap: () {
-                     // Navigate to TournamentDetailsScreen using only the ID
-                     Navigator.push(
-                       context,
-                       MaterialPageRoute(
-                         builder: (context) => TournamentDetailsScreen(
-                           tournamentId: tournament.id, // Pass only the ID
-                         ),
-                       ),
-                     );
+                    // Navigate to TournamentDetailsScreen using only the ID
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TournamentDetailsScreen(
+                          tournamentId: tournament.id, // Pass only the ID
+                        ),
+                      ),
+                    );
                   },
                 ),
               );
