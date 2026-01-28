@@ -22,9 +22,6 @@ class TransferOffersScreen extends StatelessWidget {
           final allOffers = gameStateManager.transferOffers;
           final offers = allOffers.where((offer) {
             // Ensure 'sellingClubId' exists and matches the player's academy ID
-            // Also, ensure it's an AI club offer for the player's academy,
-            // or if 'sellingClubId' is not present, assume it's an older offer type for the player.
-            // The primary check is sellingClubId.
             return offer['sellingClubId'] == GameStateManager.playerAcademyId;
           }).toList();
 
@@ -59,56 +56,81 @@ class TransferOffersScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         'Offer from: $offeringClub',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Offer Amount: ${currencyFormat.format(offerAmount)}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.green[700]),
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                       const Divider(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton.icon(
-                            icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent),
-                            label: const Text('Reject', style: TextStyle(color: Colors.redAccent)),
-                            onPressed: () {
-                              // Show confirmation dialog before rejecting
-                              _showConfirmationDialog(
-                                context: context,
-                                title: 'Reject Offer',
-                                content: 'Are you sure you want to reject the offer for $playerName from $offeringClub?',
-                                onConfirm: () {
-                                  gameStateManager.rejectTransferOffer(offer);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Rejected offer for $playerName.'), backgroundColor: Colors.orangeAccent),
-                                  );
-                                },
-                              );
-                            },
+                          Tooltip(
+                            message: 'Reject this transfer offer',
+                            child: TextButton.icon(
+                              icon: Icon(Icons.cancel_outlined,
+                                  color: Theme.of(context).colorScheme.error),
+                              label: Text('Reject',
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.error)),
+                              onPressed: () {
+                                // Capture messenger before async gap/callback
+                                final messenger = ScaffoldMessenger.of(context);
+                                // Show confirmation dialog before rejecting
+                                _showConfirmationDialog(
+                                  context: context,
+                                  title: 'Reject Offer',
+                                  content:
+                                      'Are you sure you want to reject the offer for $playerName from $offeringClub?',
+                                  onConfirm: () {
+                                    gameStateManager.rejectTransferOffer(offer);
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Rejected offer for $playerName.'),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                           ),
                           const SizedBox(width: 8),
-                          ElevatedButton.icon(
-                            icon: const Icon(Icons.check_circle_outline),
-                            label: const Text('Accept'),
-                            onPressed: () {
-                              // Show confirmation dialog before accepting
-                               _showConfirmationDialog(
-                                context: context,
-                                title: 'Accept Offer',
-                                content: 'Are you sure you want to accept the offer for $playerName from $offeringClub for ${currencyFormat.format(offerAmount)}?\nThe player will leave the academy immediately.',
-                                onConfirm: () {
-                                  gameStateManager.acceptTransferOffer(offer);
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Accepted offer for $playerName! Received ${currencyFormat.format(offerAmount)}.'), backgroundColor: Colors.lightGreen),
-                                  );
-                                },
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
+                          Tooltip(
+                            message: 'Accept this transfer offer',
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.check_circle_outline),
+                              label: const Text('Accept'),
+                              onPressed: () {
+                                // Capture messenger before async gap/callback
+                                final messenger = ScaffoldMessenger.of(context);
+                                // Show confirmation dialog before accepting
+                                _showConfirmationDialog(
+                                  context: context,
+                                  title: 'Accept Offer',
+                                  content:
+                                      'Are you sure you want to accept the offer for $playerName from $offeringClub for ${currencyFormat.format(offerAmount)}?\nThe player will leave the academy immediately.',
+                                  onConfirm: () {
+                                    gameStateManager.acceptTransferOffer(offer);
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'Accepted offer for $playerName! Received ${currencyFormat.format(offerAmount)}.'),
+                                        backgroundColor:
+                                            Theme.of(context).colorScheme.primary,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                              // Removed hardcoded style to follow theme
                             ),
                           ),
                         ],

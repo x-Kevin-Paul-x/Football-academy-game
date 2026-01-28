@@ -3231,4 +3231,10 @@ class GameStateManager with ChangeNotifier {
   // --- END Handle Merchandise Sales & Fan Updates ---
 
   // --- End Save/Load Logic ---
+
+  @visibleForTesting
+  void addTestTransferOffer(Map<String, dynamic> offer) {
+    _transferOffers.add(offer);
+    notifyListeners();
+  }
 }
