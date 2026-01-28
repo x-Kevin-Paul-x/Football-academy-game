@@ -14,11 +14,13 @@ class Player {
   String name;
   int age;
   final PlayerPosition naturalPosition; // Player's innate best position
-  PlayerPosition assignedPosition; // Position assigned by manager/coaching staff
+  PlayerPosition
+      assignedPosition; // Position assigned by manager/coaching staff
   // int currentSkill; // REMOVED - Will be a getter that derives from positionalAffinity and assignedPosition
   final int potentialSkill; // Overall potential cap for any position's affinity
   int weeklyWage;
-  bool isScouted; // Flag to differentiate between academy players and scouted prospects
+  bool
+      isScouted; // Flag to differentiate between academy players and scouted prospects
 
   // --- Positional Affinity ---
   // Stores the player's calculated skill (1-100) for each general position type.
@@ -26,9 +28,13 @@ class Player {
   late Map<PlayerPosition, int> positionalAffinity;
 
   // --- In-Match Stats (can be reset per match) ---
-  @JsonKey(includeFromJson: false, includeToJson: false) // Exclude from serialization
+  @JsonKey(
+      includeFromJson: false,
+      includeToJson: false) // Exclude from serialization
   int matchGoals = 0;
-  @JsonKey(includeFromJson: false, includeToJson: false) // Exclude from serialization
+  @JsonKey(
+      includeFromJson: false,
+      includeToJson: false) // Exclude from serialization
   int matchAssists = 0;
   // Add more stats: shots, tackles, saves (if GK), etc.
   // ---
@@ -156,80 +162,109 @@ class Player {
     this.reflexes = 10,
     this.rushingOut = 10,
     this.throwing = 10,
-  }) : assignedPosition = naturalPosition { // Initialize assignedPosition
+  }) : assignedPosition = naturalPosition {
+    // Initialize assignedPosition
     // Initialize positionalAffinity and calculate initial values
     positionalAffinity = {}; // Initialize the map
     _calculatePositionalAffinities(); // Calculate affinities based on initial stats
   }
 
   // Factory constructor for generating random scouted players
-  factory Player.randomScoutedPlayer(String id, {int? scoutSkill}) { // Added scoutSkill parameter
+  factory Player.randomScoutedPlayer(String id, {int? scoutSkill}) {
+    // Added scoutSkill parameter
     final random = Random();
     // Adjusted randomStat to be more flexible, will be used later for individual attributes
-    int randomStat({int base = 5, int range = 11}) => (base + random.nextInt(range)).clamp(1, 20);
-
+    int randomStat({int base = 5, int range = 11}) =>
+        (base + random.nextInt(range)).clamp(1, 20);
 
     String name = NameGenerator.generatePlayerName();
     int age = 15 + random.nextInt(4); // Young players: 15-18
 
     // --- Scout Skill Influence on Potential ---
-    int actualScoutSkill = scoutSkill ?? 50; // Default to average scout skill if not provided
+    int actualScoutSkill =
+        scoutSkill ?? 50; // Default to average scout skill if not provided
     int minPotential, maxPotential;
 
     // Tiered approach for potential based on scout skill
-    if (actualScoutSkill < 30) { // Poor scout (20-50 rating)
+    if (actualScoutSkill < 30) {
+      // Poor scout (20-50 rating)
       minPotential = 20; // Base min potential for poor scout
       maxPotential = 55; // Base max potential for poor scout
-    } else if (actualScoutSkill < 60) { // Average scout (50-70 rating)
+    } else if (actualScoutSkill < 60) {
+      // Average scout (50-70 rating)
       minPotential = 40;
       maxPotential = 75;
-    } else if (actualScoutSkill < 85) { // Good scout (70-90 rating)
+    } else if (actualScoutSkill < 85) {
+      // Good scout (70-90 rating)
       minPotential = 55;
       maxPotential = 90;
-    } else { // Elite scout (90+ rating)
+    } else {
+      // Elite scout (90+ rating)
       minPotential = 65;
       maxPotential = 99;
     }
     // Add some randomness within the scout's capability band
     // Ensure minPotential doesn't exceed maxPotential after randomness
     int potentialRandomness = 10;
-    minPotential = (minPotential + random.nextInt(potentialRandomness) - (potentialRandomness ~/ 2)).clamp(10, 90);
-    maxPotential = (maxPotential + random.nextInt(potentialRandomness) - (potentialRandomness ~/ 2)).clamp(minPotential + 5, 99);
-    if (minPotential > maxPotential) minPotential = maxPotential -5;
+    minPotential = (minPotential +
+            random.nextInt(potentialRandomness) -
+            (potentialRandomness ~/ 2))
+        .clamp(10, 90);
+    maxPotential = (maxPotential +
+            random.nextInt(potentialRandomness) -
+            (potentialRandomness ~/ 2))
+        .clamp(minPotential + 5, 99);
+    if (minPotential > maxPotential) minPotential = maxPotential - 5;
 
-
-    int potentialSkill = minPotential + random.nextInt(maxPotential - minPotential + 1);
-    potentialSkill = potentialSkill.clamp(20, 99); // Ensure potential is within reasonable game bounds
+    int potentialSkill =
+        minPotential + random.nextInt(maxPotential - minPotential + 1);
+    potentialSkill = potentialSkill.clamp(
+        20, 99); // Ensure potential is within reasonable game bounds
 
     // --- Scout Skill Influence on Initial Attributes (which then determine currentSkill) ---
     // Weaker scouts find players with generally lower starting attributes.
     int baseAttr, attrRange;
-    if (actualScoutSkill < 30) { // Poor scout
-      baseAttr = 1; attrRange = 5; // Attributes 1-5
-    } else if (actualScoutSkill < 60) { // Average scout
-      baseAttr = 3; attrRange = 7; // Attributes 3-9
-    } else if (actualScoutSkill < 85) { // Good scout
-      baseAttr = 5; attrRange = 9; // Attributes 5-13
-    } else { // Elite scout
-      baseAttr = 7; attrRange = 11; // Attributes 7-17
+    if (actualScoutSkill < 30) {
+      // Poor scout
+      baseAttr = 1;
+      attrRange = 5; // Attributes 1-5
+    } else if (actualScoutSkill < 60) {
+      // Average scout
+      baseAttr = 3;
+      attrRange = 7; // Attributes 3-9
+    } else if (actualScoutSkill < 85) {
+      // Good scout
+      baseAttr = 5;
+      attrRange = 9; // Attributes 5-13
+    } else {
+      // Elite scout
+      baseAttr = 7;
+      attrRange = 11; // Attributes 7-17
     }
 
     // This function will now be used to generate each attribute
-    int generateAttributeValue() => randomStat(base: baseAttr, range: attrRange);
+    int generateAttributeValue() =>
+        randomStat(base: baseAttr, range: attrRange);
 
-    int weeklyWage = 50 + random.nextInt(151); // Wage between 50-200 for prospects
+    int weeklyWage =
+        50 + random.nextInt(151); // Wage between 50-200 for prospects
 
-    PlayerPosition naturalPositionValue = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
+    PlayerPosition naturalPositionValue =
+        PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
     // int potentialSkill = 50 + random.nextInt(41); // Potential between 50-90 // Already defined above
     // int currentSkill = 20 + random.nextInt(potentialSkill - 20 + 1); // Current skill lower than potential // No longer needed here
     // int weeklyWage = 50 + random.nextInt(151); // Wage between 50-200 for prospects // Already defined above
 
     // Determine preferred positions
-    List<PlayerPosition> preferred = [naturalPositionValue]; // Always prefer natural position
-    if (random.nextDouble() < 0.3) { // 30% chance to have a secondary preference
+    List<PlayerPosition> preferred = [
+      naturalPositionValue
+    ]; // Always prefer natural position
+    if (random.nextDouble() < 0.3) {
+      // 30% chance to have a secondary preference
       PlayerPosition secondary;
       do {
-        secondary = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
+        secondary =
+            PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
       } while (secondary == naturalPositionValue); // Ensure it's different
       preferred.add(secondary);
     }
@@ -243,9 +278,11 @@ class Player {
       potentialSkill: potentialSkill,
       weeklyWage: weeklyWage,
       isScouted: true, // Mark as scouted initially
-      reputation: random.nextInt(6), // Initial reputation for scouted players is low
+      reputation:
+          random.nextInt(6), // Initial reputation for scouted players is low
       stamina: generateAttributeValue(), // Use new generator
-      preferredFormat: TournamentType.values[random.nextInt(TournamentType.values.length)],
+      preferredFormat:
+          TournamentType.values[random.nextInt(TournamentType.values.length)],
       preferredPositions: preferred,
       // Mental Attributes
       aggression: generateAttributeValue(),
@@ -283,16 +320,36 @@ class Player {
       // Goalkeeping Stats - Apply positional bias
       // For GK-specific stats, if the player is a GK, give them a slight boost from the generated value.
       // If not a GK, potentially slightly reduce it or keep as is (less specialized).
-      aerialReach: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      commandOfArea: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      communicationGK: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      eccentricity: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      handling: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      kicking: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      oneOnOnes: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      reflexes: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      rushingOut: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
-      throwing: naturalPositionValue == PlayerPosition.Goalkeeper ? (generateAttributeValue() + random.nextInt(3)+2).clamp(1,20) : (generateAttributeValue() - random.nextInt(3)).clamp(1,20),
+      aerialReach: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      commandOfArea: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      communicationGK: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      eccentricity: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      handling: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      kicking: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      oneOnOnes: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      reflexes: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      rushingOut: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
+      throwing: naturalPositionValue == PlayerPosition.Goalkeeper
+          ? (generateAttributeValue() + random.nextInt(3) + 2).clamp(1, 20)
+          : (generateAttributeValue() - random.nextInt(3)).clamp(1, 20),
       // lastMatchRating defaults to null
       // Other new fields like matchesPlayed, goals, assists, fatigue, status keep their defaults (0, 0, 0, 0.0, Reserve)
     );
@@ -304,7 +361,8 @@ class Player {
     // Ensure positionalAffinity is initialized and contains the assignedPosition.
     // If not, it might indicate an issue with initialization or an invalid assignedPosition.
     // Fallback to a low value or throw an error if necessary.
-    return positionalAffinity[assignedPosition] ?? 10; // Fallback to 10 if not found
+    return positionalAffinity[assignedPosition] ??
+        10; // Fallback to 10 if not found
   }
 
   // --- Method to Recalculate Positional Affinities ---
@@ -341,9 +399,10 @@ class Player {
     // If average is X (1-20), then skill = (X-1 * (99-15)/19) + 15. This maps 1->15, 20->99.
 
     double scaled = ((rawScore - 1) / 19.0) * (maxSkill - minSkill) + minSkill;
-    return scaled.round().clamp(minSkill, potentialSkill); // Clamp by overall potential
+    return scaled
+        .round()
+        .clamp(minSkill, potentialSkill); // Clamp by overall potential
   }
-
 
   // --- Individual Position Rating Calculations ---
   // These are examples and can be heavily customized.
@@ -354,11 +413,19 @@ class Player {
     // Key GK stats: Handling, Reflexes, Aerial Reach, Command of Area, One on Ones, Communication
     // Physical: Agility, Jumping Reach
     // Mental: Composure, Concentration, Decision
-    double rawScore = (
-      (handling * 3) + (reflexes * 3) + (aerialReach * 2) + (commandOfArea * 2) + (oneOnOnes * 2) + (communicationGK * 2) + // GK specific
-      (agility * 1) + (jumpingReach * 1) + // Physical
-      (composure * 1) + (concentration * 2) + (decision * 1) // Mental
-    ) / 20.0; // Sum of weights = 20
+    double rawScore = ((handling * 3) +
+            (reflexes * 3) +
+            (aerialReach * 2) +
+            (commandOfArea * 2) +
+            (oneOnOnes * 2) +
+            (communicationGK * 2) + // GK specific
+            (agility * 1) +
+            (jumpingReach * 1) + // Physical
+            (composure * 1) +
+            (concentration * 2) +
+            (decision * 1) // Mental
+        ) /
+        20.0; // Sum of weights = 20
     return _scaleAndClamp(rawScore);
   }
 
@@ -366,11 +433,22 @@ class Player {
     // Key Def stats: Tackling, Marking, Defensive Positioning, Heading
     // Physical: Strength, Pace, Acceleration, Jumping Reach, Stamina
     // Mental: Aggression, Composure, Concentration, Decision, Work Rate
-    double rawScore = (
-      (tackling * 3) + (marking * 3) + (defensivePositioning * 3) + (heading * 2) + // Defensive
-      (strength * 2) + (pace * 1) + (acceleration * 1) + (jumpingReach * 1) + (stamina * 1) + // Physical
-      (aggression * 1) + (composure * 1) + (concentration * 2) + (decision * 1) + (workRate * 1) // Mental
-    ) / 23.0; // Sum of weights = 23
+    double rawScore = ((tackling * 3) +
+            (marking * 3) +
+            (defensivePositioning * 3) +
+            (heading * 2) + // Defensive
+            (strength * 2) +
+            (pace * 1) +
+            (acceleration * 1) +
+            (jumpingReach * 1) +
+            (stamina * 1) + // Physical
+            (aggression * 1) +
+            (composure * 1) +
+            (concentration * 2) +
+            (decision * 1) +
+            (workRate * 1) // Mental
+        ) /
+        23.0; // Sum of weights = 23
     return _scaleAndClamp(rawScore);
   }
 
@@ -379,30 +457,52 @@ class Player {
     // Physical: Stamina, Pace, Agility, Balance
     // Mental: Decision, Teamwork, Work Rate, Composure, Flair
     // Attacking/Defending mix: Long Shots, Tackling
-    double rawScore = (
-      (passing * 3) + (firstTouch * 2) + (technique * 2) + (vision * 3) + (dribbling * 2) + // Core Mid
-      (stamina * 2) + (pace * 1) + (agility * 1) + (balance * 1) + // Physical
-      (decision * 2) + (teamwork * 2) + (workRate * 2) + (composure * 1) + (flair * 1) + // Mental
-      (longShots * 1) + (tackling * 1) // Hybrid
-    ) / 27.0; // Sum of weights = 27
+    double rawScore = ((passing * 3) +
+            (firstTouch * 2) +
+            (technique * 2) +
+            (vision * 3) +
+            (dribbling * 2) + // Core Mid
+            (stamina * 2) +
+            (pace * 1) +
+            (agility * 1) +
+            (balance * 1) + // Physical
+            (decision * 2) +
+            (teamwork * 2) +
+            (workRate * 2) +
+            (composure * 1) +
+            (flair * 1) + // Mental
+            (longShots * 1) +
+            (tackling * 1) // Hybrid
+        ) /
+        27.0; // Sum of weights = 27
     return _scaleAndClamp(rawScore);
   }
 
-   int _calculateFwdRating() {
+  int _calculateFwdRating() {
     // Key Fwd stats: Finishing, Dribbling, Heading, Long Shots, First Touch
     // Physical: Pace, Acceleration, Agility, Strength
     // Mental: Composure, Flair, Decision, Work Rate
-    double rawScore = (
-      (finishing * 3) + (dribbling * 2) + (heading * 2) + (longShots * 2) + (firstTouch * 2) + // Attacking
-      (pace * 2) + (acceleration * 2) + (agility * 1) + (strength * 1) + // Physical
-      (composure * 2) + (flair * 2) + (decision * 1) + (workRate * 1) // Mental
-    ) / 23.0; // Sum of weights = 23
+    double rawScore = ((finishing * 3) +
+            (dribbling * 2) +
+            (heading * 2) +
+            (longShots * 2) +
+            (firstTouch * 2) + // Attacking
+            (pace * 2) +
+            (acceleration * 2) +
+            (agility * 1) +
+            (strength * 1) + // Physical
+            (composure * 2) +
+            (flair * 2) +
+            (decision * 1) +
+            (workRate * 1) // Mental
+        ) /
+        23.0; // Sum of weights = 23
     return _scaleAndClamp(rawScore);
   }
 
-
   String get positionString {
-    switch (assignedPosition) { // Changed from position to assignedPosition
+    switch (assignedPosition) {
+      // Changed from position to assignedPosition
       case PlayerPosition.Goalkeeper:
         return 'GK';
       case PlayerPosition.Defender:
@@ -430,22 +530,28 @@ class Player {
     } else {
       ageModifier = 0.6 - (age - 33) * 0.1; // Steeper decline for older players
     }
-    ageModifier = ageModifier.clamp(0.1, 1.3); // Ensure modifier stays within bounds
+    ageModifier =
+        ageModifier.clamp(0.1, 1.3); // Ensure modifier stays within bounds
 
     // Potential modifier: Adds value, especially significant for younger players
     double potentialGap = (potentialSkill - currentSkill).toDouble();
-    double potentialModifier = 1.0 + (potentialGap / 100.0) * (30 / max(18, age)); // More impact when young
-    potentialModifier = potentialModifier.clamp(1.0, 1.8); // Clamp potential boost
+    double potentialModifier = 1.0 +
+        (potentialGap / 100.0) * (30 / max(18, age)); // More impact when young
+    potentialModifier =
+        potentialModifier.clamp(1.0, 1.8); // Clamp potential boost
 
     // Reputation modifier
-    double reputationModifier = 1.0 + (reputation / 200.0); // e.g., 100 rep = 1.5x modifier
+    double reputationModifier =
+        1.0 + (reputation / 200.0); // e.g., 100 rep = 1.5x modifier
     reputationModifier = reputationModifier.clamp(1.0, 2.0);
 
     // Combine modifiers
-    double finalValue = baseValue * ageModifier * potentialModifier * reputationModifier;
+    double finalValue =
+        baseValue * ageModifier * potentialModifier * reputationModifier;
 
     // Add a small random factor
-    finalValue *= (1.0 + (Random().nextDouble() * 0.1 - 0.05)); // +/- 5% randomness
+    finalValue *=
+        (1.0 + (Random().nextDouble() * 0.1 - 0.05)); // +/- 5% randomness
 
     // Ensure minimum value
     return max(500, finalValue.toInt()); // Minimum value of 500
@@ -457,14 +563,61 @@ class Player {
   Map<String, dynamic> toJson() => _$PlayerToJson(this);
 
   // --- Training Logic ---
-  static const int maxAttributeValue = 20; // Define max for individual attributes
+  static const int maxAttributeValue =
+      20; // Define max for individual attributes
 
   // Helper to get a list of key attributes for a position
   static final Map<PlayerPosition, List<String>> _positionKeyAttributes = {
-    PlayerPosition.Goalkeeper: ['handling', 'reflexes', 'aerialReach', 'commandOfArea', 'oneOnOnes', 'communicationGK', 'kicking', 'concentration', 'decision', 'positioning'], // Added positioning as a general term, maps to defensivePositioning for GKs too
-    PlayerPosition.Defender: ['tackling', 'marking', 'defensivePositioning', 'heading', 'strength', 'aggression', 'concentration', 'decision', 'workRate', 'stamina'],
-    PlayerPosition.Midfielder: ['passing', 'firstTouch', 'technique', 'vision', 'dribbling', 'teamwork', 'decision', 'workRate', 'stamina', 'longShots', 'tackling', 'finishing'],
-    PlayerPosition.Forward: ['finishing', 'dribbling', 'longShots', 'firstTouch', 'pace', 'acceleration', 'flair', 'composure', 'heading', 'technique'],
+    PlayerPosition.Goalkeeper: [
+      'handling',
+      'reflexes',
+      'aerialReach',
+      'commandOfArea',
+      'oneOnOnes',
+      'communicationGK',
+      'kicking',
+      'concentration',
+      'decision',
+      'positioning'
+    ], // Added positioning as a general term, maps to defensivePositioning for GKs too
+    PlayerPosition.Defender: [
+      'tackling',
+      'marking',
+      'defensivePositioning',
+      'heading',
+      'strength',
+      'aggression',
+      'concentration',
+      'decision',
+      'workRate',
+      'stamina'
+    ],
+    PlayerPosition.Midfielder: [
+      'passing',
+      'firstTouch',
+      'technique',
+      'vision',
+      'dribbling',
+      'teamwork',
+      'decision',
+      'workRate',
+      'stamina',
+      'longShots',
+      'tackling',
+      'finishing'
+    ],
+    PlayerPosition.Forward: [
+      'finishing',
+      'dribbling',
+      'longShots',
+      'firstTouch',
+      'pace',
+      'acceleration',
+      'flair',
+      'composure',
+      'heading',
+      'technique'
+    ],
   };
 
   // Method to improve a specific attribute by name
@@ -473,56 +626,222 @@ class Player {
     int currentValue = 0;
 
     // Helper lambda to update and clamp
-    int update(int current, int amt) => (current + amt).clamp(0, maxAttributeValue);
+    int update(int current, int amt) =>
+        (current + amt).clamp(0, maxAttributeValue);
 
     switch (attributeName) {
-      case 'aggression': currentValue = aggression; aggression = update(aggression, amount); improved = aggression > currentValue; break;
-      case 'composure': currentValue = composure; composure = update(composure, amount); improved = composure > currentValue; break;
-      case 'concentration': currentValue = concentration; concentration = update(concentration, amount); improved = concentration > currentValue; break;
-      case 'decision': currentValue = decision; decision = update(decision, amount); improved = decision > currentValue; break;
-      case 'determination': currentValue = determination; determination = update(determination, amount); improved = determination > currentValue; break;
-      case 'flair': currentValue = flair; flair = update(flair, amount); improved = flair > currentValue; break;
-      case 'leadership': currentValue = leadership; leadership = update(leadership, amount); improved = leadership > currentValue; break;
-      case 'teamwork': currentValue = teamwork; teamwork = update(teamwork, amount); improved = teamwork > currentValue; break;
-      case 'vision': currentValue = vision; vision = update(vision, amount); improved = vision > currentValue; break;
-      case 'workRate': currentValue = workRate; workRate = update(workRate, amount); improved = workRate > currentValue; break;
-      case 'acceleration': currentValue = acceleration; acceleration = update(acceleration, amount); improved = acceleration > currentValue; break;
-      case 'agility': currentValue = agility; agility = update(agility, amount); improved = agility > currentValue; break;
-      case 'balance': currentValue = balance; balance = update(balance, amount); improved = balance > currentValue; break;
-      case 'jumpingReach': currentValue = jumpingReach; jumpingReach = update(jumpingReach, amount); improved = jumpingReach > currentValue; break;
-      case 'naturalFitness': currentValue = naturalFitness; naturalFitness = update(naturalFitness, amount); improved = naturalFitness > currentValue; break;
-      case 'pace': currentValue = pace; pace = update(pace, amount); improved = pace > currentValue; break;
-      case 'strength': currentValue = strength; strength = update(strength, amount); improved = strength > currentValue; break;
-      case 'stamina': currentValue = stamina; stamina = update(stamina, amount); improved = stamina > currentValue; break;
-      case 'crossing': currentValue = crossing; crossing = update(crossing, amount); improved = crossing > currentValue; break;
-      case 'dribbling': currentValue = dribbling; dribbling = update(dribbling, amount); improved = dribbling > currentValue; break;
-      case 'finishing': currentValue = finishing; finishing = update(finishing, amount); improved = finishing > currentValue; break;
-      case 'firstTouch': currentValue = firstTouch; firstTouch = update(firstTouch, amount); improved = firstTouch > currentValue; break;
-      case 'heading': currentValue = heading; heading = update(heading, amount); improved = heading > currentValue; break;
-      case 'longShots': currentValue = longShots; longShots = update(longShots, amount); improved = longShots > currentValue; break;
-      case 'passing': currentValue = passing; passing = update(passing, amount); improved = passing > currentValue; break;
-      case 'penaltyTaking': currentValue = penaltyTaking; penaltyTaking = update(penaltyTaking, amount); improved = penaltyTaking > currentValue; break;
-      case 'technique': currentValue = technique; technique = update(technique, amount); improved = technique > currentValue; break;
-      case 'marking': currentValue = marking; marking = update(marking, amount); improved = marking > currentValue; break;
-      case 'tackling': currentValue = tackling; tackling = update(tackling, amount); improved = tackling > currentValue; break;
-      case 'defensivePositioning': currentValue = defensivePositioning; defensivePositioning = update(defensivePositioning, amount); improved = defensivePositioning > currentValue; break;
+      case 'aggression':
+        currentValue = aggression;
+        aggression = update(aggression, amount);
+        improved = aggression > currentValue;
+        break;
+      case 'composure':
+        currentValue = composure;
+        composure = update(composure, amount);
+        improved = composure > currentValue;
+        break;
+      case 'concentration':
+        currentValue = concentration;
+        concentration = update(concentration, amount);
+        improved = concentration > currentValue;
+        break;
+      case 'decision':
+        currentValue = decision;
+        decision = update(decision, amount);
+        improved = decision > currentValue;
+        break;
+      case 'determination':
+        currentValue = determination;
+        determination = update(determination, amount);
+        improved = determination > currentValue;
+        break;
+      case 'flair':
+        currentValue = flair;
+        flair = update(flair, amount);
+        improved = flair > currentValue;
+        break;
+      case 'leadership':
+        currentValue = leadership;
+        leadership = update(leadership, amount);
+        improved = leadership > currentValue;
+        break;
+      case 'teamwork':
+        currentValue = teamwork;
+        teamwork = update(teamwork, amount);
+        improved = teamwork > currentValue;
+        break;
+      case 'vision':
+        currentValue = vision;
+        vision = update(vision, amount);
+        improved = vision > currentValue;
+        break;
+      case 'workRate':
+        currentValue = workRate;
+        workRate = update(workRate, amount);
+        improved = workRate > currentValue;
+        break;
+      case 'acceleration':
+        currentValue = acceleration;
+        acceleration = update(acceleration, amount);
+        improved = acceleration > currentValue;
+        break;
+      case 'agility':
+        currentValue = agility;
+        agility = update(agility, amount);
+        improved = agility > currentValue;
+        break;
+      case 'balance':
+        currentValue = balance;
+        balance = update(balance, amount);
+        improved = balance > currentValue;
+        break;
+      case 'jumpingReach':
+        currentValue = jumpingReach;
+        jumpingReach = update(jumpingReach, amount);
+        improved = jumpingReach > currentValue;
+        break;
+      case 'naturalFitness':
+        currentValue = naturalFitness;
+        naturalFitness = update(naturalFitness, amount);
+        improved = naturalFitness > currentValue;
+        break;
+      case 'pace':
+        currentValue = pace;
+        pace = update(pace, amount);
+        improved = pace > currentValue;
+        break;
+      case 'strength':
+        currentValue = strength;
+        strength = update(strength, amount);
+        improved = strength > currentValue;
+        break;
+      case 'stamina':
+        currentValue = stamina;
+        stamina = update(stamina, amount);
+        improved = stamina > currentValue;
+        break;
+      case 'crossing':
+        currentValue = crossing;
+        crossing = update(crossing, amount);
+        improved = crossing > currentValue;
+        break;
+      case 'dribbling':
+        currentValue = dribbling;
+        dribbling = update(dribbling, amount);
+        improved = dribbling > currentValue;
+        break;
+      case 'finishing':
+        currentValue = finishing;
+        finishing = update(finishing, amount);
+        improved = finishing > currentValue;
+        break;
+      case 'firstTouch':
+        currentValue = firstTouch;
+        firstTouch = update(firstTouch, amount);
+        improved = firstTouch > currentValue;
+        break;
+      case 'heading':
+        currentValue = heading;
+        heading = update(heading, amount);
+        improved = heading > currentValue;
+        break;
+      case 'longShots':
+        currentValue = longShots;
+        longShots = update(longShots, amount);
+        improved = longShots > currentValue;
+        break;
+      case 'passing':
+        currentValue = passing;
+        passing = update(passing, amount);
+        improved = passing > currentValue;
+        break;
+      case 'penaltyTaking':
+        currentValue = penaltyTaking;
+        penaltyTaking = update(penaltyTaking, amount);
+        improved = penaltyTaking > currentValue;
+        break;
+      case 'technique':
+        currentValue = technique;
+        technique = update(technique, amount);
+        improved = technique > currentValue;
+        break;
+      case 'marking':
+        currentValue = marking;
+        marking = update(marking, amount);
+        improved = marking > currentValue;
+        break;
+      case 'tackling':
+        currentValue = tackling;
+        tackling = update(tackling, amount);
+        improved = tackling > currentValue;
+        break;
+      case 'defensivePositioning':
+        currentValue = defensivePositioning;
+        defensivePositioning = update(defensivePositioning, amount);
+        improved = defensivePositioning > currentValue;
+        break;
       case 'positioning': // General positioning, map to defensivePositioning for now
-        currentValue = defensivePositioning; defensivePositioning = update(defensivePositioning, amount); improved = defensivePositioning > currentValue; break;
-      case 'aerialReach': currentValue = aerialReach; aerialReach = update(aerialReach, amount); improved = aerialReach > currentValue; break;
-      case 'commandOfArea': currentValue = commandOfArea; commandOfArea = update(commandOfArea, amount); improved = commandOfArea > currentValue; break;
-      case 'communicationGK': currentValue = communicationGK; communicationGK = update(communicationGK, amount); improved = communicationGK > currentValue; break;
-      case 'eccentricity': currentValue = eccentricity; eccentricity = update(eccentricity, amount); improved = eccentricity > currentValue; break;
-      case 'handling': currentValue = handling; handling = update(handling, amount); improved = handling > currentValue; break;
-      case 'kicking': currentValue = kicking; kicking = update(kicking, amount); improved = kicking > currentValue; break;
-      case 'oneOnOnes': currentValue = oneOnOnes; oneOnOnes = update(oneOnOnes, amount); improved = oneOnOnes > currentValue; break;
-      case 'reflexes': currentValue = reflexes; reflexes = update(reflexes, amount); improved = reflexes > currentValue; break;
-      case 'rushingOut': currentValue = rushingOut; rushingOut = update(rushingOut, amount); improved = rushingOut > currentValue; break;
-      case 'throwing': currentValue = throwing; throwing = update(throwing, amount); improved = throwing > currentValue; break;
+        currentValue = defensivePositioning;
+        defensivePositioning = update(defensivePositioning, amount);
+        improved = defensivePositioning > currentValue;
+        break;
+      case 'aerialReach':
+        currentValue = aerialReach;
+        aerialReach = update(aerialReach, amount);
+        improved = aerialReach > currentValue;
+        break;
+      case 'commandOfArea':
+        currentValue = commandOfArea;
+        commandOfArea = update(commandOfArea, amount);
+        improved = commandOfArea > currentValue;
+        break;
+      case 'communicationGK':
+        currentValue = communicationGK;
+        communicationGK = update(communicationGK, amount);
+        improved = communicationGK > currentValue;
+        break;
+      case 'eccentricity':
+        currentValue = eccentricity;
+        eccentricity = update(eccentricity, amount);
+        improved = eccentricity > currentValue;
+        break;
+      case 'handling':
+        currentValue = handling;
+        handling = update(handling, amount);
+        improved = handling > currentValue;
+        break;
+      case 'kicking':
+        currentValue = kicking;
+        kicking = update(kicking, amount);
+        improved = kicking > currentValue;
+        break;
+      case 'oneOnOnes':
+        currentValue = oneOnOnes;
+        oneOnOnes = update(oneOnOnes, amount);
+        improved = oneOnOnes > currentValue;
+        break;
+      case 'reflexes':
+        currentValue = reflexes;
+        reflexes = update(reflexes, amount);
+        improved = reflexes > currentValue;
+        break;
+      case 'rushingOut':
+        currentValue = rushingOut;
+        rushingOut = update(rushingOut, amount);
+        improved = rushingOut > currentValue;
+        break;
+      case 'throwing':
+        currentValue = throwing;
+        throwing = update(throwing, amount);
+        improved = throwing > currentValue;
+        break;
       default:
         // print("Warning: Unknown attribute '$attributeName' for improvement."); // Less verbose
         return false;
     }
-    return improved && currentValue < maxAttributeValue; // Ensure it actually improved and wasn't already maxed
+    return improved &&
+        currentValue <
+            maxAttributeValue; // Ensure it actually improved and wasn't already maxed
   }
 
   // Training method: Returns true if any attribute was successfully improved.
@@ -536,7 +855,8 @@ class Player {
     }
 
     // Try to improve one random attribute from the list for the given position
-    List<String> shuffledAttributes = List.from(attributesToTrain)..shuffle(Random());
+    List<String> shuffledAttributes = List.from(attributesToTrain)
+      ..shuffle(Random());
     bool improvementMade = false;
     for (String attrName in shuffledAttributes) {
       if (_improveSpecificAttribute(attrName, improvementAmount)) {
@@ -551,7 +871,7 @@ class Player {
     return improvementMade;
   }
   // --- End Training Logic ---
-  
+
   // --- Factory: Create Player with Specific Target Skill (Consistency Fix) ---
   factory Player.createWithTargetSkill({
     required String id,
@@ -579,7 +899,8 @@ class Player {
     int generateAttr() {
       // Generate value with some variance around the target
       double variance = 2.0; // +/- 2 points on average
-      double val = targetAvgAttr + (random.nextDouble() * 2 * variance) - variance;
+      double val =
+          targetAvgAttr + (random.nextDouble() * 2 * variance) - variance;
       // Add occasional spikes/drops for realism
       if (random.nextDouble() < 0.1) val += (random.nextBool() ? 3 : -3);
       return val.round().clamp(1, 20);
@@ -592,17 +913,22 @@ class Player {
       // Apply simple bias based on natural position and key attributes
       List<String>? keyAttrs = _positionKeyAttributes[naturalPosition];
       if (keyAttrs != null && keyAttrs.contains(attrName)) {
-        return (base + random.nextInt(3)).clamp(1, 20); // Boost key attributes slightly
+        return (base + random.nextInt(3))
+            .clamp(1, 20); // Boost key attributes slightly
       }
       return base;
     }
 
     // Determine preferred positions
-    List<PlayerPosition> preferred = [naturalPosition]; // Always prefer natural position
-    if (random.nextDouble() < 0.3) { // 30% chance to have a secondary preference
+    List<PlayerPosition> preferred = [
+      naturalPosition
+    ]; // Always prefer natural position
+    if (random.nextDouble() < 0.3) {
+      // 30% chance to have a secondary preference
       PlayerPosition secondary;
       do {
-        secondary = PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
+        secondary =
+            PlayerPosition.values[random.nextInt(PlayerPosition.values.length)];
       } while (secondary == naturalPosition);
       preferred.add(secondary);
     }
@@ -664,4 +990,3 @@ class Player {
     );
   }
 }
-

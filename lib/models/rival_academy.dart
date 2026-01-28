@@ -18,7 +18,8 @@ class RivalAcademy {
   int trainingFacilityLevel;
   int scoutingFacilityLevel;
   int medicalBayLevel;
-  List<String> activeTournamentIds; // IDs of tournaments currently participating in
+  List<String>
+      activeTournamentIds; // IDs of tournaments currently participating in
   int tier; // 0 = Unranked/Not in Pro League, 1 = Tier 1, 2 = Tier 2, 3 = Tier 3
 
   @JsonKey(ignore: true) // Don't serialize random instance
@@ -39,10 +40,12 @@ class RivalAcademy {
   }) : activeTournamentIds = activeTournamentIds ?? []; // Initialize if null
 
   // Factory for creating initial rivals based on index and difficulty
-  factory RivalAcademy.initial(int index, {Difficulty difficulty = Difficulty.Normal}) {
+  factory RivalAcademy.initial(int index,
+      {Difficulty difficulty = Difficulty.Normal}) {
     final random = Random();
     String id = 'rival_${index + 1}';
-    String name = 'Academy ${String.fromCharCode(65 + index)}'; // Academy A, B, C...
+    String name =
+        'Academy ${String.fromCharCode(65 + index)}'; // Academy A, B, C...
 
     // Base values
     int baseSkill = 20 + random.nextInt(41); // 20-60
@@ -87,29 +90,36 @@ class RivalAcademy {
     );
   }
 
-
   // --- AI Decision Logic ---
 
   // Decide if the academy should enter a given tournament
-  bool shouldEnterTournament(Tournament template, int currentYear, int currentMonth) {
+  bool shouldEnterTournament(
+      Tournament template, int currentYear, int currentMonth) {
     // Basic checks
     if (reputation < template.requiredReputation) return false;
     if (balance < template.entryFee) return false;
-    if (players.length < template.requiredPlayers) return false; // Check player count
+    if (players.length < template.requiredPlayers)
+      return false; // Check player count
 
     // Avoid joining too many tournaments at once
-    if (activeTournamentIds.length >= 2) return false; // Limit to max 2 active tournaments
+    if (activeTournamentIds.length >= 2)
+      return false; // Limit to max 2 active tournaments
 
     // Chance based on reputation, skill, and maybe randomness
     double joinChance = 0.3; // Base chance
-    joinChance += (reputation / 1000.0) * 0.2; // Increase chance with higher reputation (max +0.2)
-    joinChance += (skillLevel / 100.0) * 0.1; // Slight increase with higher skill (max +0.1)
-    joinChance -= (template.entryFee / balance) * 0.1; // Decrease if fee is large portion of balance
+    joinChance += (reputation / 1000.0) *
+        0.2; // Increase chance with higher reputation (max +0.2)
+    joinChance += (skillLevel / 100.0) *
+        0.1; // Slight increase with higher skill (max +0.1)
+    joinChance -= (template.entryFee / balance) *
+        0.1; // Decrease if fee is large portion of balance
 
     // Consider tournament importance (e.g., higher prize/rep req might be more desirable)
-    joinChance += (template.prizeMoneyBase / 50000.0) * 0.1; // Slight increase for higher prize (max +0.1 if prize is 50k)
+    joinChance += (template.prizeMoneyBase / 50000.0) *
+        0.1; // Slight increase for higher prize (max +0.1 if prize is 50k)
 
-    return _random.nextDouble() < joinChance.clamp(0.05, 0.8); // Clamp chance between 5% and 80%
+    return _random.nextDouble() <
+        joinChance.clamp(0.05, 0.8); // Clamp chance between 5% and 80%
   }
 
   // Decide which facility to upgrade, if any
@@ -118,17 +128,20 @@ class RivalAcademy {
     // Only upgrade if affordable and maybe based on a random chance or need
 
     int trainingCost = calculateFacilityUpgradeCost(trainingFacilityLevel);
-    if (balance > trainingCost * 1.5 && _random.nextDouble() < 0.1) { // 10% chance if 1.5x cost available
+    if (balance > trainingCost * 1.5 && _random.nextDouble() < 0.1) {
+      // 10% chance if 1.5x cost available
       return 'training';
     }
 
     int scoutingCost = calculateFacilityUpgradeCost(scoutingFacilityLevel);
-    if (balance > scoutingCost * 1.5 && _random.nextDouble() < 0.08) { // 8% chance
+    if (balance > scoutingCost * 1.5 && _random.nextDouble() < 0.08) {
+      // 8% chance
       return 'scouting';
     }
 
     int medicalCost = calculateFacilityUpgradeCost(medicalBayLevel);
-    if (balance > medicalCost * 1.5 && _random.nextDouble() < 0.06) { // 6% chance
+    if (balance > medicalCost * 1.5 && _random.nextDouble() < 0.06) {
+      // 6% chance
       return 'medical';
     }
 
@@ -154,7 +167,7 @@ class RivalAcademy {
     return [];
   }
 
-
-  factory RivalAcademy.fromJson(Map<String, dynamic> json) => _$RivalAcademyFromJson(json);
+  factory RivalAcademy.fromJson(Map<String, dynamic> json) =>
+      _$RivalAcademyFromJson(json);
   Map<String, dynamic> toJson() => _$RivalAcademyToJson(this);
 }

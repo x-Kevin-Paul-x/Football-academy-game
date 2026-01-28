@@ -28,15 +28,21 @@ class StaffCard extends StatelessWidget {
                 Flexible(
                   child: Text(
                     staff.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Chip(
-                  avatar: Icon(_getRoleIcon(staff.role), color: _getRoleColor(staff.role), size: 18),
+                  avatar: Icon(_getRoleIcon(staff.role),
+                      color: _getRoleColor(staff.role), size: 18),
                   label: Text(staff.role.name),
                   backgroundColor: _getRoleColor(staff.role).withOpacity(0.2),
-                  labelStyle: TextStyle(color: _getRoleColor(staff.role), fontWeight: FontWeight.bold),
+                  labelStyle: TextStyle(
+                      color: _getRoleColor(staff.role),
+                      fontWeight: FontWeight.bold),
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   visualDensity: VisualDensity.compact,
                 ),
@@ -47,12 +53,13 @@ class StaffCard extends StatelessWidget {
               spacing: 8.0,
               runSpacing: 4.0,
               children: [
-                _buildInfoChip(Icons.star_border_outlined, 'Skill: ${staff.skill}'),
-                _buildInfoChip(Icons.attach_money_outlined, 'Wage: \$${staff.weeklyWage}/wk'),
+                _buildInfoChip(
+                    Icons.star_border_outlined, 'Skill: ${staff.skill}'),
+                _buildInfoChip(Icons.attach_money_outlined,
+                    'Wage: \$${staff.weeklyWage}/wk'),
               ],
             ),
-            if (actions.isNotEmpty)
-              const Divider(height: 20, thickness: 1),
+            if (actions.isNotEmpty) const Divider(height: 20, thickness: 1),
             if (actions.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -72,7 +79,8 @@ class StaffCard extends StatelessWidget {
     return Chip(
       avatar: Icon(icon, size: 16, color: Colors.grey[700]),
       label: Text(text),
-      backgroundColor: Colors.grey[800], // Darker chip background for dark theme
+      backgroundColor:
+          Colors.grey[800], // Darker chip background for dark theme
       labelStyle: TextStyle(color: Colors.grey[300]),
       visualDensity: VisualDensity.compact,
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
@@ -81,11 +89,16 @@ class StaffCard extends StatelessWidget {
 
   Color _getRoleColor(StaffRole role) {
     switch (role) {
-      case StaffRole.Coach: return Colors.blueAccent;
-      case StaffRole.Scout: return Colors.purpleAccent;
-      case StaffRole.Physio: return Colors.tealAccent;
-      case StaffRole.Manager: return Colors.amberAccent;
-      case StaffRole.MerchandiseManager: return Colors.orangeAccent; // Added color for Merchandise Manager
+      case StaffRole.Coach:
+        return Colors.blueAccent;
+      case StaffRole.Scout:
+        return Colors.purpleAccent;
+      case StaffRole.Physio:
+        return Colors.tealAccent;
+      case StaffRole.Manager:
+        return Colors.amberAccent;
+      case StaffRole.MerchandiseManager:
+        return Colors.orangeAccent; // Added color for Merchandise Manager
     }
   }
 

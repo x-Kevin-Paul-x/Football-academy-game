@@ -21,18 +21,24 @@ class FacilitiesScreen extends StatelessWidget {
                 icon: Icons.fitness_center,
                 title: 'Training Facility',
                 currentLevel: gameStateManager.trainingFacilityLevel,
-                description: 'Improves player skill development during training.',
+                description:
+                    'Improves player skill development during training.',
                 upgradeCost: gameStateManager.getTrainingFacilityUpgradeCost(),
-                canAfford: gameStateManager.balance >= gameStateManager.getTrainingFacilityUpgradeCost(),
+                canAfford: gameStateManager.balance >=
+                    gameStateManager.getTrainingFacilityUpgradeCost(),
                 onUpgrade: () {
                   bool success = gameStateManager.upgradeTrainingFacility();
-                  if (context.mounted) { // Check if widget is still in the tree
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(
-                         content: Text(success ? 'Training Facility upgraded!' : 'Insufficient funds!'),
-                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
-                       ),
-                     );
+                  if (context.mounted) {
+                    // Check if widget is still in the tree
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success
+                            ? 'Training Facility upgraded!'
+                            : 'Insufficient funds!'),
+                        backgroundColor:
+                            success ? Colors.lightGreen : Colors.redAccent,
+                      ),
+                    );
                   }
                 },
               ),
@@ -42,40 +48,53 @@ class FacilitiesScreen extends StatelessWidget {
                 icon: Icons.search,
                 title: 'Scouting Network',
                 currentLevel: gameStateManager.scoutingFacilityLevel,
-                description: 'Increases the quantity and potentially quality of players found by scouts.',
+                description:
+                    'Increases the quantity and potentially quality of players found by scouts.',
                 upgradeCost: gameStateManager.getScoutingFacilityUpgradeCost(),
-                canAfford: gameStateManager.balance >= gameStateManager.getScoutingFacilityUpgradeCost(),
+                canAfford: gameStateManager.balance >=
+                    gameStateManager.getScoutingFacilityUpgradeCost(),
                 onUpgrade: () {
-                   bool success = gameStateManager.upgradeScoutingFacility();
-                   if (context.mounted) { // Check if widget is still in the tree
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(
-                         content: Text(success ? 'Scouting Network upgraded!' : 'Insufficient funds!'),
-                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
-                       ),
-                     );
-                   }
+                  bool success = gameStateManager.upgradeScoutingFacility();
+                  if (context.mounted) {
+                    // Check if widget is still in the tree
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success
+                            ? 'Scouting Network upgraded!'
+                            : 'Insufficient funds!'),
+                        backgroundColor:
+                            success ? Colors.lightGreen : Colors.redAccent,
+                      ),
+                    );
+                  }
                 },
               ),
               const SizedBox(height: 16), // Spacing
-              _buildFacilityCard( // <-- ADDED MEDICAL BAY
+              _buildFacilityCard(
+                // <-- ADDED MEDICAL BAY
                 context: context,
                 icon: Icons.medical_services_outlined, // Medical icon
                 title: 'Medical Bay',
                 currentLevel: gameStateManager.medicalBayLevel,
-                description: 'Reduces player injury recovery time and severity.',
+                description:
+                    'Reduces player injury recovery time and severity.',
                 upgradeCost: gameStateManager.getMedicalBayUpgradeCost(),
-                canAfford: gameStateManager.balance >= gameStateManager.getMedicalBayUpgradeCost(),
+                canAfford: gameStateManager.balance >=
+                    gameStateManager.getMedicalBayUpgradeCost(),
                 onUpgrade: () {
-                   bool success = gameStateManager.upgradeMedicalBay();
-                   if (context.mounted) { // Check if widget is still in the tree
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(
-                         content: Text(success ? 'Medical Bay upgraded!' : 'Insufficient funds!'),
-                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
-                       ),
-                     );
-                   }
+                  bool success = gameStateManager.upgradeMedicalBay();
+                  if (context.mounted) {
+                    // Check if widget is still in the tree
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success
+                            ? 'Medical Bay upgraded!'
+                            : 'Insufficient funds!'),
+                        backgroundColor:
+                            success ? Colors.lightGreen : Colors.redAccent,
+                      ),
+                    );
+                  }
                 },
               ),
               const SizedBox(height: 16), // Spacing for Medical Bay
@@ -84,20 +103,27 @@ class FacilitiesScreen extends StatelessWidget {
                 icon: Icons.store, // Merchandise icon
                 title: 'Merchandise Store',
                 currentLevel: gameStateManager.merchandiseStoreLevel,
-                description: 'Generates weekly income based on level, fans, and Merchandise Manager skill. Each level increases Store Manager capacity.', // Updated description
-                currentEffect: 'Current Max Store Managers: ${gameStateManager.maxStoreManagers}', // <-- ADDED: Current effect
+                description:
+                    'Generates weekly income based on level, fans, and Merchandise Manager skill. Each level increases Store Manager capacity.', // Updated description
+                currentEffect:
+                    'Current Max Store Managers: ${gameStateManager.maxStoreManagers}', // <-- ADDED: Current effect
                 upgradeCost: gameStateManager.getMerchandiseStoreUpgradeCost(),
-                canAfford: gameStateManager.balance >= gameStateManager.getMerchandiseStoreUpgradeCost(),
+                canAfford: gameStateManager.balance >=
+                    gameStateManager.getMerchandiseStoreUpgradeCost(),
                 onUpgrade: () {
-                   bool success = gameStateManager.upgradeMerchandiseStore();
-                   if (context.mounted) { // Check if widget is still in the tree
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(
-                         content: Text(success ? 'Merchandise Store upgraded!' : 'Insufficient funds!'),
-                         backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
-                       ),
-                     );
-                   }
+                  bool success = gameStateManager.upgradeMerchandiseStore();
+                  if (context.mounted) {
+                    // Check if widget is still in the tree
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(success
+                            ? 'Merchandise Store upgraded!'
+                            : 'Insufficient funds!'),
+                        backgroundColor:
+                            success ? Colors.lightGreen : Colors.redAccent,
+                      ),
+                    );
+                  }
                 },
               ),
             ],
@@ -118,7 +144,6 @@ class FacilitiesScreen extends StatelessWidget {
     required bool canAfford, // Pass affordability explicitly
     required VoidCallback onUpgrade, // Pass upgrade callback
   }) {
-
     return Card(
       elevation: 3,
       child: Padding(
@@ -128,7 +153,8 @@ class FacilitiesScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 30, color: Theme.of(context).colorScheme.primary),
+                Icon(icon,
+                    size: 30, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -138,16 +164,22 @@ class FacilitiesScreen extends StatelessWidget {
                 ),
                 Chip(
                   label: Text('Level $currentLevel'),
-                  backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer),
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryContainer,
+                  labelStyle: TextStyle(
+                      color:
+                          Theme.of(context).colorScheme.onSecondaryContainer),
                 ),
               ],
             ),
             const SizedBox(height: 12),
             Text(description, style: Theme.of(context).textTheme.bodyMedium),
-            if (currentEffect != null && currentEffect.isNotEmpty) ...[ // <-- ADDED: Display current effect if provided
+            if (currentEffect != null && currentEffect.isNotEmpty) ...[
+              // <-- ADDED: Display current effect if provided
               const SizedBox(height: 8),
-              Text(currentEffect, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic, color: Colors.grey[600])),
+              Text(currentEffect,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic, color: Colors.grey[600])),
             ],
             const SizedBox(height: 16),
             const Divider(),
@@ -172,35 +204,42 @@ class FacilitiesScreen extends StatelessWidget {
                   icon: const Icon(Icons.upgrade),
                   label: const Text('Upgrade'),
                   // Disable button if cannot afford
-                  onPressed: canAfford ? () {
-                    // Show confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext dialogContext) {
-                        return AlertDialog(
-                          title: Text('Confirm Upgrade'),
-                          content: Text('Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                              },
-                            ),
-                            TextButton(
-                              child: const Text('Upgrade'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                                onUpgrade(); // Execute the upgrade action passed in
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } : null, // Set onPressed to null to disable
+                  onPressed: canAfford
+                      ? () {
+                          // Show confirmation dialog
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext dialogContext) {
+                              return AlertDialog(
+                                title: Text('Confirm Upgrade'),
+                                content: Text(
+                                    'Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(dialogContext)
+                                          .pop(); // Close the dialog
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text('Upgrade'),
+                                    onPressed: () {
+                                      Navigator.of(dialogContext)
+                                          .pop(); // Close the dialog
+                                      onUpgrade(); // Execute the upgrade action passed in
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      : null, // Set onPressed to null to disable
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
+                    backgroundColor: canAfford
+                        ? Colors.green
+                        : Colors.grey, // Grey out if disabled
                     foregroundColor: Colors.white,
                   ),
                 ),

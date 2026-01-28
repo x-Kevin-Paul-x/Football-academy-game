@@ -10,20 +10,30 @@ class NewsScreen extends StatelessWidget {
 
   // Helper function to get an icon based on news type
   IconData _getIconForNewsType(NewsItemType type) {
-     switch (type) {
-       case NewsItemType.MatchResult: return Icons.sports_soccer;
-       case NewsItemType.Scouting: return Icons.search;
-       case NewsItemType.Training: return Icons.fitness_center;
-       case NewsItemType.TransferOffer: return Icons.swap_horiz;
-       case NewsItemType.TransferDecision: return Icons.gavel;
-       case NewsItemType.StaffChange: return Icons.person_add_alt_1; // Or person_remove
-       case NewsItemType.Finance: return Icons.attach_money;
-       case NewsItemType.Facility: return Icons.business;
-       case NewsItemType.PlayerSigned: return Icons.person_pin_circle;
-       case NewsItemType.Generic:
-       default: return Icons.article;
-     }
-   }
+    switch (type) {
+      case NewsItemType.MatchResult:
+        return Icons.sports_soccer;
+      case NewsItemType.Scouting:
+        return Icons.search;
+      case NewsItemType.Training:
+        return Icons.fitness_center;
+      case NewsItemType.TransferOffer:
+        return Icons.swap_horiz;
+      case NewsItemType.TransferDecision:
+        return Icons.gavel;
+      case NewsItemType.StaffChange:
+        return Icons.person_add_alt_1; // Or person_remove
+      case NewsItemType.Finance:
+        return Icons.attach_money;
+      case NewsItemType.Facility:
+        return Icons.business;
+      case NewsItemType.PlayerSigned:
+        return Icons.person_pin_circle;
+      case NewsItemType.Generic:
+      default:
+        return Icons.article;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,22 +59,35 @@ class NewsScreen extends StatelessWidget {
             itemCount: newsItems.length,
             itemBuilder: (context, index) {
               final item = newsItems[index];
-              final formattedItemDate = DateFormat('MMM d, yyyy').format(item.date);
+              final formattedItemDate =
+                  DateFormat('MMM d, yyyy').format(item.date);
               // Determine text style based on read status
               final itemTextStyle = item.isRead
-                  ? Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey) // Style for read items
-                  : Theme.of(context).textTheme.bodyMedium; // Default style for unread
+                  ? Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: Colors.grey) // Style for read items
+                  : Theme.of(context)
+                      .textTheme
+                      .bodyMedium; // Default style for unread
 
               return ListTile(
-                leading: Icon(_getIconForNewsType(item.type), color: item.isRead ? Colors.grey : null),
+                leading: Icon(_getIconForNewsType(item.type),
+                    color: item.isRead ? Colors.grey : null),
                 title: Text(
                   item.title,
-                  style: itemTextStyle?.copyWith(fontWeight: item.isRead ? FontWeight.normal : FontWeight.bold), // Bold if unread
+                  style: itemTextStyle?.copyWith(
+                      fontWeight: item.isRead
+                          ? FontWeight.normal
+                          : FontWeight.bold), // Bold if unread
                 ),
                 subtitle: Text(item.description, style: itemTextStyle),
                 trailing: Text(
                   formattedItemDate,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: item.isRead ? Colors.grey : null),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: item.isRead ? Colors.grey : null),
                 ),
                 dense: true,
                 // Optional: Add onTap to mark as read individually?

@@ -29,7 +29,8 @@ class EmptyState extends StatelessWidget {
               Icon(
                 icon,
                 size: 80,
-                color: colorScheme.outline, // Use outline color for decorative icons
+                color: colorScheme
+                    .outline, // Use outline color for decorative icons
               ),
               const SizedBox(height: 16),
               Text(
