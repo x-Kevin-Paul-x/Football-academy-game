@@ -46,7 +46,8 @@ class Staff {
   // MerchandiseManager specific
   MerchAssignmentType merchAssignment;
   // int currentMerchStockValue; // Removed: Stock will be managed centrally in GameStateManager
-  double merchProfitMarginEffectiveness; // 0.0 to 1.0, derived from skill, affects buy/sell prices
+  double
+      merchProfitMarginEffectiveness; // 0.0 to 1.0, derived from skill, affects buy/sell prices
 
   Staff({
     required this.id,
@@ -66,12 +67,13 @@ class Staff {
     this.merchAssignment = MerchAssignmentType.None, // Default assignment
     // this.currentMerchStockValue = 0, // Removed
     this.merchProfitMarginEffectiveness = 0.5, // Default effectiveness
-  }) : assignedPlayerIds = assignedPlayerIds ?? [],
-       maxPlayersTrainable = maxPlayersTrainable ?? 5,
-       knownFormations = knownFormations ?? [];
+  })  : assignedPlayerIds = assignedPlayerIds ?? [],
+        maxPlayersTrainable = maxPlayersTrainable ?? 5,
+        knownFormations = knownFormations ?? [];
 
   // Factory for generating random staff
-  factory Staff.randomStaff(String id, StaffRole role, {int? academyReputation}) {
+  factory Staff.randomStaff(String id, StaffRole role,
+      {int? academyReputation}) {
     final random = Random();
     const bool defaultIsAssignedForRandomStaff = true;
 
@@ -83,25 +85,32 @@ class Staff {
     // At 1000 reputation, potential is 50-100.
     int baseMinPotential = 20;
     int baseMaxPotential = 70;
-    double reputationFactor = (academyReputation ?? 0) / 1000.0; // Normalize reputation to 0.0 - 1.0
+    double reputationFactor =
+        (academyReputation ?? 0) / 1000.0; // Normalize reputation to 0.0 - 1.0
     int reputationBonus = (reputationFactor * 30).toInt(); // Max +30 bonus
 
-    int minPotential = (baseMinPotential + reputationBonus).clamp(10, 90); // Ensure min potential is reasonable
-    int maxPotential = (baseMaxPotential + reputationBonus).clamp(minPotential + 10, 100); // Ensure max is above min and capped
+    int minPotential = (baseMinPotential + reputationBonus)
+        .clamp(10, 90); // Ensure min potential is reasonable
+    int maxPotential = (baseMaxPotential + reputationBonus)
+        .clamp(minPotential + 10, 100); // Ensure max is above min and capped
 
-    int potential = minPotential + random.nextInt(maxPotential - minPotential + 1);
+    int potential =
+        minPotential + random.nextInt(maxPotential - minPotential + 1);
     potential = potential.clamp(10, 100); // Final clamp for safety
     // --- End Reputation Influence ---
 
-    int skill = (potential * (0.4 + random.nextDouble() * 0.5)).clamp(10, 95).toInt();
+    int skill =
+        (potential * (0.4 + random.nextDouble() * 0.5)).clamp(10, 95).toInt();
     int age = 25 + random.nextInt(36);
     int wage = 100 + (skill * 5) + (potential * 2) + random.nextInt(100);
     int loyalty = 40 + random.nextInt(51);
     int maxTrainable = 3 + (skill ~/ 20);
     List<FormationType> initialKnownFormations = [];
     Formation? initialPreferredFormation;
-    double initialMerchProfitMarginEffectiveness = 0.3 + (skill / 200.0); // Base 0.3 + up to 0.5 from skill (total 0.3 to 0.8)
-    initialMerchProfitMarginEffectiveness = initialMerchProfitMarginEffectiveness.clamp(0.1, 0.95); // Clamp it
+    double initialMerchProfitMarginEffectiveness = 0.3 +
+        (skill / 200.0); // Base 0.3 + up to 0.5 from skill (total 0.3 to 0.8)
+    initialMerchProfitMarginEffectiveness =
+        initialMerchProfitMarginEffectiveness.clamp(0.1, 0.95); // Clamp it
 
     if (role == StaffRole.Manager) {
       initialKnownFormations = _determineInitialKnownFormations(skill);
@@ -110,19 +119,22 @@ class Staff {
         FormationType? preferredType = initialKnownFormations.firstWhere(
           (ft) {
             // Find the corresponding Formation object to check its tournamentType
-            Formation? f = predefinedFormations.firstWhereOrNull((pf) => pf.type == ft);
+            Formation? f =
+                predefinedFormations.firstWhereOrNull((pf) => pf.type == ft);
             return f?.tournamentType == TournamentType.elevenVeleven;
           },
-          orElse: () => initialKnownFormations[random.nextInt(initialKnownFormations.length)], // Fallback to random known type
+          orElse: () => initialKnownFormations[random.nextInt(
+              initialKnownFormations.length)], // Fallback to random known type
         );
 
         // Find the actual Formation object from the predefined list based on the preferredType
         if (preferredType != null) {
-           initialPreferredFormation = predefinedFormations.firstWhereOrNull((f) => f.type == preferredType);
+          initialPreferredFormation = predefinedFormations
+              .firstWhereOrNull((f) => f.type == preferredType);
         }
         // Fallback if somehow the preferredType didn't yield a formation
-        initialPreferredFormation ??= predefinedFormations.firstWhereOrNull((f) => f.type == initialKnownFormations.first);
-
+        initialPreferredFormation ??= predefinedFormations
+            .firstWhereOrNull((f) => f.type == initialKnownFormations.first);
       }
     }
 
@@ -141,19 +153,26 @@ class Staff {
       isAssigned: defaultIsAssignedForRandomStaff,
       merchAssignment: MerchAssignmentType.None,
       // currentMerchStockValue: 0, // Removed
-      merchProfitMarginEffectiveness: (role == StaffRole.MerchandiseManager) ? initialMerchProfitMarginEffectiveness : 0.5,
+      merchProfitMarginEffectiveness: (role == StaffRole.MerchandiseManager)
+          ? initialMerchProfitMarginEffectiveness
+          : 0.5,
     );
   }
 
   // Helper to determine initial known formations based on skill
-  static List<FormationType> _determineInitialKnownFormations(int managerSkill) {
+  static List<FormationType> _determineInitialKnownFormations(
+      int managerSkill) {
     final random = Random();
     // Base number + skill bonus
-    int numKnown = 1 + (managerSkill ~/ 25); // 1 base + 1 for every 25 skill (max 5 at skill 100)
-    numKnown = numKnown.clamp(1, FormationType.values.length); // Clamp between 1 and total available
+    int numKnown = 1 +
+        (managerSkill ~/
+            25); // 1 base + 1 for every 25 skill (max 5 at skill 100)
+    numKnown = numKnown.clamp(
+        1, FormationType.values.length); // Clamp between 1 and total available
 
     // Get all formation types and shuffle
-    List<FormationType> allTypes = List.from(FormationType.values)..shuffle(random);
+    List<FormationType> allTypes = List.from(FormationType.values)
+      ..shuffle(random);
 
     // Select the determined number of formations
     return allTypes.sublist(0, numKnown);

@@ -69,11 +69,13 @@ class SerializableGameState {
   });
 
   // Connect to the generated functions
-  factory SerializableGameState.fromJson(Map<String, dynamic> json) => _$SerializableGameStateFromJson(json);
+  factory SerializableGameState.fromJson(Map<String, dynamic> json) =>
+      _$SerializableGameStateFromJson(json);
   Map<String, dynamic> toJson() => _$SerializableGameStateToJson(this);
 
   // Custom JSON converters for ThemeMode
-  static String _themeModeToJson(ThemeMode mode) => mode.toString().split('.').last;
+  static String _themeModeToJson(ThemeMode mode) =>
+      mode.toString().split('.').last;
   static ThemeMode _themeModeFromJson(String jsonValue) {
     return ThemeMode.values.firstWhere(
       (e) => e.toString().split('.').last == jsonValue,

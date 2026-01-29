@@ -25,7 +25,8 @@ class ScoutingScreen extends StatelessWidget {
       // Wrap body with Consumer
       body: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
-          final players = gameStateManager.scoutedPlayers; // Get list from provider
+          final players =
+              gameStateManager.scoutedPlayers; // Get list from provider
 
           return players.isEmpty
               ? const EmptyState(
@@ -33,7 +34,8 @@ class ScoutingScreen extends StatelessWidget {
                   title: 'No new players found this week.',
                   message: 'Hire more scouts or improve existing ones!',
                 )
-              : ListView.builder( // List view for players
+              : ListView.builder(
+                  // List view for players
                   padding: const EdgeInsets.all(8.0),
                   itemCount: players.length, // Use list from provider
                   itemBuilder: (context, index) {
@@ -46,16 +48,24 @@ class ScoutingScreen extends StatelessWidget {
                         Tooltip(
                           message: 'Sign player to your academy',
                           child: TextButton.icon(
-                            icon: Icon(Icons.check_circle_outline, color: Theme.of(context).colorScheme.primary),
-                            label: Text('Sign', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
+                            icon: Icon(Icons.check_circle_outline,
+                                color: Theme.of(context).colorScheme.primary),
+                            label: Text('Sign',
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.primary)),
                             onPressed: () => signPlayerCallback(player),
                           ),
                         ),
                         Tooltip(
                           message: 'Reject this player',
                           child: TextButton.icon(
-                            icon: Icon(Icons.cancel_outlined, color: Theme.of(context).colorScheme.error),
-                            label: Text('Reject', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            icon: Icon(Icons.cancel_outlined,
+                                color: Theme.of(context).colorScheme.error),
+                            label: Text('Reject',
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.error)),
                             onPressed: () => rejectPlayerCallback(player),
                           ),
                         ),

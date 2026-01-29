@@ -7,7 +7,8 @@ import '../models/staff.dart';
 class PlayerAssignmentScreen extends StatelessWidget {
   final Player player;
 
-  const PlayerAssignmentScreen({Key? key, required this.player}) : super(key: key);
+  const PlayerAssignmentScreen({Key? key, required this.player})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,26 +43,38 @@ class PlayerAssignmentScreen extends StatelessWidget {
                 return ListTile(
                   title: const Text('Unassign from Coach'),
                   leading: const Icon(Icons.person_remove_alt_1_outlined),
-                  tileColor: currentCoach == null ? Colors.grey[800] : null, // Highlight if unassigned
-                  onTap: currentCoach == null ? null : () { // Disable if already unassigned
-                    bool success = gameStateManager.unassignPlayerFromCoach(player.id, currentCoach.id);
-                     ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(
-                         content: Text(success ? 'Player unassigned.' : 'Failed to unassign.'),
-                         backgroundColor: success ? Colors.orangeAccent : Colors.redAccent,
-                       ),
-                     );
-                     if (success && context.mounted) {
-                       Navigator.pop(context); // Go back after unassigning
-                     }
-                  },
+                  tileColor: currentCoach == null
+                      ? Colors.grey[800]
+                      : null, // Highlight if unassigned
+                  onTap: currentCoach == null
+                      ? null
+                      : () {
+                          // Disable if already unassigned
+                          bool success =
+                              gameStateManager.unassignPlayerFromCoach(
+                                  player.id, currentCoach.id);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(success
+                                  ? 'Player unassigned.'
+                                  : 'Failed to unassign.'),
+                              backgroundColor: success
+                                  ? Colors.orangeAccent
+                                  : Colors.redAccent,
+                            ),
+                          );
+                          if (success && context.mounted) {
+                            Navigator.pop(context); // Go back after unassigning
+                          }
+                        },
                 );
               }
 
               // Coach assignment option
               final coach = coaches[index];
               final bool isCurrentCoach = currentCoach?.id == coach.id;
-              final bool canAssign = coach.assignedPlayerIds.length < coach.maxPlayersTrainable;
+              final bool canAssign =
+                  coach.assignedPlayerIds.length < coach.maxPlayersTrainable;
 
               return ListTile(
                 leading: const Icon(Icons.assignment_ind_outlined),
@@ -71,20 +84,32 @@ class PlayerAssignmentScreen extends StatelessWidget {
                 trailing: isCurrentCoach
                     ? const Icon(Icons.check_circle, color: Colors.green)
                     : null,
-                tileColor: isCurrentCoach ? Colors.green.withOpacity(0.1) : null,
-                onTap: isCurrentCoach ? null : (canAssign ? () { // Disable if current coach or coach is full
-                  bool success = gameStateManager.assignPlayerToCoach(player.id, coach.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(success ? 'Assigned to ${coach.name}.' : 'Failed to assign (Coach might be full).'),
-                      backgroundColor: success ? Colors.lightGreen : Colors.redAccent,
-                    ),
-                  );
-                  if (success && context.mounted) {
-                     Navigator.pop(context); // Go back after assigning
-                  }
-                } : null), // Disable tap if coach is full
-                 enabled: canAssign || isCurrentCoach, // Visually disable if full and not current coach
+                tileColor:
+                    isCurrentCoach ? Colors.green.withOpacity(0.1) : null,
+                onTap: isCurrentCoach
+                    ? null
+                    : (canAssign
+                        ? () {
+                            // Disable if current coach or coach is full
+                            bool success = gameStateManager.assignPlayerToCoach(
+                                player.id, coach.id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(success
+                                    ? 'Assigned to ${coach.name}.'
+                                    : 'Failed to assign (Coach might be full).'),
+                                backgroundColor: success
+                                    ? Colors.lightGreen
+                                    : Colors.redAccent,
+                              ),
+                            );
+                            if (success && context.mounted) {
+                              Navigator.pop(context); // Go back after assigning
+                            }
+                          }
+                        : null), // Disable tap if coach is full
+                enabled: canAssign ||
+                    isCurrentCoach, // Visually disable if full and not current coach
               );
             },
           );
