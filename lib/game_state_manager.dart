@@ -2733,6 +2733,11 @@ class GameStateManager with ChangeNotifier {
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
 
+      if (!validateLoadedState(loadedState)) {
+        print("--- ERROR: Save file validation failed. Aborting load. ---");
+        return false;
+      }
+
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
       _financeService.initialize(
@@ -3229,6 +3234,46 @@ class GameStateManager with ChangeNotifier {
     // print("Merchandise income this week: $merchandiseIncomeThisWeek. Fans: $_fans"); // Less verbose
   }
   // --- END Handle Merchandise Sales & Fan Updates ---
+
+  // --- Validation Logic ---
+  @visibleForTesting
+  bool validateLoadedState(SerializableGameState state) {
+    if (state.academyName.length > 25) {
+      print("Validation Error: Academy Name too long (${state.academyName.length})");
+      return false;
+    }
+    if (state.balance.isNaN || state.balance.isInfinite) {
+      print("Validation Error: Invalid Balance (${state.balance})");
+      return false;
+    }
+    if (state.academyPlayers.length > 200) {
+      print("Validation Error: Too many players (${state.academyPlayers.length})");
+      return false;
+    }
+    if (state.newsItems.length > 500) {
+      print("Validation Error: Too many news items (${state.newsItems.length})");
+      return false;
+    }
+    if (state.trainingFacilityLevel < 1 || state.trainingFacilityLevel > 20) {
+        print("Validation Error: Invalid Training Facility Level (${state.trainingFacilityLevel})");
+        return false;
+    }
+    if (state.scoutingFacilityLevel < 1 || state.scoutingFacilityLevel > 20) {
+        print("Validation Error: Invalid Scouting Facility Level (${state.scoutingFacilityLevel})");
+        return false;
+    }
+    if (state.medicalBayLevel < 1 || state.medicalBayLevel > 20) {
+        print("Validation Error: Invalid Medical Bay Level (${state.medicalBayLevel})");
+        return false;
+    }
+    // Check merchandise store level (>= 0)
+    if ((state.merchandiseStoreLevel ?? 0) < 0 || (state.merchandiseStoreLevel ?? 0) > 20) {
+         print("Validation Error: Invalid Merchandise Store Level (${state.merchandiseStoreLevel})");
+         return false;
+    }
+
+    return true;
+  }
 
   // --- End Save/Load Logic ---
 }
