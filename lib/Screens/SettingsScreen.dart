@@ -90,7 +90,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // --- Save Game Button ---
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
               child: ElevatedButton.icon(
                 icon: _isSaving
                     ? const SizedBox(
@@ -114,7 +115,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _isSaving = true;
                         });
 
-                        final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
+                        final gameStateManager = Provider.of<GameStateManager>(
+                            context,
+                            listen: false);
 
                         // Minimum delay to show the spinner even if save is instant
                         await Future.delayed(const Duration(milliseconds: 500));
@@ -128,7 +131,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
-                              content: Text(success ? 'Game Saved!' : 'Error saving game.'),
+                              content: Text(success
+                                  ? 'Game Saved!'
+                                  : 'Error saving game.'),
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -140,7 +145,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             // --- Reset Game Button ---
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0), // Reduced padding
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.warning_amber_rounded),
                 label: const Text('Reset Game Data'),
@@ -180,17 +186,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   // If confirmed, reset the game and navigate back to start screen
                   if (confirmReset == true && mounted) {
-                    Provider.of<GameStateManager>(context, listen: false).resetGame();
+                    Provider.of<GameStateManager>(context, listen: false)
+                        .resetGame();
                     // Navigate back to the StartScreen
                     // Use pushAndRemoveUntil to clear the navigation stack
                     Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (context) => const StartScreen()), // Navigate to StartScreen
-                      (Route<dynamic> route) => false, // Remove all previous routes
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const StartScreen()), // Navigate to StartScreen
+                      (Route<dynamic> route) =>
+                          false, // Remove all previous routes
                     );
-                     // Use captured scaffoldMessenger because context might be deactivated after navigation
-                     scaffoldMessenger.showSnackBar(
-                       const SnackBar(content: Text('Game Reset Successfully!')),
-                     );
+                    // Use captured scaffoldMessenger because context might be deactivated after navigation
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(content: Text('Game Reset Successfully!')),
+                    );
                   }
                 },
                 // child: const Text('Reset Game Data', style: TextStyle(fontSize: 16)), // Label is now in ElevatedButton.icon

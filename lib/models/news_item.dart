@@ -40,7 +40,8 @@ class NewsItem {
   });
 
   // Helper to generate a unique ID using uuid
-  @JsonKey(includeFromJson: false, includeToJson: false) // Exclude static helper
+  @JsonKey(
+      includeFromJson: false, includeToJson: false) // Exclude static helper
   static String _generateId() {
     return const Uuid().v4(); // Use v4 for random UUIDs
   }
@@ -64,6 +65,7 @@ class NewsItem {
   }
 
   // Added methods for JSON serialization
-  factory NewsItem.fromJson(Map<String, dynamic> json) => _$NewsItemFromJson(json);
+  factory NewsItem.fromJson(Map<String, dynamic> json) =>
+      _$NewsItemFromJson(json);
   Map<String, dynamic> toJson() => _$NewsItemToJson(this);
 }

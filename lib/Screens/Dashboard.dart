@@ -82,21 +82,26 @@ class _DashboardState extends State<Dashboard> {
   // --- Callbacks (Simplified - No longer passing state down) ---
 
   void _hireStaff(Staff staffToHire) {
-    Provider.of<GameStateManager>(context, listen: false).hireStaff(staffToHire);
+    Provider.of<GameStateManager>(context, listen: false)
+        .hireStaff(staffToHire);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Hired ${staffToHire.name} (${staffToHire.role.name})')),
+      SnackBar(
+          content:
+              Text('Hired ${staffToHire.name} (${staffToHire.role.name})')),
     );
   }
 
-   void _signPlayer(Player playerToSign) {
-     Provider.of<GameStateManager>(context, listen: false).signPlayer(playerToSign);
-     ScaffoldMessenger.of(context).showSnackBar(
+  void _signPlayer(Player playerToSign) {
+    Provider.of<GameStateManager>(context, listen: false)
+        .signPlayer(playerToSign);
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Signed ${playerToSign.name}')),
     );
   }
 
-   void _rejectPlayer(Player playerToReject) {
-     Provider.of<GameStateManager>(context, listen: false).rejectPlayer(playerToReject);
+  void _rejectPlayer(Player playerToReject) {
+    Provider.of<GameStateManager>(context, listen: false)
+        .rejectPlayer(playerToReject);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Rejected ${playerToReject.name}')),
     );
@@ -108,8 +113,11 @@ class _DashboardState extends State<Dashboard> {
   Widget _buildDashboardHome() {
     return Consumer<GameStateManager>(
       builder: (context, gameStateManager, child) {
-        final String formattedDate = _dateFormatter.format(gameStateManager.currentDate);
-        final int unreadNewsCount = gameStateManager.newsItems.where((item) => !item.isRead).length; // Count unread news
+        final String formattedDate =
+            _dateFormatter.format(gameStateManager.currentDate);
+        final int unreadNewsCount = gameStateManager.newsItems
+            .where((item) => !item.isRead)
+            .length; // Count unread news
 
         return Center(
           child: Padding(
@@ -129,7 +137,11 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(height: 10),
                 Text(
                   'Balance: \$${gameStateManager.balance.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 18, color: gameStateManager.balance >= 0 ? Colors.green : Colors.red),
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: gameStateManager.balance >= 0
+                          ? Colors.green
+                          : Colors.red),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -144,7 +156,8 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(height: 10),
                 Text(
                   'Fans: ${NumberFormat("#,##0", "en_US").format(gameStateManager.fans)}', // Added Fan Count
-                  style: const TextStyle(fontSize: 16, color: Colors.teal), // Example color
+                  style: const TextStyle(
+                      fontSize: 16, color: Colors.teal), // Example color
                 ),
                 const SizedBox(height: 30),
                 Tooltip(
@@ -172,27 +185,31 @@ class _DashboardState extends State<Dashboard> {
                   child: ElevatedButton.icon(
                     onPressed: () {
                       // Navigate to the NewsScreen FIRST
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const NewsScreen()),
-                    ).then((_) {
-                      // Mark as read AFTER returning from NewsScreen
-                      // This ensures the NewsScreen initially shows unread items correctly.
-                      // The badge on the dashboard will update when the dashboard rebuilds.
-                      Provider.of<GameStateManager>(context, listen: false).markAllNewsAsRead();
-                    });
-                  },
-                  icon: Badge( // Add badge to the icon
-                    label: Text(unreadNewsCount.toString()),
-                    isLabelVisible: unreadNewsCount > 0,
-                    child: const Icon(Icons.article),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NewsScreen()),
+                      ).then((_) {
+                        // Mark as read AFTER returning from NewsScreen
+                        // This ensures the NewsScreen initially shows unread items correctly.
+                        // The badge on the dashboard will update when the dashboard rebuilds.
+                        Provider.of<GameStateManager>(context, listen: false)
+                            .markAllNewsAsRead();
+                      });
+                    },
+                    icon: Badge(
+                      // Add badge to the icon
+                      label: Text(unreadNewsCount.toString()),
+                      isLabelVisible: unreadNewsCount > 0,
+                      child: const Icon(Icons.article),
+                    ),
+                    label: const Text('View News Feed'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
+                      textStyle: const TextStyle(fontSize: 16),
+                    ),
                   ),
-                  label: const Text('View News Feed'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                ),
                 ),
               ],
             ),
@@ -208,18 +225,54 @@ class _DashboardState extends State<Dashboard> {
   // Note: _buildScreenData is now called within build method to ensure context is available if needed later
   List<Map<String, dynamic>> _buildScreenData(BuildContext context) {
     return [
-      {'title': 'Dashboard', 'screen': null, 'icon': Icons.home}, // Screen is built directly
-      {'title': 'Finance', 'screen': const FinanceScreen(), 'icon': Icons.attach_money},
-      {'title': 'Players', 'screen': const PlayerManagementScreen(), 'icon': Icons.people},
-      {'title': 'Scouting', 'screen': ScoutingScreen(
+      {
+        'title': 'Dashboard',
+        'screen': null,
+        'icon': Icons.home
+      }, // Screen is built directly
+      {
+        'title': 'Finance',
+        'screen': const FinanceScreen(),
+        'icon': Icons.attach_money
+      },
+      {
+        'title': 'Players',
+        'screen': const PlayerManagementScreen(),
+        'icon': Icons.people
+      },
+      {
+        'title': 'Scouting',
+        'screen': ScoutingScreen(
           signPlayerCallback: _signPlayer,
           rejectPlayerCallback: _rejectPlayer,
-        ), 'icon': Icons.search},
-      {'title': 'Staff', 'screen': const StaffManagementScreen(), 'icon': Icons.work},
-      {'title': 'Facilities', 'screen': const FacilitiesScreen(), 'icon': Icons.business},
-      {'title': 'Transfers', 'screen': const TransferOffersScreen(), 'icon': Icons.swap_horiz},
-      {'title': 'Tournaments', 'screen': const TournamentsScreen(), 'icon': Icons.emoji_events},
-      {'title': 'Settings', 'screen': const SettingsScreen(), 'icon': Icons.settings},
+        ),
+        'icon': Icons.search
+      },
+      {
+        'title': 'Staff',
+        'screen': const StaffManagementScreen(),
+        'icon': Icons.work
+      },
+      {
+        'title': 'Facilities',
+        'screen': const FacilitiesScreen(),
+        'icon': Icons.business
+      },
+      {
+        'title': 'Transfers',
+        'screen': const TransferOffersScreen(),
+        'icon': Icons.swap_horiz
+      },
+      {
+        'title': 'Tournaments',
+        'screen': const TournamentsScreen(),
+        'icon': Icons.emoji_events
+      },
+      {
+        'title': 'Settings',
+        'screen': const SettingsScreen(),
+        'icon': Icons.settings
+      },
     ];
   }
 
@@ -236,8 +289,13 @@ class _DashboardState extends State<Dashboard> {
     final currentScreenData = screenDataList[_selectedIndex];
 
     final Brightness brightness = Theme.of(context).brightness;
-    final Color appBarBackgroundColor = Theme.of(context).appBarTheme.backgroundColor ?? (brightness == Brightness.dark ? Colors.grey[850]! : Colors.deepPurple);
-    final Color appBarForegroundColor = Theme.of(context).appBarTheme.foregroundColor ?? (brightness == Brightness.dark ? Colors.white : Colors.white);
+    final Color appBarBackgroundColor = Theme.of(context)
+            .appBarTheme
+            .backgroundColor ??
+        (brightness == Brightness.dark ? Colors.grey[850]! : Colors.deepPurple);
+    final Color appBarForegroundColor =
+        Theme.of(context).appBarTheme.foregroundColor ??
+            (brightness == Brightness.dark ? Colors.white : Colors.white);
 
     return Scaffold(
       appBar: AppBar(
@@ -248,7 +306,8 @@ class _DashboardState extends State<Dashboard> {
       ),
       body: _selectedIndex == 0
           ? _buildDashboardHome() // Build dashboard directly
-          : currentScreenData['screen'] as Widget?, // Use screen from list, allowing null
+          : currentScreenData['screen']
+              as Widget?, // Use screen from list, allowing null
       bottomNavigationBar: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
           // Filter offers to only count those for the player's academy

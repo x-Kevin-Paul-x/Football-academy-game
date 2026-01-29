@@ -42,7 +42,8 @@ class TransferOffersScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final offer = offers[index];
               final String playerName = offer['playerName'] ?? 'Unknown Player';
-              final String offeringClub = offer['offeringClubName'] ?? 'Unknown Club';
+              final String offeringClub =
+                  offer['offeringClubName'] ?? 'Unknown Club';
               final int offerAmount = offer['offerAmount'] ?? 0;
 
               return Card(
@@ -59,30 +60,44 @@ class TransferOffersScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         'Offer from: $offeringClub',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Offer Amount: ${currencyFormat.format(offerAmount)}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.green[700]),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green[700]),
                       ),
                       const Divider(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           TextButton.icon(
-                            icon: const Icon(Icons.cancel_outlined, color: Colors.redAccent),
-                            label: const Text('Reject', style: TextStyle(color: Colors.redAccent)),
+                            icon: const Icon(Icons.cancel_outlined,
+                                color: Colors.redAccent),
+                            label: const Text('Reject',
+                                style: TextStyle(color: Colors.redAccent)),
                             onPressed: () {
                               // Show confirmation dialog before rejecting
                               _showConfirmationDialog(
                                 context: context,
                                 title: 'Reject Offer',
-                                content: 'Are you sure you want to reject the offer for $playerName from $offeringClub?',
+                                content:
+                                    'Are you sure you want to reject the offer for $playerName from $offeringClub?',
                                 onConfirm: () {
                                   gameStateManager.rejectTransferOffer(offer);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Rejected offer for $playerName.'), backgroundColor: Colors.orangeAccent),
+                                    SnackBar(
+                                        content: Text(
+                                            'Rejected offer for $playerName.'),
+                                        backgroundColor: Colors.orangeAccent),
                                   );
                                 },
                               );
@@ -94,14 +109,18 @@ class TransferOffersScreen extends StatelessWidget {
                             label: const Text('Accept'),
                             onPressed: () {
                               // Show confirmation dialog before accepting
-                               _showConfirmationDialog(
+                              _showConfirmationDialog(
                                 context: context,
                                 title: 'Accept Offer',
-                                content: 'Are you sure you want to accept the offer for $playerName from $offeringClub for ${currencyFormat.format(offerAmount)}?\nThe player will leave the academy immediately.',
+                                content:
+                                    'Are you sure you want to accept the offer for $playerName from $offeringClub for ${currencyFormat.format(offerAmount)}?\nThe player will leave the academy immediately.',
                                 onConfirm: () {
                                   gameStateManager.acceptTransferOffer(offer);
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Accepted offer for $playerName! Received ${currencyFormat.format(offerAmount)}.'), backgroundColor: Colors.lightGreen),
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Accepted offer for $playerName! Received ${currencyFormat.format(offerAmount)}.'),
+                                        backgroundColor: Colors.lightGreen),
                                   );
                                 },
                               );

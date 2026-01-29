@@ -14,7 +14,8 @@ class TournamentsScreen extends StatefulWidget {
 }
 
 class _TournamentsScreenState extends State<TournamentsScreen> {
-  final String playerAcademyId = GameStateManager.playerAcademyId; // Use constant from GameStateManager
+  final String playerAcademyId =
+      GameStateManager.playerAcademyId; // Use constant from GameStateManager
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +25,13 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
         int currentPlayerCount = gameStateManager.academyPlayers.length;
 
         // Determine the highest unlocked tournament type based on player count (simple logic for now)
-        TournamentType highestUnlocked = TournamentType.threeVthree; // Start with 3v3
+        TournamentType highestUnlocked =
+            TournamentType.threeVthree; // Start with 3v3
         if (currentPlayerCount >= 5) highestUnlocked = TournamentType.fiveVfive;
-        if (currentPlayerCount >= 7) highestUnlocked = TournamentType.sevenVseven;
-        if (currentPlayerCount >= 11) highestUnlocked = TournamentType.elevenVeleven;
+        if (currentPlayerCount >= 7)
+          highestUnlocked = TournamentType.sevenVseven;
+        if (currentPlayerCount >= 11)
+          highestUnlocked = TournamentType.elevenVeleven;
 
         return DefaultTabController(
           length: 3, // Available, Active, History
@@ -53,8 +57,9 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                   highestUnlocked: highestUnlocked,
                 ),
                 // --- Active Tournaments Tab (Scheduled & InProgress Instances) ---
-                 _buildTournamentList(
-                  gameStateManager.activeTournaments, // Show all active (Scheduled + InProgress)
+                _buildTournamentList(
+                  gameStateManager
+                      .activeTournaments, // Show all active (Scheduled + InProgress)
                   isTemplates: false,
                   gameStateManager: gameStateManager,
                   currentPlayerCount: currentPlayerCount,
@@ -65,8 +70,10 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                   gameStateManager.completedTournaments,
                   isTemplates: false, // It's an instance list, not templates
                   gameStateManager: gameStateManager,
-                  currentPlayerCount: currentPlayerCount, // Not strictly needed for history, but pass for consistency
-                  highestUnlocked: highestUnlocked, // Not strictly needed for history
+                  currentPlayerCount:
+                      currentPlayerCount, // Not strictly needed for history, but pass for consistency
+                  highestUnlocked:
+                      highestUnlocked, // Not strictly needed for history
                 ),
               ],
             ),
@@ -81,16 +88,19 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     required bool isTemplates,
     required GameStateManager gameStateManager,
     required int currentPlayerCount,
-    required TournamentType highestUnlocked, // Keep for potential future filtering
+    required TournamentType
+        highestUnlocked, // Keep for potential future filtering
   }) {
     if (tournaments.isEmpty) {
       String message = "No tournaments available.";
-      if (!isTemplates && tournaments.every((t) => t.status == TournamentStatus.Completed)) {
+      if (!isTemplates &&
+          tournaments.every((t) => t.status == TournamentStatus.Completed)) {
         message = "No completed tournaments yet.";
-      } else if (!isTemplates && tournaments.every((t) => t.status != TournamentStatus.Completed)) {
-         message = "No active tournaments currently.";
+      } else if (!isTemplates &&
+          tournaments.every((t) => t.status != TournamentStatus.Completed)) {
+        message = "No active tournaments currently.";
       } else if (isTemplates) {
-         message = "No new tournament opportunities right now.";
+        message = "No new tournament opportunities right now.";
       }
       return Center(child: Text(message));
     }
@@ -98,20 +108,26 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
 
     // *** FIX: Create a mutable copy before sorting ***
-    final List<Tournament> displayTournaments = List<Tournament>.from(tournaments);
+    final List<Tournament> displayTournaments =
+        List<Tournament>.from(tournaments);
 
     // Sort active tournaments: InProgress first, then Scheduled by date
-    if (!isTemplates && displayTournaments.any((t) => t.status != TournamentStatus.Completed)) {
+    if (!isTemplates &&
+        displayTournaments.any((t) => t.status != TournamentStatus.Completed)) {
       displayTournaments.sort((a, b) {
-        if (a.status == TournamentStatus.InProgress && b.status != TournamentStatus.InProgress) return -1;
-        if (a.status != TournamentStatus.InProgress && b.status == TournamentStatus.InProgress) return 1;
+        if (a.status == TournamentStatus.InProgress &&
+            b.status != TournamentStatus.InProgress) return -1;
+        if (a.status != TournamentStatus.InProgress &&
+            b.status == TournamentStatus.InProgress) return 1;
         // If both are Scheduled or both InProgress, sort by start date
         return a.startDate.compareTo(b.startDate);
       });
     }
     // Sort completed tournaments by start date descending (newest first)
-    else if (!isTemplates && displayTournaments.every((t) => t.status == TournamentStatus.Completed)) {
-       displayTournaments.sort((a, b) => b.startDate.compareTo(a.startDate));
+    else if (!isTemplates &&
+        displayTournaments
+            .every((t) => t.status == TournamentStatus.Completed)) {
+      displayTournaments.sort((a, b) => b.startDate.compareTo(a.startDate));
     }
     // No sorting needed for templates (isTemplates == true)
 
@@ -129,14 +145,17 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
 
         if (isTemplates) {
           meetsPlayers = currentPlayerCount >= tournament.requiredPlayers;
-          meetsReputation = gameStateManager.academyReputation >= tournament.requiredReputation;
-          canJoin = meetsPlayers && meetsReputation && gameStateManager.balance >= tournament.entryFee;
+          meetsReputation = gameStateManager.academyReputation >=
+              tournament.requiredReputation;
+          canJoin = meetsPlayers &&
+              meetsReputation &&
+              gameStateManager.balance >= tournament.entryFee;
 
           alreadyJoined = gameStateManager.activeTournaments.any((at) =>
-              at.baseId == tournament.id && at.teamIds.contains(playerAcademyId)
-          );
+              at.baseId == tournament.id &&
+              at.teamIds.contains(playerAcademyId));
         } else {
-           alreadyJoined = tournament.teamIds.contains(playerAcademyId);
+          alreadyJoined = tournament.teamIds.contains(playerAcademyId);
         }
 
         return Card(
@@ -148,60 +167,78 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
               color: Theme.of(context).colorScheme.secondary,
               size: 40,
             ),
-            title: Text(tournament.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(tournament.name,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Type: ${tournament.typeDisplay}'),
                 Text('Requires: ${tournament.requiredPlayers} players'),
                 Text('Reputation Req: ${tournament.requiredReputation}'),
-                Text('Entry Fee: ${currencyFormat.format(tournament.entryFee)}'),
-                Text('Prize (Base): ${currencyFormat.format(tournament.prizeMoneyBase)}'),
+                Text(
+                    'Entry Fee: ${currencyFormat.format(tournament.entryFee)}'),
+                Text(
+                    'Prize (Base): ${currencyFormat.format(tournament.prizeMoneyBase)}'),
                 if (!isTemplates) // Show status and dates only for instances
-                  Text('Status: ${tournament.status.toString().split('.').last}'),
+                  Text(
+                      'Status: ${tournament.status.toString().split('.').last}'),
                 if (!isTemplates)
-                   Text('Teams: ${tournament.teamIds.length} / ${tournament.numberOfTeams}'),
-                if (!isTemplates && tournament.status != TournamentStatus.Scheduled)
-                   Text('Starts: ${DateFormat.yMMMd().format(tournament.startDate)}'),
-                if (tournament.status == TournamentStatus.Completed && tournament.winnerId != null)
-                   Text('Winner: ${_getTeamName(tournament.winnerId!, gameStateManager)}', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+                  Text(
+                      'Teams: ${tournament.teamIds.length} / ${tournament.numberOfTeams}'),
+                if (!isTemplates &&
+                    tournament.status != TournamentStatus.Scheduled)
+                  Text(
+                      'Starts: ${DateFormat.yMMMd().format(tournament.startDate)}'),
+                if (tournament.status == TournamentStatus.Completed &&
+                    tournament.winnerId != null)
+                  Text(
+                      'Winner: ${_getTeamName(tournament.winnerId!, gameStateManager)}',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary)),
               ],
             ),
             trailing: isTemplates
-              ? _buildEnterButton(
-                  context,
-                  tournament, // Pass template
-                  canJoin,
-                  alreadyJoined,
-                  meetsPlayers,
-                  meetsReputation,
-                  gameStateManager,
-                )
-              : (tournament.status != TournamentStatus.Scheduled // Don't show button for scheduled before start
-                  ? IconButton(
-                      icon: const Icon(Icons.info_outline),
-                      tooltip: 'View Details',
-                      onPressed: () {
+                ? _buildEnterButton(
+                    context,
+                    tournament, // Pass template
+                    canJoin,
+                    alreadyJoined,
+                    meetsPlayers,
+                    meetsReputation,
+                    gameStateManager,
+                  )
+                : (tournament.status !=
+                        TournamentStatus
+                            .Scheduled // Don't show button for scheduled before start
+                    ? IconButton(
+                        icon: const Icon(Icons.info_outline),
+                        tooltip: 'View Details',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TournamentDetailsScreen(
+                                  tournamentId: tournament.id),
+                            ),
+                          );
+                        },
+                      )
+                    : null // No button for scheduled
+                ),
+            onTap:
+                !isTemplates && tournament.status != TournamentStatus.Scheduled
+                    ? () {
+                        // Allow tapping list tile to navigate for active/completed
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => TournamentDetailsScreen(tournamentId: tournament.id),
+                            builder: (context) => TournamentDetailsScreen(
+                                tournamentId: tournament.id),
                           ),
                         );
-                      },
-                    )
-                  : null // No button for scheduled
-                ),
-             onTap: !isTemplates && tournament.status != TournamentStatus.Scheduled
-                ? () { // Allow tapping list tile to navigate for active/completed
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TournamentDetailsScreen(tournamentId: tournament.id),
-                      ),
-                    );
-                  }
-                : null, // No action on tap for templates or scheduled
+                      }
+                    : null, // No action on tap for templates or scheduled
             isThreeLine: true, // Adjust based on content, might need more lines
           ),
         );
@@ -211,11 +248,16 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
 
   IconData _getTournamentIcon(TournamentType type) {
     switch (type) {
-      case TournamentType.threeVthree: return Icons.looks_3;
-      case TournamentType.fiveVfive: return Icons.looks_5;
-      case TournamentType.sevenVseven: return Icons.looks_one; // Placeholder
-      case TournamentType.elevenVeleven: return Icons.emoji_events; // Trophy icon
-      default: return Icons.help_outline;
+      case TournamentType.threeVthree:
+        return Icons.looks_3;
+      case TournamentType.fiveVfive:
+        return Icons.looks_5;
+      case TournamentType.sevenVseven:
+        return Icons.looks_one; // Placeholder
+      case TournamentType.elevenVeleven:
+        return Icons.emoji_events; // Trophy icon
+      default:
+        return Icons.help_outline;
     }
   }
 
@@ -242,16 +284,23 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     }
 
     String buttonText = 'Join';
-    Color? buttonColor = canJoinOverall ? Theme.of(context).colorScheme.primary : Colors.grey[600];
-    Color? textColor = canJoinOverall ? Theme.of(context).colorScheme.onPrimary : Colors.grey[400];
+    Color? buttonColor = canJoinOverall
+        ? Theme.of(context).colorScheme.primary
+        : Colors.grey[600];
+    Color? textColor = canJoinOverall
+        ? Theme.of(context).colorScheme.onPrimary
+        : Colors.grey[400];
     String? tooltipMessage;
 
     if (!meetsPlayers) {
-      tooltipMessage = 'Need ${tournamentTemplate.requiredPlayers} players (Have ${gameStateManager.academyPlayers.length})';
+      tooltipMessage =
+          'Need ${tournamentTemplate.requiredPlayers} players (Have ${gameStateManager.academyPlayers.length})';
     } else if (!meetsReputation) {
-      tooltipMessage = 'Need ${tournamentTemplate.requiredReputation} reputation (Have ${gameStateManager.academyReputation})';
+      tooltipMessage =
+          'Need ${tournamentTemplate.requiredReputation} reputation (Have ${gameStateManager.academyReputation})';
     } else if (gameStateManager.balance < tournamentTemplate.entryFee) {
-       tooltipMessage = 'Need ${currencyFormat.format(tournamentTemplate.entryFee)} (Have ${currencyFormat.format(gameStateManager.balance)})';
+      tooltipMessage =
+          'Need ${currencyFormat.format(tournamentTemplate.entryFee)} (Have ${currencyFormat.format(gameStateManager.balance)})';
     }
 
     // Create the button widget first
@@ -290,7 +339,8 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
   }
 
   // --- Join Confirmation Dialog ---
-  void _showJoinConfirmationDialog(BuildContext context, Tournament template, GameStateManager gameState) {
+  void _showJoinConfirmationDialog(
+      BuildContext context, Tournament template, GameStateManager gameState) {
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');
     showDialog(
       context: context,
@@ -326,13 +376,17 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                 Navigator.of(context).pop(); // Close dialog
 
                 if (success) {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(content: Text('Successfully joined ${template.name}! It will start soon.')),
-                   );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'Successfully joined ${template.name}! It will start soon.')),
+                  );
                 } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(content: Text('Failed to join ${template.name}. Requirements might have changed or not enough participants found.')),
-                   );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(
+                            'Failed to join ${template.name}. Requirements might have changed or not enough participants found.')),
+                  );
                 }
                 // No need for setState here, GameStateManager notifies listeners
               },
