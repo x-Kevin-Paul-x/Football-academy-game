@@ -461,10 +461,10 @@ class GameStateManager with ChangeNotifier {
   }
 
   // Reset Game
-  void resetGame() {
+  void resetGame({String? academyName}) {
     print("--- RESETTING GAME STATE ---");
     _timeService.initialize(DateTime(2025, 1, 1)); // Reset Date
-    _academyName = "My Academy";
+    _academyName = academyName ?? "My Academy";
     // _difficulty = Difficulty.Normal; // Keep selected difficulty or reset? Let's keep it.
     _themeMode = ThemeMode.system;
     _academyPlayers.clear();
