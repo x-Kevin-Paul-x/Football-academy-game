@@ -44,15 +44,92 @@ class _StartScreenState extends State<StartScreen> {
               onPressed: _isLoading
                   ? null
                   : () {
-                      // Reset game state for a new game
-                      gameStateManager.resetGame();
-                      // Navigate to the main dashboard
-                      Navigator.pushReplacement(
-                        // Use pushReplacement so user can't go back to start screen
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
+                      final TextEditingController nameController =
+                          TextEditingController(text: 'My Academy');
+                      final GlobalKey<FormState> formKey =
+                          GlobalKey<FormState>();
+
+                      showDialog<bool>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Start New Game'),
+                            content: Form(
+                              key: formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Enter your academy name:'),
+                                  const SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: nameController,
+                                    autofocus: true,
+                                    textInputAction: TextInputAction.done,
+                                    textCapitalization:
+                                        TextCapitalization.words,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Academy Name',
+                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(Icons.school),
+                                      hintText: 'e.g. Future Stars',
+                                    ),
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
+                                        return 'Required';
+                                      }
+                                      if (value.trim().length < 3) {
+                                        return 'Min 3 chars';
+                                      }
+                                      if (value.trim().length > 25) {
+                                        return 'Max 25 chars';
+                                      }
+                                      return null;
+                                    },
+                                    onFieldSubmitted: (_) {
+                                      if (formKey.currentState!.validate()) {
+                                        Navigator.of(context).pop(true);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    Navigator.of(context).pop(true);
+                                  }
+                                },
+                                child: const Text('Start Game'),
+                              ),
+                            ],
+                          );
+                        },
+                      ).then((result) {
+                        if (!mounted) {
+                          nameController.dispose();
+                          return;
+                        }
+                        if (result == true) {
+                          gameStateManager.resetGame(
+                              academyName: nameController.text.trim());
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Dashboard()),
+                          );
+                        }
+                        nameController.dispose();
+                      });
                     },
             ),
             const SizedBox(height: 20),
