@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Visualizing Bounded Attributes
+**Learning:** Users perceive numerical stats (like Fatigue/Stamina) faster when visualized as progress bars with color interpolation (Green->Red) rather than raw text.
+**Action:** Use `LinearProgressIndicator` wrapped in `ClipRRect` and `Semantics` for all percentage-based or bounded integer attributes (0-20, 0-100) to improve scanability.
