@@ -7,6 +7,7 @@ import '../models/player_status.dart'; // Import PlayerStatus enum and helper
 import '../widgets/player_card.dart'; // Assuming a PlayerCard widget exists
 import 'PlayerAssignmentScreen.dart'; // Import the assignment screen
 import 'package:intl/intl.dart'; // For number formatting
+import '../widgets/empty_state.dart';
 
 class PlayerManagementScreen extends StatelessWidget {
   // REMOVED constructor parameter - data will come from GameStateManager via Consumer
@@ -23,27 +24,15 @@ class PlayerManagementScreen extends StatelessWidget {
           // Access academyPlayers from gameStateManager
           final List<Player> academyPlayers = gameStateManager.academyPlayers;
 
-          // Return the conditional UI based on academyPlayers
-          return academyPlayers.isEmpty
-              ? Center(
-                  child: Column(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_search, size: 80, color: Theme.of(context).colorScheme.outline),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No players in the academy yet.',
-                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Scout and sign players to build your team!',
-                    style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
+          if (academyPlayers.isEmpty) {
+            return const EmptyState(
+              icon: Icons.person_search,
+              title: 'No players in the academy yet.',
+              message: 'Scout and sign players to build your team!',
+            );
+          }
+
+          return ListView.builder(
               padding: const EdgeInsets.all(8.0),
               itemCount: academyPlayers.length,
               itemBuilder: (context, index) {
