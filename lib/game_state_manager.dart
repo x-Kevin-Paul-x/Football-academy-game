@@ -461,10 +461,26 @@ class GameStateManager with ChangeNotifier {
   }
 
   // Reset Game
-  void resetGame() {
+  void resetGame({String? academyName}) {
     print("--- RESETTING GAME STATE ---");
+
+    // Sentinel Security: Input Validation for Academy Name
+    String finalAcademyName = "My Academy";
+    if (academyName != null) {
+      final trimmedName = academyName.trim();
+      if (trimmedName.length < 3 || trimmedName.length > 25) {
+        throw ArgumentError("Academy Name must be between 3 and 25 characters.");
+      }
+      // Strict regex: Alphanumeric and spaces only. Prevents XSS and shell injection characters.
+      final validCharacters = RegExp(r'^[a-zA-Z0-9 ]+$');
+      if (!validCharacters.hasMatch(trimmedName)) {
+        throw ArgumentError("Academy Name can only contain letters, numbers, and spaces.");
+      }
+      finalAcademyName = trimmedName;
+    }
+
     _timeService.initialize(DateTime(2025, 1, 1)); // Reset Date
-    _academyName = "My Academy";
+    _academyName = finalAcademyName;
     // _difficulty = Difficulty.Normal; // Keep selected difficulty or reset? Let's keep it.
     _themeMode = ThemeMode.system;
     _academyPlayers.clear();
