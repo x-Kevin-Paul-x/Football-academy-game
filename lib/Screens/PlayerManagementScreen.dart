@@ -129,8 +129,20 @@ class PlayerManagementScreen extends StatelessWidget {
                 _buildDetailRow('Position:', player.positionString), // Use positionString getter
                 _buildDetailRow('Age:', player.age.toString()),
                 _buildDetailRow('Skill:', '${player.currentSkill} / ${player.potentialSkill}'),
-                _buildDetailRow('Stamina:', player.stamina.toString()), // New
-                _buildDetailRow('Fatigue:', '${player.fatigue.toStringAsFixed(1)}%'), // New
+                _buildStatBar(
+                  context,
+                  label: 'Stamina:',
+                  valueText: player.stamina.toString(),
+                  percent: player.stamina / 20.0,
+                  color: Colors.green,
+                ),
+                _buildStatBar(
+                  context,
+                  label: 'Fatigue:',
+                  valueText: '${player.fatigue.toStringAsFixed(1)}%',
+                  percent: player.fatigue / 100.0,
+                  color: Color.lerp(Colors.green, Colors.red, player.fatigue / 100.0) ?? Colors.red,
+                ),
                 _buildDetailRow('Reputation:', player.reputation.toString()),
                 _buildDetailRow('Weekly Wage:', currencyFormat.format(player.weeklyWage)),
                 _buildDetailRow('Status:', playerStatusToString(player.status)), // New
@@ -187,6 +199,43 @@ class PlayerManagementScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Helper widget for visual stats (Palette UX improvement)
+  Widget _buildStatBar(BuildContext context,
+      {required String label, required String valueText, required double percent, required Color color}) {
+    // Ensure percent is between 0 and 1
+    final clampedPercent = percent.clamp(0.0, 1.0);
+
+    return Semantics(
+      label: '$label $valueText',
+      value: valueText,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(valueText),
+              ],
+            ),
+            const SizedBox(height: 4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: clampedPercent,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                minHeight: 8,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
