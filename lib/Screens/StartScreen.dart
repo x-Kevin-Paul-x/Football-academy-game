@@ -43,17 +43,7 @@ class _StartScreenState extends State<StartScreen> {
               ),
               onPressed: _isLoading
                   ? null
-                  : () {
-                      // Reset game state for a new game
-                      gameStateManager.resetGame();
-                      // Navigate to the main dashboard
-                      Navigator.pushReplacement(
-                        // Use pushReplacement so user can't go back to start screen
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
-                    },
+                  : () => _showNewGameDialog(context, gameStateManager),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -118,5 +108,94 @@ class _StartScreenState extends State<StartScreen> {
         ),
       ),
     );
+  }
+
+  void _showNewGameDialog(BuildContext context, GameStateManager gameStateManager) {
+    // Controller and Key for the dialog form
+    final TextEditingController nameController =
+        TextEditingController(text: "My Academy");
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Start New Game'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Enter your academy name:'),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: nameController,
+                  maxLength: 25,
+                  decoration: const InputDecoration(
+                    labelText: 'Academy Name',
+                    border: OutlineInputBorder(),
+                    hintText: 'e.g. My Academy',
+                    helperText: '3-25 chars, alphanumeric only',
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    // Client-side validation mirroring the backend security rules
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter a name.';
+                    }
+                    if (value.trim().length < 3) {
+                      return 'Name must be at least 3 characters.';
+                    }
+                    if (!RegExp(r'^[a-zA-Z0-9 ]+$').hasMatch(value.trim())) {
+                      return 'Only letters, numbers, and spaces.';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            ElevatedButton(
+              child: const Text('Start Game'),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  try {
+                    // Pass the sanitized input to the secure resetGame method
+                    gameStateManager.resetGame(
+                        academyName: nameController.text);
+                    Navigator.of(dialogContext).pop(); // Close dialog
+
+                    // Navigate to dashboard
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Dashboard()),
+                    );
+                  } catch (e) {
+                    // Catch any backend validation errors (defense in depth)
+                    String errorMessage = e.toString();
+                    if (e is ArgumentError) {
+                      errorMessage = e.message.toString();
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $errorMessage')),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    ).then((_) => nameController.dispose()); // Clean up resources
   }
 }
