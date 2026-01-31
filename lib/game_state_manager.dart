@@ -143,6 +143,9 @@ class GameStateManager with ChangeNotifier {
   bool _isGameOver = false;
   bool _isForcedSellActive = false;
 
+  // Optimization Cache
+  final Map<String, String> _playerCoachMap = {}; // PlayerID -> CoachID
+
   // --- Getters ---
   bool get isGameOver => _isGameOver;
   bool get isForcedSellActive => _isForcedSellActive;
@@ -226,6 +229,19 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Initialization & Reset ---
+
+  // Rebuild the player-coach map cache (O(N) operation to enable O(1) lookups)
+  void _rebuildPlayerCoachMap() {
+    _playerCoachMap.clear();
+    for (var staff in _hiredStaff) {
+      if (staff.role == StaffRole.Coach) {
+        for (var playerId in staff.assignedPlayerIds) {
+          _playerCoachMap[playerId] = staff.id;
+        }
+      }
+    }
+  }
+
    void _generateInitialAvailableStaff() {
     _availableStaff = List<Staff>.generate(5, (index) { // Added <Staff> type argument
       StaffRole role = StaffRole.values[_random.nextInt(StaffRole.values.length)];
@@ -504,6 +520,7 @@ class GameStateManager with ChangeNotifier {
       _clearWebSaveData();
     }
 
+    _playerCoachMap.clear(); // Clear the cache on reset
     notifyListeners();
     print("--- GAME STATE RESET COMPLETE ---");
   }
@@ -1969,6 +1986,7 @@ class GameStateManager with ChangeNotifier {
     if (coach.assignedPlayerIds.contains(playerId)) { print("Info: Player ${player.name} is already assigned to coach ${coach.name}."); return true; }
     unassignPlayerFromAnyCoach(playerId); // Ensure player is removed from any other coach first
     coach.assignedPlayerIds.add(playerId);
+    _playerCoachMap[playerId] = coachId; // Update optimization cache
     print("Assigned player ${player.name} to coach ${coach.name}."); notifyListeners(); return true;
   }
 
@@ -1977,7 +1995,10 @@ class GameStateManager with ChangeNotifier {
     if (coach == null) { print("Error: Coach with ID $coachId not found or is not a coach."); return false; }
     Player? player = _academyPlayers.firstWhereOrNull((p) => p.id == playerId); String playerName = player?.name ?? 'ID: $playerId';
     bool removed = coach.assignedPlayerIds.remove(playerId);
-    if (removed) { print("Unassigned player $playerName from coach ${coach.name}."); notifyListeners(); }
+    if (removed) {
+      _playerCoachMap.remove(playerId); // Update optimization cache
+      print("Unassigned player $playerName from coach ${coach.name}."); notifyListeners();
+    }
     else { print("Info: Player $playerName was not assigned to coach ${coach.name}."); }
     return removed;
   }
@@ -1986,7 +2007,12 @@ class GameStateManager with ChangeNotifier {
     for (var coach in _hiredStaff.where((s) => s.role == StaffRole.Coach)) { if (coach.assignedPlayerIds.contains(playerId)) { unassignPlayerFromCoach(playerId, coach.id); break; } }
   }
 
-  Staff? getCoachForPlayer(String playerId) { return _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Coach && s.assignedPlayerIds.contains(playerId)); }
+  Staff? getCoachForPlayer(String playerId) {
+    // Optimized lookup using cache (O(1) map lookup + O(N_staff) list lookup)
+    final coachId = _playerCoachMap[playerId];
+    if (coachId == null) return null;
+    return _hiredStaff.firstWhereOrNull((s) => s.id == coachId);
+  }
 
   // Get Team Skill
   int _getTeamSkill(String teamId, List<Player> selectedLineup) {
@@ -2780,6 +2806,7 @@ class GameStateManager with ChangeNotifier {
       }
       _updateStaffCapsFromFacilities();
 
+      _rebuildPlayerCoachMap(); // Rebuild the player-coach map cache
       print("--- GAME STATE LOADED successfully ---");
       notifyListeners();
       return true;
