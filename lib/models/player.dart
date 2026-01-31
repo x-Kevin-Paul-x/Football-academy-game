@@ -20,11 +20,6 @@ class Player {
   int weeklyWage;
   bool isScouted; // Flag to differentiate between academy players and scouted prospects
 
-  // --- Positional Affinity ---
-  // Stores the player's calculated skill (1-100) for each general position type.
-  // This map is the source for the currentSkill getter based on assignedPosition.
-  late Map<PlayerPosition, int> positionalAffinity;
-
   // --- In-Match Stats (can be reset per match) ---
   @JsonKey(includeFromJson: false, includeToJson: false) // Exclude from serialization
   int matchGoals = 0;
@@ -156,11 +151,7 @@ class Player {
     this.reflexes = 10,
     this.rushingOut = 10,
     this.throwing = 10,
-  }) : assignedPosition = naturalPosition { // Initialize assignedPosition
-    // Initialize positionalAffinity and calculate initial values
-    positionalAffinity = {}; // Initialize the map
-    _calculatePositionalAffinities(); // Calculate affinities based on initial stats
-  }
+  }) : assignedPosition = naturalPosition;
 
   // Factory constructor for generating random scouted players
   factory Player.randomScoutedPlayer(String id, {int? scoutSkill}) { // Added scoutSkill parameter
@@ -301,24 +292,21 @@ class Player {
   // --- Current Skill Getter ---
   // Returns the player's skill in their currently assigned position.
   int get currentSkill {
-    // Ensure positionalAffinity is initialized and contains the assignedPosition.
-    // If not, it might indicate an issue with initialization or an invalid assignedPosition.
-    // Fallback to a low value or throw an error if necessary.
-    return positionalAffinity[assignedPosition] ?? 10; // Fallback to 10 if not found
+    return getSkillForPosition(assignedPosition);
   }
 
-  // --- Method to Recalculate Positional Affinities ---
-  // This should be called after any underlying detailed stats change (e.g., through training).
-  void updatePositionalAffinities() {
-    _calculatePositionalAffinities();
-  }
-
-  // --- Private method to calculate affinities for all positions ---
-  void _calculatePositionalAffinities() {
-    positionalAffinity[PlayerPosition.Goalkeeper] = _calculateGKRating();
-    positionalAffinity[PlayerPosition.Defender] = _calculateDefRating();
-    positionalAffinity[PlayerPosition.Midfielder] = _calculateMidRating();
-    positionalAffinity[PlayerPosition.Forward] = _calculateFwdRating();
+  // Calculate skill for a specific position on-the-fly
+  int getSkillForPosition(PlayerPosition position) {
+    switch (position) {
+      case PlayerPosition.Goalkeeper:
+        return _calculateGKRating();
+      case PlayerPosition.Defender:
+        return _calculateDefRating();
+      case PlayerPosition.Midfielder:
+        return _calculateMidRating();
+      case PlayerPosition.Forward:
+        return _calculateFwdRating();
+    }
   }
 
   // Helper to scale and clamp raw scores to 1-100 range, respecting potentialSkill
@@ -545,9 +533,6 @@ class Player {
       }
     }
 
-    if (improvementMade) {
-      updatePositionalAffinities(); // Recalculate overall skills
-    }
     return improvementMade;
   }
   // --- End Training Logic ---
