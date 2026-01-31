@@ -70,14 +70,8 @@ Player _$PlayerFromJson(Map<String, dynamic> json) => Player(
       reflexes: (json['reflexes'] as num?)?.toInt() ?? 10,
       rushingOut: (json['rushingOut'] as num?)?.toInt() ?? 10,
       throwing: (json['throwing'] as num?)?.toInt() ?? 10,
-    )
-      ..assignedPosition =
-          $enumDecode(_$PlayerPositionEnumMap, json['assignedPosition'])
-      ..positionalAffinity =
-          (json['positionalAffinity'] as Map<String, dynamic>).map(
-        (k, e) => MapEntry(
-            $enumDecode(_$PlayerPositionEnumMap, k), (e as num).toInt()),
-      );
+    )..assignedPosition =
+        $enumDecode(_$PlayerPositionEnumMap, json['assignedPosition']);
 
 Map<String, dynamic> _$PlayerToJson(Player instance) => <String, dynamic>{
       'id': instance.id,
@@ -88,8 +82,6 @@ Map<String, dynamic> _$PlayerToJson(Player instance) => <String, dynamic>{
       'potentialSkill': instance.potentialSkill,
       'weeklyWage': instance.weeklyWage,
       'isScouted': instance.isScouted,
-      'positionalAffinity': instance.positionalAffinity
-          .map((k, e) => MapEntry(_$PlayerPositionEnumMap[k]!, e)),
       'reputation': instance.reputation,
       'matchesPlayed': instance.matchesPlayed,
       'goalsScored': instance.goalsScored,
