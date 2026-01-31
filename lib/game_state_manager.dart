@@ -2621,6 +2621,45 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
+  // --- Validation Logic ---
+  @visibleForTesting
+  bool validateLoadedState(SerializableGameState state) {
+    // Academy Name
+    if (state.academyName.trim().length < 3 || state.academyName.length > 25) {
+       print("Validation Failed: Academy Name length invalid.");
+       return false;
+    }
+    // Allow letters, numbers, spaces, dots, apostrophes, and hyphens.
+    final nameRegex = RegExp(r"^[a-zA-Z0-9 .'-]+$");
+    if (!nameRegex.hasMatch(state.academyName)) {
+       print("Validation Failed: Academy Name contains invalid characters.");
+       return false;
+    }
+
+    // Financials
+    if (state.balance.isNaN || state.balance.isInfinite) {
+      print("Validation Failed: Invalid Balance.");
+      return false;
+    }
+
+    // Lists (DoS Prevention)
+    if (state.academyPlayers.length > 200) {
+      print("Validation Failed: Too many players (${state.academyPlayers.length}).");
+      return false;
+    }
+    if (state.newsItems.length > 500) {
+      print("Validation Failed: Too many news items (${state.newsItems.length}).");
+      return false;
+    }
+
+    // Facilities (Logic Integrity)
+    if (state.trainingFacilityLevel < 1 || state.trainingFacilityLevel > 20) return false;
+    if (state.scoutingFacilityLevel < 1 || state.scoutingFacilityLevel > 20) return false;
+    if (state.medicalBayLevel < 1 || state.medicalBayLevel > 20) return false;
+
+    return true;
+  }
+
   // --- Save/Load Logic ---
   Future<bool> saveGame() async {
     try {
@@ -2732,6 +2771,11 @@ class GameStateManager with ChangeNotifier {
        }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
+
+      if (!validateLoadedState(loadedState)) {
+        print("--- ERROR: Save file validation failed. ---");
+        return false;
+      }
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
