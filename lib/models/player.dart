@@ -414,10 +414,12 @@ class Player {
     }
   }
 
+  static final Random _random = Random(); // Static random instance
+
   // --- ADDED: Calculate Market Value ---
   int calculateMarketValue() {
     // Base value primarily on current skill
-    double baseValue = pow(currentSkill, 2) * 10;
+    double baseValue = (currentSkill * currentSkill) * 10.0;
 
     // Age modifier: Higher value for younger players, peaks around 24-27, then declines
     double ageModifier;
@@ -445,7 +447,7 @@ class Player {
     double finalValue = baseValue * ageModifier * potentialModifier * reputationModifier;
 
     // Add a small random factor
-    finalValue *= (1.0 + (Random().nextDouble() * 0.1 - 0.05)); // +/- 5% randomness
+    finalValue *= (1.0 + (_random.nextDouble() * 0.1 - 0.05)); // +/- 5% randomness
 
     // Ensure minimum value
     return max(500, finalValue.toInt()); // Minimum value of 500
