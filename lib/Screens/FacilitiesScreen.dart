@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
+import 'package:intl/intl.dart';
 
 class FacilitiesScreen extends StatelessWidget {
   const FacilitiesScreen({Key? key}) : super(key: key);
@@ -13,6 +14,8 @@ class FacilitiesScreen extends StatelessWidget {
       ),
       body: Consumer<GameStateManager>(
         builder: (context, gameStateManager, child) {
+          final int currentBalance = gameStateManager.balance.toInt();
+
           return ListView(
             padding: const EdgeInsets.all(16.0),
             children: [
@@ -23,6 +26,7 @@ class FacilitiesScreen extends StatelessWidget {
                 currentLevel: gameStateManager.trainingFacilityLevel,
                 description: 'Improves player skill development during training.',
                 upgradeCost: gameStateManager.getTrainingFacilityUpgradeCost(),
+                currentBalance: currentBalance,
                 canAfford: gameStateManager.balance >= gameStateManager.getTrainingFacilityUpgradeCost(),
                 onUpgrade: () {
                   bool success = gameStateManager.upgradeTrainingFacility();
@@ -44,6 +48,7 @@ class FacilitiesScreen extends StatelessWidget {
                 currentLevel: gameStateManager.scoutingFacilityLevel,
                 description: 'Increases the quantity and potentially quality of players found by scouts.',
                 upgradeCost: gameStateManager.getScoutingFacilityUpgradeCost(),
+                currentBalance: currentBalance,
                 canAfford: gameStateManager.balance >= gameStateManager.getScoutingFacilityUpgradeCost(),
                 onUpgrade: () {
                    bool success = gameStateManager.upgradeScoutingFacility();
@@ -65,6 +70,7 @@ class FacilitiesScreen extends StatelessWidget {
                 currentLevel: gameStateManager.medicalBayLevel,
                 description: 'Reduces player injury recovery time and severity.',
                 upgradeCost: gameStateManager.getMedicalBayUpgradeCost(),
+                currentBalance: currentBalance,
                 canAfford: gameStateManager.balance >= gameStateManager.getMedicalBayUpgradeCost(),
                 onUpgrade: () {
                    bool success = gameStateManager.upgradeMedicalBay();
@@ -87,6 +93,7 @@ class FacilitiesScreen extends StatelessWidget {
                 description: 'Generates weekly income based on level, fans, and Merchandise Manager skill. Each level increases Store Manager capacity.', // Updated description
                 currentEffect: 'Current Max Store Managers: ${gameStateManager.maxStoreManagers}', // <-- ADDED: Current effect
                 upgradeCost: gameStateManager.getMerchandiseStoreUpgradeCost(),
+                currentBalance: currentBalance,
                 canAfford: gameStateManager.balance >= gameStateManager.getMerchandiseStoreUpgradeCost(),
                 onUpgrade: () {
                    bool success = gameStateManager.upgradeMerchandiseStore();
@@ -115,9 +122,19 @@ class FacilitiesScreen extends StatelessWidget {
     required String description,
     String? currentEffect, // <-- ADDED: Optional current effect string
     required int upgradeCost, // Pass cost explicitly
+    required int currentBalance,
     required bool canAfford, // Pass affordability explicitly
     required VoidCallback onUpgrade, // Pass upgrade callback
   }) {
+    // Logic for tooltip
+    String tooltipMessage;
+    if (canAfford) {
+      tooltipMessage = "Upgrade $title to Level ${currentLevel + 1}";
+    } else {
+      int missing = upgradeCost - currentBalance;
+      final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 0);
+      tooltipMessage = "Insufficient funds. Need ${currencyFormat.format(missing)} more.";
+    }
 
     return Card(
       elevation: 3,
@@ -168,40 +185,43 @@ class FacilitiesScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.upgrade),
-                  label: const Text('Upgrade'),
-                  // Disable button if cannot afford
-                  onPressed: canAfford ? () {
-                    // Show confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext dialogContext) {
-                        return AlertDialog(
-                          title: Text('Confirm Upgrade'),
-                          content: Text('Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                              },
-                            ),
-                            TextButton(
-                              child: const Text('Upgrade'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                                onUpgrade(); // Execute the upgrade action passed in
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } : null, // Set onPressed to null to disable
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
-                    foregroundColor: Colors.white,
+                Tooltip(
+                  message: tooltipMessage,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.upgrade),
+                    label: const Text('Upgrade'),
+                    // Disable button if cannot afford
+                    onPressed: canAfford ? () {
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext dialogContext) {
+                          return AlertDialog(
+                            title: Text('Confirm Upgrade'),
+                            content: Text('Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(dialogContext).pop(); // Close the dialog
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('Upgrade'),
+                                onPressed: () {
+                                  Navigator.of(dialogContext).pop(); // Close the dialog
+                                  onUpgrade(); // Execute the upgrade action passed in
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } : null, // Set onPressed to null to disable
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
               ],
