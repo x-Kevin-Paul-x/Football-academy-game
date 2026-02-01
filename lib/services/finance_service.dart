@@ -32,6 +32,11 @@ class FinanceService {
     double merchStockValue = 0.0,
     int consecutiveNegativeWeeks = 0,
   }) {
+    _validateFinite(balance, 'balance');
+    if (weeklyIncome < 0) throw ArgumentError('weeklyIncome must be non-negative');
+    if (totalWeeklyWages < 0) throw ArgumentError('totalWeeklyWages must be non-negative');
+    _validateAmount(merchStockValue, 'merchStockValue');
+
     _balance = balance;
     _weeklyIncome = weeklyIncome;
     _totalWeeklyWages = totalWeeklyWages;
@@ -113,28 +118,37 @@ class FinanceService {
 
   // Transaction Methods
   void addIncome(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use deductExpense for losses.');
-    }
+    _validateAmount(amount, 'amount');
     _balance += amount;
   }
 
   void deductExpense(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount must be non-negative. Use addIncome for refunds/gains.');
-    }
+    _validateAmount(amount, 'amount');
     _balance -= amount;
   }
 
   bool canAfford(double amount) {
-    if (amount < 0) {
-      throw ArgumentError('Amount to check affordability for must be non-negative.');
-    }
+    _validateAmount(amount, 'amount');
     return _balance >= amount;
   }
 
   // Specific Merch Logic (migrated basic parts, full logic might stay in manager or move to MerchService)
   void updateMerchStock(double valueChange) {
+    // Check if result would be valid? Or just validate inputs?
+    // valueChange can be negative, but stock shouldn't go below 0 usually.
+    // For now, let's just ensure valueChange is finite.
+    _validateFinite(valueChange, 'valueChange');
     _academyMerchStockValue += valueChange;
+  }
+
+  void _validateAmount(double amount, String paramName) {
+    if (amount.isNaN) throw ArgumentError('$paramName must be a valid number (NaN)');
+    if (amount.isInfinite) throw ArgumentError('$paramName must be finite');
+    if (amount < 0) throw ArgumentError('$paramName must be non-negative');
+  }
+
+  void _validateFinite(double amount, String paramName) {
+    if (amount.isNaN) throw ArgumentError('$paramName must be a valid number (NaN)');
+    if (amount.isInfinite) throw ArgumentError('$paramName must be finite');
   }
 }

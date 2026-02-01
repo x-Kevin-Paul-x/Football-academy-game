@@ -38,5 +38,30 @@ void main() {
       financeService.deductExpense(100);
       expect(financeService.balance, initialBalance - 100);
     });
+
+    // --- New Security Tests ---
+    test('initialize should throw ArgumentError for NaN balance', () {
+      expect(() => financeService.initialize(
+        balance: double.nan,
+        weeklyIncome: 1000,
+        totalWeeklyWages: 0,
+      ), throwsArgumentError);
+    });
+
+    test('initialize should throw ArgumentError for Infinity balance', () {
+      expect(() => financeService.initialize(
+        balance: double.infinity,
+        weeklyIncome: 1000,
+        totalWeeklyWages: 0,
+      ), throwsArgumentError);
+    });
+
+    test('addIncome should throw ArgumentError for NaN amount', () {
+      expect(() => financeService.addIncome(double.nan), throwsArgumentError);
+    });
+
+    test('addIncome should throw ArgumentError for Infinity amount', () {
+      expect(() => financeService.addIncome(double.infinity), throwsArgumentError);
+    });
   });
 }
