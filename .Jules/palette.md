@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-27 - Currency Formatting readability
+**Learning:** Raw number strings (e.g., `15000`) in UI text feel unpolished and are harder to parse quickly compared to formatted currency (e.g., `$15,000`).
+**Action:** Use `NumberFormat` from `intl` package for all currency displays, even in tooltips and button labels.
