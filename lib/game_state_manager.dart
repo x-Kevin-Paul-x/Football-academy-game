@@ -2733,6 +2733,8 @@ class GameStateManager with ChangeNotifier {
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
 
+      validateLoadedState(loadedState);
+
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
       _financeService.initialize(
@@ -2791,6 +2793,44 @@ class GameStateManager with ChangeNotifier {
       // Attempt to reset if loading fails catastrophically?
       // resetGame(); // Maybe too drastic?
       return false;
+    }
+  }
+
+  @visibleForTesting
+  void validateLoadedState(SerializableGameState state) {
+    if (state.balance.isNaN || state.balance.isInfinite) {
+      throw FormatException("Invalid balance: ${state.balance}");
+    }
+    if (state.totalWeeklyWages < 0) {
+      throw FormatException("Invalid totalWeeklyWages: ${state.totalWeeklyWages}");
+    }
+    if (state.academyName.length > 25) {
+      throw FormatException("Academy name too long: ${state.academyName.length}");
+    }
+    // Basic Regex for Academy Name (Alphanumeric, space, dot, apostrophe, dash)
+    if (!RegExp(r"^[a-zA-Z0-9 .'-]+$").hasMatch(state.academyName)) {
+        throw FormatException("Academy name contains invalid characters.");
+    }
+
+    if (state.academyPlayers.length > 200) {
+      throw FormatException("Too many academy players: ${state.academyPlayers.length}");
+    }
+    if (state.newsItems.length > 500) {
+      throw FormatException("Too many news items: ${state.newsItems.length}");
+    }
+
+    // Facility Levels (1-20)
+    if (state.trainingFacilityLevel < 1 || state.trainingFacilityLevel > 20) {
+      throw FormatException("Invalid trainingFacilityLevel: ${state.trainingFacilityLevel}");
+    }
+    if (state.scoutingFacilityLevel < 1 || state.scoutingFacilityLevel > 20) {
+      throw FormatException("Invalid scoutingFacilityLevel: ${state.scoutingFacilityLevel}");
+    }
+    if (state.medicalBayLevel < 1 || state.medicalBayLevel > 20) {
+      throw FormatException("Invalid medicalBayLevel: ${state.medicalBayLevel}");
+    }
+    if (state.merchandiseStoreLevel != null && (state.merchandiseStoreLevel! < 0 || state.merchandiseStoreLevel! > 20)) {
+        throw FormatException("Invalid merchandiseStoreLevel: ${state.merchandiseStoreLevel}");
     }
   }
 
