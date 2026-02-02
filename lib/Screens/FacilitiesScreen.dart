@@ -168,40 +168,52 @@ class FacilitiesScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.upgrade),
-                  label: const Text('Upgrade'),
-                  // Disable button if cannot afford
-                  onPressed: canAfford ? () {
-                    // Show confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext dialogContext) {
-                        return AlertDialog(
-                          title: Text('Confirm Upgrade'),
-                          content: Text('Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
+                Tooltip(
+                  message: canAfford
+                      ? 'Upgrade for \$${upgradeCost.toStringAsFixed(0)}'
+                      : 'Insufficient funds (Need \$${upgradeCost.toStringAsFixed(0)})',
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.upgrade),
+                    label: const Text('Upgrade'),
+                    // Disable button if cannot afford
+                    onPressed: canAfford
+                        ? () {
+                            // Show confirmation dialog
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext dialogContext) {
+                                return AlertDialog(
+                                  title: Text('Confirm Upgrade'),
+                                  content: Text(
+                                      'Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text('Cancel'),
+                                      onPressed: () {
+                                        Navigator.of(dialogContext)
+                                            .pop(); // Close the dialog
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text('Upgrade'),
+                                      onPressed: () {
+                                        Navigator.of(dialogContext)
+                                            .pop(); // Close the dialog
+                                        onUpgrade(); // Execute the upgrade action passed in
+                                      },
+                                    ),
+                                  ],
+                                );
                               },
-                            ),
-                            TextButton(
-                              child: const Text('Upgrade'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                                onUpgrade(); // Execute the upgrade action passed in
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } : null, // Set onPressed to null to disable
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
-                    foregroundColor: Colors.white,
+                            );
+                          }
+                        : null, // Set onPressed to null to disable
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey, // Explicitly set disabled color
+                      disabledForegroundColor: Colors.white70,
+                    ),
                   ),
                 ),
               ],
