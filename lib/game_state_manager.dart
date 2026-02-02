@@ -180,7 +180,7 @@ class GameStateManager with ChangeNotifier {
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
   List<Map<String, dynamic>> get transferOffers => UnmodifiableListView(_transferOffers);
-  List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
+  List<NewsItem> get newsItems => UnmodifiableListView(_newsItems);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
   int get playerAcademyTier => _playerAcademyTier;
@@ -2594,9 +2594,22 @@ class GameStateManager with ChangeNotifier {
   }
 
   void _addNewsItem(NewsItem item) {
-    _newsItems.add(item);
+    // Insert in correct order (Newest First)
+    // Optimization: Check if it's newer than the first item (most common case)
+    if (_newsItems.isEmpty || item.date.isAfter(_newsItems.first.date) || item.date.isAtSameMomentAs(_newsItems.first.date)) {
+      _newsItems.insert(0, item);
+    } else {
+      // Linear search for correct position
+      int index = _newsItems.indexWhere((element) => item.date.isAfter(element.date));
+      if (index == -1) {
+        _newsItems.add(item); // Oldest
+      } else {
+        _newsItems.insert(index, item);
+      }
+    }
+
     if (_newsItems.length > 100) { // Limit news items
-        _newsItems.removeAt(0);
+        _newsItems.removeLast(); // Remove oldest item (at the end)
     }
     // print("News Added: ${item.title}"); // Verbose
   }
@@ -2761,6 +2774,10 @@ class GameStateManager with ChangeNotifier {
       _fans = loadedState.fans ?? 100; // Load fans, default to 100 if not present
       _academyReputation = loadedState.academyReputation;
       _newsItems = loadedState.newsItems;
+      // Ensure news items are sorted by date descending (Newest first) after loading
+      // This handles migration from older saves where order might be different
+      _newsItems.sort((a, b) => b.date.compareTo(a.date));
+
       _difficulty = loadedState.difficulty;
       _themeMode = loadedState.themeMode;
       _rivalAcademies = loadedState.rivalAcademies; // Load Rivals
