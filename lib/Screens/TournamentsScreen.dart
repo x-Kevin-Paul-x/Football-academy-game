@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/tournament.dart';
 import '../models/rival_academy.dart'; // Import RivalAcademy
+import '../widgets/empty_state.dart';
 import 'TournamentDetailsScreen.dart'; // Import TournamentDetailsScreen
 
 class TournamentsScreen extends StatefulWidget {
@@ -51,22 +52,35 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                   gameStateManager: gameStateManager,
                   currentPlayerCount: currentPlayerCount,
                   highestUnlocked: highestUnlocked,
+                  emptyTitle: 'No available tournaments',
+                  emptyMessage: 'Check back next season for new opportunities.',
+                  emptyIcon: Icons.event_busy,
                 ),
                 // --- Active Tournaments Tab (Scheduled & InProgress Instances) ---
-                 _buildTournamentList(
-                  gameStateManager.activeTournaments, // Show all active (Scheduled + InProgress)
+                _buildTournamentList(
+                  gameStateManager.activeTournaments,
+                  // Show all active (Scheduled + InProgress)
                   isTemplates: false,
                   gameStateManager: gameStateManager,
                   currentPlayerCount: currentPlayerCount,
                   highestUnlocked: highestUnlocked,
+                  emptyTitle: 'No active tournaments',
+                  emptyMessage: 'Join a tournament to see it here.',
+                  emptyIcon: Icons.sports_soccer,
                 ),
                 // --- History Tab (Completed Instances) ---
                 _buildTournamentList(
                   gameStateManager.completedTournaments,
-                  isTemplates: false, // It's an instance list, not templates
+                  isTemplates: false,
+                  // It's an instance list, not templates
                   gameStateManager: gameStateManager,
-                  currentPlayerCount: currentPlayerCount, // Not strictly needed for history, but pass for consistency
-                  highestUnlocked: highestUnlocked, // Not strictly needed for history
+                  currentPlayerCount: currentPlayerCount,
+                  // Not strictly needed for history, but pass for consistency
+                  highestUnlocked: highestUnlocked,
+                  // Not strictly needed for history
+                  emptyTitle: 'No tournament history',
+                  emptyMessage: 'Complete tournaments to see them here.',
+                  emptyIcon: Icons.history,
                 ),
               ],
             ),
@@ -82,17 +96,16 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
     required GameStateManager gameStateManager,
     required int currentPlayerCount,
     required TournamentType highestUnlocked, // Keep for potential future filtering
+    required String emptyTitle,
+    String? emptyMessage,
+    required IconData emptyIcon,
   }) {
     if (tournaments.isEmpty) {
-      String message = "No tournaments available.";
-      if (!isTemplates && tournaments.every((t) => t.status == TournamentStatus.Completed)) {
-        message = "No completed tournaments yet.";
-      } else if (!isTemplates && tournaments.every((t) => t.status != TournamentStatus.Completed)) {
-         message = "No active tournaments currently.";
-      } else if (isTemplates) {
-         message = "No new tournament opportunities right now.";
-      }
-      return Center(child: Text(message));
+      return EmptyState(
+        icon: emptyIcon,
+        title: emptyTitle,
+        message: emptyMessage,
+      );
     }
 
     final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$');

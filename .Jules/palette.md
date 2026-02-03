@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Empty List Logic Trap
+**Learning:** Using `list.every(...)` to determine the specific "flavor" of an empty state (e.g. "No completed items") fails because `every` returns `true` for empty lists.
+**Action:** When a list is empty, rely on external context (e.g., Tab index, filter type) to determine the empty message, rather than inspecting the (non-existent) items.
