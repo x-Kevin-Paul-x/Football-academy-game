@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../models/difficulty.dart';
 
 enum BankruptcyStatus {
@@ -32,6 +31,16 @@ class FinanceService {
     double merchStockValue = 0.0,
     int consecutiveNegativeWeeks = 0,
   }) {
+    if (totalWeeklyWages < 0) {
+      throw ArgumentError('Total weekly wages must be non-negative.');
+    }
+    if (weeklyIncome < 0) {
+      throw ArgumentError('Weekly income must be non-negative.');
+    }
+    if (!balance.isFinite) {
+      throw ArgumentError('Balance must be a finite number.');
+    }
+
     _balance = balance;
     _weeklyIncome = weeklyIncome;
     _totalWeeklyWages = totalWeeklyWages;

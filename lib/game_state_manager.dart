@@ -2622,6 +2622,50 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Save/Load Logic ---
+
+  @visibleForTesting
+  bool validateLoadedState(SerializableGameState state) {
+    if (!state.balance.isFinite) {
+      print("Error: Loaded balance is not finite.");
+      return false;
+    }
+    if (state.weeklyIncome < 0) {
+      print("Error: Loaded weekly income is negative.");
+      return false;
+    }
+    if (state.totalWeeklyWages < 0) {
+      print("Error: Loaded total weekly wages is negative.");
+      return false;
+    }
+    if (state.academyName.length > 25) {
+      print("Error: Loaded academy name is too long (> 25 chars).");
+      return false;
+    }
+    if (state.academyPlayers.length > 200) {
+      print("Error: Loaded academy player list is too large (> 200).");
+      return false;
+    }
+    if (state.newsItems.length > 500) {
+      print("Error: Loaded news item list is too large (> 500).");
+      return false;
+    }
+    // Facility Level Checks
+    if (state.trainingFacilityLevel < 1 || state.trainingFacilityLevel > 20) {
+      print("Error: Invalid training facility level.");
+      return false;
+    }
+    if (state.scoutingFacilityLevel < 1 || state.scoutingFacilityLevel > 20) {
+      print("Error: Invalid scouting facility level.");
+      return false;
+    }
+    if (state.medicalBayLevel < 1 || state.medicalBayLevel > 20) {
+      print("Error: Invalid medical bay level.");
+      return false;
+    }
+
+    return true;
+  }
+
   Future<bool> saveGame() async {
     try {
       print("--- SAVING GAME STATE ---");
@@ -2732,6 +2776,11 @@ class GameStateManager with ChangeNotifier {
        }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
+
+      if (!validateLoadedState(loadedState)) {
+        print("--- ERROR: Game state validation failed. Aborting load. ---");
+        return false;
+      }
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
