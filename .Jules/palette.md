@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Actionable Empty States
+**Learning:** Empty states (e.g., "No players") are dead ends for users if they don't provide a way out.
+**Action:** Enhance `EmptyState` widgets to include an optional primary action button (e.g., "Go to Scouting") that guides the user to the solution.

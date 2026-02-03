@@ -102,6 +102,13 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
+  // Navigation Callback
+  void _navigateToScouting() {
+    setState(() {
+      _selectedIndex = 3; // Index of ScoutingScreen
+    });
+  }
+
   // --- UI Building ---
 
   // Custom Dashboard Home widget - Reverted to simple layout + News Button
@@ -210,7 +217,7 @@ class _DashboardState extends State<Dashboard> {
     return [
       {'title': 'Dashboard', 'screen': null, 'icon': Icons.home}, // Screen is built directly
       {'title': 'Finance', 'screen': const FinanceScreen(), 'icon': Icons.attach_money},
-      {'title': 'Players', 'screen': const PlayerManagementScreen(), 'icon': Icons.people},
+      {'title': 'Players', 'screen': PlayerManagementScreen(onGoToScouting: _navigateToScouting), 'icon': Icons.people}, // Passed callback
       {'title': 'Scouting', 'screen': ScoutingScreen(
           signPlayerCallback: _signPlayer,
           rejectPlayerCallback: _rejectPlayer,

@@ -4,17 +4,22 @@ class EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   const EmptyState({
     super.key,
     required this.icon,
     required this.title,
     this.message,
+    this.actionLabel,
+    this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final hasAction = actionLabel != null && onAction != null;
 
     return Center(
       child: Semantics(
@@ -47,6 +52,13 @@ class EmptyState extends StatelessWidget {
                         color: colorScheme.onSurfaceVariant,
                       ),
                   textAlign: TextAlign.center,
+                ),
+              ],
+              if (hasAction) ...[
+                const SizedBox(height: 24),
+                FilledButton.tonal(
+                  onPressed: onAction,
+                  child: Text(actionLabel!),
                 ),
               ],
             ],

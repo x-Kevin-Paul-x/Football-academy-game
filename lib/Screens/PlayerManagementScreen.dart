@@ -5,14 +5,18 @@ import '../models/player.dart';
 import '../models/staff.dart'; // Import Staff model
 import '../models/player_status.dart'; // Import PlayerStatus enum and helper
 import '../widgets/player_card.dart'; // Assuming a PlayerCard widget exists
+import '../widgets/empty_state.dart'; // Import EmptyState
 import 'PlayerAssignmentScreen.dart'; // Import the assignment screen
 import 'package:intl/intl.dart'; // For number formatting
 
 class PlayerManagementScreen extends StatelessWidget {
-  // REMOVED constructor parameter - data will come from GameStateManager via Consumer
-  // final List<Player> academyPlayers;
+  // Callback to navigate to Scouting screen
+  final VoidCallback? onGoToScouting;
 
-  const PlayerManagementScreen({Key? key /* required this.academyPlayers REMOVED */}) : super(key: key);
+  const PlayerManagementScreen({
+    Key? key,
+    this.onGoToScouting,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,86 +29,75 @@ class PlayerManagementScreen extends StatelessWidget {
 
           // Return the conditional UI based on academyPlayers
           return academyPlayers.isEmpty
-              ? Center(
-                  child: Column(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_search, size: 80, color: Theme.of(context).colorScheme.outline),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No players in the academy yet.',
-                    style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Scout and sign players to build your team!',
-                    style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(8.0),
-              itemCount: academyPlayers.length,
-              itemBuilder: (context, index) {
-                final player = academyPlayers[index];
-                // Find the coach assigned to this player (needed for the dialog)
-                final assignedCoach = gameStateManager.getCoachForPlayer(player.id);
-                // Use PlayerCard for consistent display
-                return PlayerCard(
-                  player: player,
-                  showPotential: true, // Optionally show potential for academy players too
-                  actions: [
-                    // Add Release Button
-                    Tooltip(
-                      message: 'Release player from academy',
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.person_remove_outlined),
-                        label: const Text('Release'),
-                        onPressed: () {
-                          // Show confirmation dialog before releasing
-                          showDialog(
-                            context: context,
-                          builder: (BuildContext dialogContext) {
-                            return AlertDialog(
-                              title: Text('Confirm Release'),
-                              content: Text('Are you sure you want to release ${player.name} from the academy? This action cannot be undone.'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('Cancel'),
-                                  onPressed: () {
-                                    Navigator.of(dialogContext).pop(); // Close the dialog
-                                  },
-                                ),
-                                TextButton(
-                                  child: const Text('Release', style: TextStyle(color: Colors.red)),
-                                  onPressed: () {
-                                    // Use Provider to call the releasePlayer method
-                                    Provider.of<GameStateManager>(context, listen: false).releasePlayer(player);
-                                    Navigator.of(dialogContext).pop(); // Close the dialog
-                                    // Optional: Show confirmation snackbar
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Released ${player.name}.')),
-                                    );
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          foregroundColor: Theme.of(context).colorScheme.onError,
+              ? EmptyState(
+                  icon: Icons.person_search,
+                  title: 'No players in the academy yet.',
+                  message: 'Scout and sign players to build your team!',
+                  actionLabel: 'Go to Scouting',
+                  onAction: onGoToScouting,
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(8.0),
+                  itemCount: academyPlayers.length,
+                  itemBuilder: (context, index) {
+                    final player = academyPlayers[index];
+                    // Find the coach assigned to this player (needed for the dialog)
+                    final assignedCoach = gameStateManager.getCoachForPlayer(player.id);
+                    // Use PlayerCard for consistent display
+                    return PlayerCard(
+                      player: player,
+                      showPotential: true, // Optionally show potential for academy players too
+                      actions: [
+                        // Add Release Button
+                        Tooltip(
+                          message: 'Release player from academy',
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.person_remove_outlined),
+                            label: const Text('Release'),
+                            onPressed: () {
+                              // Show confirmation dialog before releasing
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext dialogContext) {
+                                  return AlertDialog(
+                                    title: Text('Confirm Release'),
+                                    content: Text('Are you sure you want to release ${player.name} from the academy? This action cannot be undone.'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(dialogContext).pop(); // Close the dialog
+                                        },
+                                      ),
+                                      TextButton(
+                                        child: const Text('Release', style: TextStyle(color: Colors.red)),
+                                        onPressed: () {
+                                          // Use Provider to call the releasePlayer method
+                                          Provider.of<GameStateManager>(context, listen: false).releasePlayer(player);
+                                          Navigator.of(dialogContext).pop(); // Close the dialog
+                                          // Optional: Show confirmation snackbar
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Released ${player.name}.')),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.error,
+                              foregroundColor: Theme.of(context).colorScheme.onError,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    // Add other actions like 'View Details' or 'Train' later
-                  ],
-                  onTap: () => _showPlayerDetailsDialog(context, player, assignedCoach), // Show details on tap
-                );
-              }, // End itemBuilder
-          ); // End ternary operator (false branch)
+                        // Add other actions like 'View Details' or 'Train' later
+                      ],
+                      onTap: () => _showPlayerDetailsDialog(context, player, assignedCoach), // Show details on tap
+                    );
+                  }, // End itemBuilder
+                ); // End ternary operator (false branch)
         },
       ),
     );
