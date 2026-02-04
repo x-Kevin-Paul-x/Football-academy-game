@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../game_state_manager.dart';
 
 class FacilitiesScreen extends StatelessWidget {
@@ -118,6 +119,16 @@ class FacilitiesScreen extends StatelessWidget {
     required bool canAfford, // Pass affordability explicitly
     required VoidCallback onUpgrade, // Pass upgrade callback
   }) {
+    final currencyFormat = NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 0);
+
+    String tooltipMessage;
+    if (canAfford) {
+      tooltipMessage = 'Upgrade to Level ${currentLevel + 1}';
+    } else {
+      final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
+      final double shortfall = upgradeCost - gameStateManager.balance;
+      tooltipMessage = 'Insufficient funds (Short by ${currencyFormat.format(shortfall)})';
+    }
 
     return Card(
       elevation: 3,
@@ -163,45 +174,48 @@ class FacilitiesScreen extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Text(
-                      'Cost: \$${upgradeCost.toStringAsFixed(0)}',
+                      'Cost: ${currencyFormat.format(upgradeCost)}',
                       style: TextStyle(color: Colors.green[700]),
                     ),
                   ],
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.upgrade),
-                  label: const Text('Upgrade'),
-                  // Disable button if cannot afford
-                  onPressed: canAfford ? () {
-                    // Show confirmation dialog
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext dialogContext) {
-                        return AlertDialog(
-                          title: Text('Confirm Upgrade'),
-                          content: Text('Upgrade $title to Level ${currentLevel + 1} for \$${upgradeCost.toStringAsFixed(0)}?'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('Cancel'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                              },
-                            ),
-                            TextButton(
-                              child: const Text('Upgrade'),
-                              onPressed: () {
-                                Navigator.of(dialogContext).pop(); // Close the dialog
-                                onUpgrade(); // Execute the upgrade action passed in
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } : null, // Set onPressed to null to disable
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
-                    foregroundColor: Colors.white,
+                Tooltip(
+                  message: tooltipMessage,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.upgrade),
+                    label: const Text('Upgrade'),
+                    // Disable button if cannot afford
+                    onPressed: canAfford ? () {
+                      // Show confirmation dialog
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext dialogContext) {
+                          return AlertDialog(
+                            title: Text('Confirm Upgrade'),
+                            content: Text('Upgrade $title to Level ${currentLevel + 1} for ${currencyFormat.format(upgradeCost)}?'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(dialogContext).pop(); // Close the dialog
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('Upgrade'),
+                                onPressed: () {
+                                  Navigator.of(dialogContext).pop(); // Close the dialog
+                                  onUpgrade(); // Execute the upgrade action passed in
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } : null, // Set onPressed to null to disable
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canAfford ? Colors.green : Colors.grey, // Grey out if disabled
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
               ],
