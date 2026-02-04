@@ -2621,6 +2621,45 @@ class GameStateManager with ChangeNotifier {
     }
   }
 
+  // --- Validation Logic ---
+  @visibleForTesting
+  bool validateLoadedState(SerializableGameState state) {
+    if (state.academyName.length > 25) {
+      print("Validation Error: Academy Name too long (${state.academyName.length})");
+      return false;
+    }
+    if (state.balance.isNaN || state.balance.isInfinite) {
+      print("Validation Error: Invalid Balance (${state.balance})");
+      return false;
+    }
+    if (state.trainingFacilityLevel < 1 || state.trainingFacilityLevel > 20) {
+      print("Validation Error: Invalid Training Facility Level (${state.trainingFacilityLevel})");
+      return false;
+    }
+    if (state.scoutingFacilityLevel < 1 || state.scoutingFacilityLevel > 20) {
+      print("Validation Error: Invalid Scouting Facility Level (${state.scoutingFacilityLevel})");
+      return false;
+    }
+    if (state.medicalBayLevel < 1 || state.medicalBayLevel > 20) {
+      print("Validation Error: Invalid Medical Bay Level (${state.medicalBayLevel})");
+      return false;
+    }
+    if ((state.fans ?? 0) < 0) {
+       print("Validation Error: Negative Fans (${state.fans})");
+       return false;
+    }
+    if (state.newsItems.length > 500) {
+      print("Validation Error: Too many news items (${state.newsItems.length})");
+      return false;
+    }
+    if (state.academyPlayers.length > 200) {
+       print("Validation Error: Too many players (${state.academyPlayers.length})");
+       return false;
+    }
+
+    return true;
+  }
+
   // --- Save/Load Logic ---
   Future<bool> saveGame() async {
     try {
@@ -2732,6 +2771,12 @@ class GameStateManager with ChangeNotifier {
        }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
+
+      // Validate Loaded State
+      if (!validateLoadedState(loadedState)) {
+        print("--- ERROR: Save file validation failed. Aborting load. ---");
+        return false;
+      }
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
