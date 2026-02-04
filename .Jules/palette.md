@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-26 - Testing ElevatedButtons with Icons
+**Learning:** `find.widgetWithText(ElevatedButton, ...)` is unreliable for `ElevatedButton.icon` in widget tests because the text is nested deeper than expected.
+**Action:** Use `find.ancestor(of: find.text('Text'), matching: find.byType(ElevatedButton))` or verify properties on the specific child/parent widgets directly.
