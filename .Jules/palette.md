@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2025-05-26 - Atomic Attribute Bars
+**Learning:** When creating custom progress bars with labels (e.g., Stamina), standard screen readers may read the label, the value text, and the progress bar separately, creating noise.
+**Action:** Wrap the entire composite row in `Semantics` with a clear `label` and `value`, and wrap the visual children in `ExcludeSemantics` to prevent duplicate announcements.

@@ -129,8 +129,8 @@ class PlayerManagementScreen extends StatelessWidget {
                 _buildDetailRow('Position:', player.positionString), // Use positionString getter
                 _buildDetailRow('Age:', player.age.toString()),
                 _buildDetailRow('Skill:', '${player.currentSkill} / ${player.potentialSkill}'),
-                _buildDetailRow('Stamina:', player.stamina.toString()), // New
-                _buildDetailRow('Fatigue:', '${player.fatigue.toStringAsFixed(1)}%'), // New
+                _buildAttributeBar(context, 'Stamina', player.stamina.toDouble(), 20.0),
+                _buildAttributeBar(context, 'Fatigue', player.fatigue, 100.0, isInverse: true),
                 _buildDetailRow('Reputation:', player.reputation.toString()),
                 _buildDetailRow('Weekly Wage:', currencyFormat.format(player.weeklyWage)),
                 _buildDetailRow('Status:', playerStatusToString(player.status)), // New
@@ -187,6 +187,51 @@ class PlayerManagementScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAttributeBar(BuildContext context, String label, double value, double max, {bool isInverse = false}) {
+    double percentage = (value / max).clamp(0.0, 1.0);
+
+    // Determine color: Green is good, Red is bad.
+    // Inverse (e.g. Fatigue): Low is good (Green), High is bad (Red).
+    Color? color = isInverse
+        ? Color.lerp(Colors.green, Colors.red, percentage)
+        : Color.lerp(Colors.red, Colors.green, percentage);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Semantics(
+        label: '$label: ${value.toStringAsFixed(0)} out of ${max.toStringAsFixed(0)}',
+        value: '${(percentage * 100).toStringAsFixed(0)}%',
+        child: ExcludeSemantics(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  Text(
+                    isInverse ? '${value.toStringAsFixed(1)}%' : value.toInt().toString(),
+                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: percentage,
+                  backgroundColor: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+                  valueColor: AlwaysStoppedAnimation<Color>(color ?? Colors.blue),
+                  minHeight: 8,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
