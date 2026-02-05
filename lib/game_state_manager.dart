@@ -1011,6 +1011,11 @@ class GameStateManager with ChangeNotifier {
     // print("--- Handling AI Club Weekly Actions ---"); // Less verbose
     // List<Match> matchesThisWeek = _getMatchesPlayedThisWeek(); // Helper needed
 
+    // --- OPTIMIZATION: Lazy-loaded map of AI players by position ---
+    // This avoids nested loops of O(N^2 * P) complexity when searching for transfers.
+    // Using records for efficiency.
+    Map<PlayerPosition, List<({Player player, AIClub owner})>>? allAIPlayersByPos;
+
     for (var club in _aiClubs) {
       // 1. Financial Simulation (Income/Expenses)
       double matchdayIncome = 0;
@@ -1112,33 +1117,51 @@ class GameStateManager with ChangeNotifier {
             }
           }
 
-          // B3. From Other AI Clubs
-          for (var otherAIClub in _aiClubs) {
-            if (otherAIClub.id == club.id) continue; // Don't target self
+          // B3. From Other AI Clubs (Optimized)
+          // Lazy init the map if needed
+          if (allAIPlayersByPos == null) {
+            allAIPlayersByPos = {
+              PlayerPosition.Goalkeeper: [],
+              PlayerPosition.Defender: [],
+              PlayerPosition.Midfielder: [],
+              PlayerPosition.Forward: [],
+            };
+            for (var c in _aiClubs) {
+              for (var p in c.players) {
+                allAIPlayersByPos![p.naturalPosition]!.add((player: p, owner: c));
+              }
+            }
+          }
 
-            for (var player in otherAIClub.players) {
-              PlayerPosition targetPos = player.naturalPosition;
-              if (neededPositions.contains(targetPos)) {
-                // AI clubs might be more willing to buy slightly older/established players from other AIs
-                if (player.age < 28 && // Broader age range
-                    player.currentSkill > (club.skillLevel * 0.8 + (3 - club.tier) * 3) && // Target slightly better or comparable players
-                    player.potentialSkill > (club.skillLevel * 0.7) &&
-                    club.balance > player.calculateMarketValue() * 0.6) { // Affordability
-                  // Check if an offer from this club for this player (from this other AI club) already exists and is recent
-                  bool existingOfferToAI = _transferOffers.any((o) =>
-                      o['playerId'] == player.id &&
-                      o['offeringClubId'] == club.id &&
-                      o['sellingClubId'] == otherAIClub.id && // Ensure it's for this specific AI club
-                      o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
+          for (var targetPos in neededPositions) {
+            var candidates = allAIPlayersByPos![targetPos];
+            if (candidates == null) continue;
 
-                  if (!existingOfferToAI) {
-                    potentialTargetsData.add({
-                      'player': player,
-                      'ownerId': otherAIClub.id,
-                      'ownerName': otherAIClub.name,
-                      'position': targetPos
-                    });
-                  }
+            for (var candidateData in candidates) {
+              AIClub otherAIClub = candidateData.owner;
+              if (otherAIClub.id == club.id) continue; // Don't target self
+
+              Player player = candidateData.player;
+
+              // AI clubs might be more willing to buy slightly older/established players from other AIs
+              if (player.age < 28 && // Broader age range
+                  player.currentSkill > (club.skillLevel * 0.8 + (3 - club.tier) * 3) && // Target slightly better or comparable players
+                  player.potentialSkill > (club.skillLevel * 0.7) &&
+                  club.balance > player.calculateMarketValue() * 0.6) { // Affordability
+                // Check if an offer from this club for this player (from this other AI club) already exists and is recent
+                bool existingOfferToAI = _transferOffers.any((o) =>
+                    o['playerId'] == player.id &&
+                    o['offeringClubId'] == club.id &&
+                    o['sellingClubId'] == otherAIClub.id && // Ensure it's for this specific AI club
+                    o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
+
+                if (!existingOfferToAI) {
+                  potentialTargetsData.add({
+                    'player': player,
+                    'ownerId': otherAIClub.id,
+                    'ownerName': otherAIClub.name,
+                    'position': targetPos
+                  });
                 }
               }
             }
