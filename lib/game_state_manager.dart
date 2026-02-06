@@ -2622,6 +2622,37 @@ class GameStateManager with ChangeNotifier {
   }
 
   // --- Save/Load Logic ---
+  @visibleForTesting
+  void validateLoadedState(SerializableGameState state) {
+    if (state.balance.isInfinite || state.balance.isNaN) {
+      throw FormatException('Invalid balance: ${state.balance}');
+    }
+    if (state.weeklyIncome.isInfinite || state.weeklyIncome.isNaN) {
+      throw FormatException('Invalid weeklyIncome: ${state.weeklyIncome}');
+    }
+    if (state.totalWeeklyWages.isInfinite || state.totalWeeklyWages.isNaN) {
+      throw FormatException('Invalid totalWeeklyWages: ${state.totalWeeklyWages}');
+    }
+    if (state.academyName.length > 25) {
+      throw FormatException('Academy name too long: ${state.academyName.length}');
+    }
+    if (state.academyPlayers.length > 200) {
+      throw FormatException('Too many players: ${state.academyPlayers.length}');
+    }
+    if (state.newsItems.length > 500) {
+      throw FormatException('Too many news items: ${state.newsItems.length}');
+    }
+    if (state.trainingFacilityLevel < 1 || state.trainingFacilityLevel > 20) {
+      throw FormatException('Invalid trainingFacilityLevel: ${state.trainingFacilityLevel}');
+    }
+    if (state.scoutingFacilityLevel < 1 || state.scoutingFacilityLevel > 20) {
+      throw FormatException('Invalid scoutingFacilityLevel: ${state.scoutingFacilityLevel}');
+    }
+    if (state.medicalBayLevel < 1 || state.medicalBayLevel > 20) {
+      throw FormatException('Invalid medicalBayLevel: ${state.medicalBayLevel}');
+    }
+  }
+
   Future<bool> saveGame() async {
     try {
       print("--- SAVING GAME STATE ---");
@@ -2732,6 +2763,9 @@ class GameStateManager with ChangeNotifier {
        }
 
       final loadedState = SerializableGameState.fromJson(jsonMap);
+
+      // Validate loaded state (Security Check)
+      validateLoadedState(loadedState);
 
       // Apply loaded state
       _timeService.initialize(loadedState.currentDate);
