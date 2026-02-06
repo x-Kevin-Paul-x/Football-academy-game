@@ -129,8 +129,8 @@ class PlayerManagementScreen extends StatelessWidget {
                 _buildDetailRow('Position:', player.positionString), // Use positionString getter
                 _buildDetailRow('Age:', player.age.toString()),
                 _buildDetailRow('Skill:', '${player.currentSkill} / ${player.potentialSkill}'),
-                _buildDetailRow('Stamina:', player.stamina.toString()), // New
-                _buildDetailRow('Fatigue:', '${player.fatigue.toStringAsFixed(1)}%'), // New
+                _buildAttributeBar(context, 'Stamina', player.stamina.toDouble(), 20.0, highIsGood: true),
+                _buildAttributeBar(context, 'Fatigue', player.fatigue, 100.0, highIsGood: false),
                 _buildDetailRow('Reputation:', player.reputation.toString()),
                 _buildDetailRow('Weekly Wage:', currencyFormat.format(player.weeklyWage)),
                 _buildDetailRow('Status:', playerStatusToString(player.status)), // New
@@ -167,6 +167,59 @@ class PlayerManagementScreen extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  // Helper widget for attribute bars (Stamina, Fatigue)
+  Widget _buildAttributeBar(BuildContext context, String label, double value, double max, {required bool highIsGood}) {
+    // Calculate percentage (0.0 to 1.0)
+    double percentage = (value / max).clamp(0.0, 1.0);
+
+    // Determine color based on "goodness"
+    Color color;
+    if (highIsGood) {
+      // High value is Green (Good), Low is Red (Bad)
+      color = percentage > 0.6 ? Colors.green : (percentage > 0.3 ? Colors.orange : Colors.red);
+    } else {
+      // Low value is Green (Good), High is Red (Bad) - e.g. Fatigue
+      color = percentage < 0.4 ? Colors.green : (percentage < 0.7 ? Colors.orange : Colors.red);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          // Fixed width label for alignment
+          SizedBox(
+              width: 70,
+              child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold))
+          ),
+          Expanded(
+            child: Semantics(
+              label: '$label: ${value.toInt()} out of ${max.toInt()}',
+              value: '${(percentage * 100).toInt()}%',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: percentage,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                  minHeight: 8,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 45,
+            child: Text(
+              label == 'Stamina' ? value.toInt().toString() : '${value.toStringAsFixed(1)}%',
+              textAlign: TextAlign.end,
+              style: TextStyle(fontWeight: FontWeight.bold, color: color),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
