@@ -1011,6 +1011,38 @@ class GameStateManager with ChangeNotifier {
     // print("--- Handling AI Club Weekly Actions ---"); // Less verbose
     // List<Match> matchesThisWeek = _getMatchesPlayedThisWeek(); // Helper needed
 
+    // --- OPTIMIZATION: Lazy-index transfer candidates by position ---
+    // Structure: Map<PlayerPosition, List<_TransferCandidate>>
+    // We only build this if at least one club is looking for players this week.
+    Map<PlayerPosition, List<_TransferCandidate>>? candidatesByPosition;
+
+    void buildCandidateIndex() {
+        if (candidatesByPosition != null) return;
+
+        candidatesByPosition = {};
+        for (var pos in PlayerPosition.values) {
+            candidatesByPosition![pos] = [];
+        }
+
+        void addCandidate(Player p, String ownerId, String ownerName, String type) {
+            candidatesByPosition![p.naturalPosition]?.add(_TransferCandidate(p, ownerId, ownerName, type));
+        }
+
+        // 1. Add Player's Academy Players
+        for (var p in _academyPlayers) addCandidate(p, playerAcademyId, _academyName, 'Academy');
+
+        // 2. Add Rival Academy Players
+        for (var r in _rivalAcademies) {
+            for (var p in r.players) addCandidate(p, r.id, r.name, 'Rival');
+        }
+
+        // 3. Add AI Club Players
+        for (var c in _aiClubs) {
+            for (var p in c.players) addCandidate(p, c.id, c.name, 'AI');
+        }
+    }
+    // --- END OPTIMIZATION SETUP ---
+
     for (var club in _aiClubs) {
       // 1. Financial Simulation (Income/Expenses)
       double matchdayIncome = 0;
@@ -1075,74 +1107,69 @@ class GameStateManager with ChangeNotifier {
           // B. Identify Potential Targets
           List<Map<String, dynamic>> potentialTargetsData = [];
 
-          // B1. From Player's Academy
-          for (var player in _academyPlayers) {
-            PlayerPosition targetPos = player.naturalPosition; // Use natural position directly
-            if (neededPositions.contains(targetPos)) { // Check against the list of needed generic positions
-              if (player.age < 23 &&
-                  player.potentialSkill > (club.skillLevel * 0.7 + (3 - club.tier) * 5) &&
-                  club.balance > player.calculateMarketValue() * 0.5) { // Initial affordability check
-                if (!_transferOffers.any((o) => o['playerId'] == player.id && o['offeringClubId'] == club.id)) {
-                  potentialTargetsData.add({'player': player, 'ownerId': playerAcademyId, 'ownerName': _academyName, 'position': targetPos});
-                }
-              }
-            }
-          }
+          // --- OPTIMIZED TARGET SEARCH ---
+          // Iterate only through candidates that match the needed positions
+          buildCandidateIndex(); // Ensure index is built (Lazy)
 
-          // B2. From Rival Academies
-          for (var rivalAcademy in _rivalAcademies) {
-            for (var player in rivalAcademy.players) {
-              PlayerPosition targetPos = player.naturalPosition; // Use natural position directly
-              if (neededPositions.contains(targetPos)) { // Check against the list of needed generic positions
-                if (player.age < 21 && // Stricter age for rival players
-                    player.potentialSkill > (club.skillLevel * 0.65 + (3 - club.tier) * 5) &&
-                    club.balance > player.calculateMarketValue() * 0.5) { // Initial affordability check
-                  // Check if an offer from this club for this player (from this rival) already exists and is recent
-                  bool existingOfferToRival = _transferOffers.any((o) =>
-                      o['playerId'] == player.id &&
-                      o['offeringClubId'] == club.id &&
-                      o['sellingClubId'] == rivalAcademy.id && // Ensure it's for this specific rival
-                      o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch); // Check for offer made this exact week
+          for (var pos in neededPositions) {
+              List<_TransferCandidate>? candidates = candidatesByPosition![pos];
+              if (candidates == null) continue;
 
-                  if (!existingOfferToRival) { // Only add if no recent offer to this rival for this player
-                    potentialTargetsData.add({'player': player, 'ownerId': rivalAcademy.id, 'ownerName': rivalAcademy.name, 'position': targetPos});
+              for (var candidate in candidates) {
+                  Player player = candidate.player;
+                  String ownerId = candidate.ownerId;
+                  String ownerName = candidate.ownerName;
+                  String type = candidate.type;
+
+                  if (ownerId == club.id) continue; // Skip self (for AI clubs)
+
+                  // Apply Source-Specific Logic
+                  if (type == 'Academy') {
+                      // Logic for Player's Academy Players
+                      if (player.age < 23 &&
+                          player.potentialSkill > (club.skillLevel * 0.7 + (3 - club.tier) * 5) &&
+                          club.balance > player.calculateMarketValue() * 0.5) {
+                           if (!_transferOffers.any((o) => o['playerId'] == player.id && o['offeringClubId'] == club.id)) {
+                               potentialTargetsData.add({'player': player, 'ownerId': ownerId, 'ownerName': ownerName, 'position': pos});
+                           }
+                      }
+                  } else if (type == 'Rival') {
+                      // Logic for Rival Academy Players
+                      if (player.age < 21 &&
+                          player.potentialSkill > (club.skillLevel * 0.65 + (3 - club.tier) * 5) &&
+                          club.balance > player.calculateMarketValue() * 0.5) {
+
+                           bool existingOfferToRival = _transferOffers.any((o) =>
+                              o['playerId'] == player.id &&
+                              o['offeringClubId'] == club.id &&
+                              o['sellingClubId'] == ownerId &&
+                              o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
+
+                           if (!existingOfferToRival) {
+                               potentialTargetsData.add({'player': player, 'ownerId': ownerId, 'ownerName': ownerName, 'position': pos});
+                           }
+                      }
+                  } else if (type == 'AI') {
+                      // Logic for Other AI Club Players
+                      if (player.age < 28 &&
+                          player.currentSkill > (club.skillLevel * 0.8 + (3 - club.tier) * 3) &&
+                          player.potentialSkill > (club.skillLevel * 0.7) &&
+                          club.balance > player.calculateMarketValue() * 0.6) {
+
+                          bool existingOfferToAI = _transferOffers.any((o) =>
+                              o['playerId'] == player.id &&
+                              o['offeringClubId'] == club.id &&
+                              o['sellingClubId'] == ownerId &&
+                              o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
+
+                          if (!existingOfferToAI) {
+                               potentialTargetsData.add({'player': player, 'ownerId': ownerId, 'ownerName': ownerName, 'position': pos});
+                          }
+                      }
                   }
-                }
               }
-            }
           }
-
-          // B3. From Other AI Clubs
-          for (var otherAIClub in _aiClubs) {
-            if (otherAIClub.id == club.id) continue; // Don't target self
-
-            for (var player in otherAIClub.players) {
-              PlayerPosition targetPos = player.naturalPosition;
-              if (neededPositions.contains(targetPos)) {
-                // AI clubs might be more willing to buy slightly older/established players from other AIs
-                if (player.age < 28 && // Broader age range
-                    player.currentSkill > (club.skillLevel * 0.8 + (3 - club.tier) * 3) && // Target slightly better or comparable players
-                    player.potentialSkill > (club.skillLevel * 0.7) &&
-                    club.balance > player.calculateMarketValue() * 0.6) { // Affordability
-                  // Check if an offer from this club for this player (from this other AI club) already exists and is recent
-                  bool existingOfferToAI = _transferOffers.any((o) =>
-                      o['playerId'] == player.id &&
-                      o['offeringClubId'] == club.id &&
-                      o['sellingClubId'] == otherAIClub.id && // Ensure it's for this specific AI club
-                      o['dateEpoch'] == _timeService.currentDate.millisecondsSinceEpoch);
-
-                  if (!existingOfferToAI) {
-                    potentialTargetsData.add({
-                      'player': player,
-                      'ownerId': otherAIClub.id,
-                      'ownerName': otherAIClub.name,
-                      'position': targetPos
-                    });
-                  }
-                }
-              }
-            }
-          }
+          // --- END OPTIMIZED TARGET SEARCH ---
 
           if (potentialTargetsData.isNotEmpty) {
             potentialTargetsData.sort((a, b) {
@@ -2307,7 +2334,7 @@ class GameStateManager with ChangeNotifier {
 
   // Generate Transfer Offers
   void _generateTransferOffers() {
-    print("--- DEBUG: Starting _generateTransferOffers ---");
+    // print("--- DEBUG: Starting _generateTransferOffers ---");
     // Clear only previous offers made by AI clubs FOR the player's academy players
     _transferOffers.removeWhere((o) =>
         o['sellingClubId'] == playerAcademyId &&
@@ -2316,14 +2343,14 @@ class GameStateManager with ChangeNotifier {
     // Only generate offers if not in Hardcore mode? Or make them rarer/lower value?
     // For now, let's keep generating them but maybe rivals can also bid later.
     if (_difficulty == Difficulty.Hardcore) {
-        print("--- DEBUG: Skipping transfer offers due to Hardcore difficulty. ---");
+        // print("--- DEBUG: Skipping transfer offers due to Hardcore difficulty. ---");
         return; // Skip offer generation in Hardcore for simplicity initially
     }
 
     final random = Random();
-    print("--- DEBUG: Iterating through ${_academyPlayers.length} academy players for offers ---");
+    // print("--- DEBUG: Iterating through ${_academyPlayers.length} academy players for offers ---");
     for (var player in _academyPlayers) {
-      print("--- DEBUG: Considering player ${player.name} (ID: ${player.id}) ---");
+      // print("--- DEBUG: Considering player ${player.name} (ID: ${player.id}) ---");
       // --- NEW Offer Chance Calculation ---
       double baseChance = 0.01; // Small base chance
       // Skill Factor (higher skill = much higher chance)
@@ -2430,7 +2457,7 @@ class GameStateManager with ChangeNotifier {
         }
       }
     }
-     print("--- DEBUG: Finished _generateTransferOffers. Found ${_transferOffers.length} offers. ---");
+     // print("--- DEBUG: Finished _generateTransferOffers. Found ${_transferOffers.length} offers. ---");
   }
 
   // Accept Transfer Offer (MODIFIED to handle AI Clubs)
@@ -3231,4 +3258,12 @@ class GameStateManager with ChangeNotifier {
   // --- END Handle Merchandise Sales & Fan Updates ---
 
   // --- End Save/Load Logic ---
+}
+
+class _TransferCandidate {
+  final Player player;
+  final String ownerId;
+  final String ownerName;
+  final String type;
+  _TransferCandidate(this.player, this.ownerId, this.ownerName, this.type);
 }
