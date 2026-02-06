@@ -16,3 +16,7 @@
  ## 2024-05-25 - Empty State Consistency
 **Learning:** Fragmented empty states (e.g., bare `Text` vs ad-hoc `Column`s) lead to inconsistent user experience and missing accessibility context.
 **Action:** Use the shared `EmptyState` widget which wraps content in a single `Semantics` container and uses `Theme` colors (Outline for icon, OnSurfaceVariant for text).
+
+## 2024-05-25 - Proactive UI Validation
+**Learning:** Silent failures (e.g., clicking 'Hire' with no effect when caps are met) frustrate users. Backend validation logic (like staff limits) should be mirrored in the UI to proactively disable actions.
+**Action:** Implement checks in the `build` method to disable buttons and provide explanatory `Tooltip`s when an action is unavailable due to game rules (e.g., "Max limit reached").

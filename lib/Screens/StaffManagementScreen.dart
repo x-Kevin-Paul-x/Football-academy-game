@@ -46,8 +46,8 @@ class StaffManagementScreen extends StatelessWidget {
                 Expanded( // TabBarView needs to be Expanded within a Column
                   child: TabBarView(
                     children: [
-                      _buildStaffList(context, hiredStaff, isHiredList: true),
-                      _buildStaffList(context, availableStaff, isHiredList: false),
+                      _buildStaffList(context, hiredStaff, gameStateManager, isHiredList: true),
+                      _buildStaffList(context, availableStaff, gameStateManager, isHiredList: false),
                     ],
                   ),
                 ),
@@ -98,7 +98,7 @@ class StaffManagementScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStaffList(BuildContext context, List<Staff> staffList, {required bool isHiredList}) {
+  Widget _buildStaffList(BuildContext context, List<Staff> staffList, GameStateManager gameState, {required bool isHiredList}) {
     if (staffList.isEmpty) {
       return Center(
         child: Text(
@@ -113,25 +113,66 @@ class StaffManagementScreen extends StatelessWidget {
       itemCount: staffList.length,
       itemBuilder: (context, index) {
         final staff = staffList[index];
+
+        bool canHire = true;
+        String tooltipMessage = 'Hire this staff member';
+
+        if (!isHiredList) {
+          int currentCount = gameState.hiredStaff.where((s) => s.role == staff.role).length;
+
+          switch (staff.role) {
+            case StaffRole.Manager:
+              if (currentCount >= 1) {
+                canHire = false;
+                tooltipMessage = "Only one Manager allowed.";
+              }
+              break;
+            case StaffRole.Coach:
+              if (currentCount >= gameState.maxCoaches) {
+                canHire = false;
+                tooltipMessage = "Coach limit reached (${gameState.maxCoaches}). Upgrade Training Facility.";
+              }
+              break;
+            case StaffRole.Scout:
+              if (currentCount >= gameState.maxScouts) {
+                canHire = false;
+                tooltipMessage = "Scout limit reached (${gameState.maxScouts}). Upgrade Scouting Facility.";
+              }
+              break;
+            case StaffRole.Physio:
+              if (currentCount >= gameState.maxPhysios) {
+                canHire = false;
+                tooltipMessage = "Physio limit reached (${gameState.maxPhysios}). Upgrade Medical Bay.";
+              }
+              break;
+            case StaffRole.MerchandiseManager:
+              int totalCap = gameState.maxStoreManagers + gameState.maxMatchSalesManagers;
+              if (currentCount >= totalCap) {
+                canHire = false;
+                tooltipMessage = "Merch Manager limit reached ($totalCap). Upgrade Merchandise Store.";
+              }
+              break;
+          }
+        }
+
         return StaffCard(
           staff: staff,
           actions: isHiredList
               ? _buildHiredStaffActions(context, staff) // Use helper method
               : [
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.add_circle_outline),
-                    label: const Text('Hire'),
-                    // Call GameStateManager directly to hire staff
-                    onPressed: () {
-                      Provider.of<GameStateManager>(context, listen: false).hireStaff(staff);
-                      // Optional: Show a snackbar confirmation here as well, though Dashboard also shows one.
-                      // ScaffoldMessenger.of(context).showSnackBar(
-                      //   SnackBar(content: Text('Hired ${staff.name}')),
-                      // );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                  Tooltip(
+                    message: tooltipMessage,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Hire'),
+                      // Call GameStateManager directly to hire staff
+                      onPressed: canHire ? () {
+                        Provider.of<GameStateManager>(context, listen: false).hireStaff(staff);
+                      } : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: canHire ? Colors.green : Colors.grey,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
                   ),
                 ],
