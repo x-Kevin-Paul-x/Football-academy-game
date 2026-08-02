@@ -226,7 +226,11 @@ class StaffManagementScreen extends StatelessWidget {
               currentCoachState = gameStateManager.hiredStaff.firstWhere((s) => s.id == coach.id);
             } catch (e) {
               // Coach might have been fired while dialog was opening? Close dialog.
-              Navigator.of(dialogContext).pop();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop();
+                }
+              });
               return const SizedBox.shrink(); // Return empty widget while closing
             }
             final List<String> assignedIds = currentCoachState.assignedPlayerIds;

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
-import 'Dashboard.dart'; // To navigate to the main game screen
+import '../utils/app_theme.dart';
+import 'Dashboard.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({Key? key}) : super(key: key);
@@ -15,106 +16,153 @@ class _StartScreenState extends State<StartScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final gameStateManager =
-        Provider.of<GameStateManager>(context, listen: false);
-    final scaffoldMessenger = ScaffoldMessenger.of(context); // Capture context
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final gameStateManager = Provider.of<GameStateManager>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Football Academy Manager'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Welcome!',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.play_arrow),
-              label: const Text('New Game'),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-              onPressed: _isLoading
-                  ? null
-                  : () {
-                      // Reset game state for a new game
-                      gameStateManager.resetGame();
-                      // Navigate to the main dashboard
-                      Navigator.pushReplacement(
-                        // Use pushReplacement so user can't go back to start screen
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
-                      );
-                    },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: isDark
+                ? [const Color(0xFF0D0E12), const Color(0xFF191A23)]
+                : [const Color(0xFFECEEF2), const Color(0xFFDDE1EA)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: Container(
+            width: 480,
+            padding: const EdgeInsets.all(40),
+            decoration: AppTheme.capsuleCardDecoration(context),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Hero Icon Badge
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppTheme.darkAccentPill : AppTheme.lightPillActive,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: isDark ? AppTheme.darkAccentPill.withOpacity(0.3) : const Color(0x33000000),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      )
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.sports_soccer,
+                    size: 44,
+                    color: isDark ? Colors.black : Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'FOOTBALL ACADEMY',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                  ),
+                ),
+                Text(
+                  'Next-Gen Management Suite',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                  ),
+                ),
+                const SizedBox(height: 36),
+
+                // New Game Pill Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.play_arrow_rounded, size: 22),
+                    label: const Text('Start New Career'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isDark ? AppTheme.darkAccentPill : AppTheme.lightPillActive,
+                      foregroundColor: isDark ? Colors.black : Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            gameStateManager.resetGame();
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const Dashboard()),
+                            );
+                          },
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Load Game Pill Button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: _isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                            ),
+                          )
+                        : const Icon(Icons.folder_open_rounded, size: 22),
+                    label: const Text('Load Saved Career'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      side: BorderSide(
+                        color: isDark ? AppTheme.darkCardBorder : AppTheme.lightCardBorder,
+                        width: 1.5,
                       ),
-                    )
-                  : const Icon(Icons.folder_open),
-              label: const Text('Load Game'),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-              onPressed: _isLoading
-                  ? null
-                  : () async {
-                      setState(() {
-                        _isLoading = true;
-                      });
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
 
-                      // Small delay to let the UI update if loadGame is too fast
-                      // and to ensure the user sees the feedback.
-                      // await Future.delayed(const Duration(milliseconds: 500));
+                            bool success = await gameStateManager.loadGame();
 
-                      bool success = await gameStateManager.loadGame();
+                            if (!mounted) return;
 
-                      if (!mounted) return;
-
-                      if (success) {
-                        // Navigate to the main dashboard on successful load
-                        Navigator.pushReplacement(
-                          // Use pushReplacement
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Dashboard()),
-                        );
-                        // Optional: Show brief success message *after* navigation if desired,
-                        // but might be better handled on the dashboard itself upon load.
-                      } else {
-                        setState(() {
-                          _isLoading = false;
-                        });
-                        // Show error message if load failed
-                        scaffoldMessenger.showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                'Failed to load game. No save file found or error occurred.'),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      }
-                    },
+                            if (success) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const Dashboard()),
+                              );
+                            } else {
+                              setState(() {
+                                _isLoading = false;
+                              });
+                              scaffoldMessenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text('Failed to load game. No save file found.'),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          },
+                  ),
+                ),
+              ],
             ),
-            // Add Settings button later if needed here, or keep it within the main game UI
-          ],
+          ),
         ),
       ),
     );

@@ -45,6 +45,10 @@ SerializableGameState _$SerializableGameStateFromJson(
           .map((e) => AIClub.fromJson(e as Map<String, dynamic>))
           .toList(),
       playerAcademyTier: (json['playerAcademyTier'] as num).toInt(),
+      consecutiveNegativeWeeks:
+          (json['consecutiveNegativeWeeks'] as num?)?.toInt(),
+      isGameOver: json['isGameOver'] as bool?,
+      isForcedSellActive: json['isForcedSellActive'] as bool?,
     );
 
 Map<String, dynamic> _$SerializableGameStateToJson(
@@ -73,6 +77,9 @@ Map<String, dynamic> _$SerializableGameStateToJson(
       'rivalAcademies': instance.rivalAcademies.map((e) => e.toJson()).toList(),
       'aiClubs': instance.aiClubs.map((e) => e.toJson()).toList(),
       'playerAcademyTier': instance.playerAcademyTier,
+      'consecutiveNegativeWeeks': instance.consecutiveNegativeWeeks,
+      'isGameOver': instance.isGameOver,
+      'isForcedSellActive': instance.isForcedSellActive,
     };
 
 const _$DifficultyEnumMap = {

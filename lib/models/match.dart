@@ -149,8 +149,16 @@ class Match {
 
     // 1. Calculate Effective Team Skills (considering fatigue, manager, formation bonus?)
     // TODO: Potentially add formation bonus/penalty based on player fit
-    int homeSkill = _calculateEffectiveTeamSkill(homeStarters, playerManager: homeTeamId == GameStateManager.playerAcademyId ? playerManager : null);
-    int awaySkill = _calculateEffectiveTeamSkill(awayStarters, playerManager: awayTeamId == GameStateManager.playerAcademyId ? playerManager : null);
+    int homeSkill = _calculateEffectiveTeamSkill(
+      homeStarters,
+      playerManager: homeTeamId == GameStateManager.playerAcademyId ? playerManager : null,
+      formation: homeFormationUsed,
+    );
+    int awaySkill = _calculateEffectiveTeamSkill(
+      awayStarters,
+      playerManager: awayTeamId == GameStateManager.playerAcademyId ? playerManager : null,
+      formation: awayFormationUsed,
+    );
 
     // 2. Determine Base Goal Expectancy
     double skillDiff = (homeSkill - awaySkill).toDouble();
@@ -315,7 +323,7 @@ class Match {
   }
 
   // Helper to calculate effective skill considering fatigue
-  int _calculateEffectiveTeamSkill(List<Player> players, {Staff? playerManager}) {
+  int _calculateEffectiveTeamSkill(List<Player> players, {Staff? playerManager, Formation? formation}) {
     if (players.isEmpty) return 10;
     double totalEffectiveSkill = 0;
     for (var player in players) {
@@ -325,12 +333,44 @@ class Match {
     }
     int averageSkill = (totalEffectiveSkill / players.length).round();
 
+    if (formation != null) {
+      int formationFitBonus = _calculateFormationFitBonus(players, formation);
+      averageSkill += formationFitBonus;
+    }
+
     if (playerManager != null) {
         int managerBonus = (playerManager.skill / 15).floor();
         averageSkill += managerBonus;
     }
 
     return averageSkill.clamp(1, 100);
+  }
+
+  int _calculateFormationFitBonus(List<Player> players, Formation formation) {
+    if (players.isEmpty || formation.positions.isEmpty) return 0;
+
+    final totalFit = players.asMap().entries.fold<int>(0, (sum, entry) {
+      if (entry.key >= formation.positions.length) return sum;
+
+      final player = entry.value;
+      final expectedPosition = formation.positions[entry.key];
+      int slotFit = 0;
+
+      if (player.naturalPosition == expectedPosition) {
+        slotFit += 3;
+      } else if (player.preferredPositions.contains(expectedPosition)) {
+        slotFit += 1;
+      } else {
+        slotFit -= 1;
+      }
+
+      final positionalAffinity = player.positionalAffinity[expectedPosition] ?? 10;
+      slotFit += ((positionalAffinity - 10) / 20).round();
+
+      return sum + slotFit;
+    });
+
+    return (totalFit / players.length).round().clamp(-3, 6);
   }
 
   // Helper to simulate individual goal events

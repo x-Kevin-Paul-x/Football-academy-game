@@ -26,6 +26,10 @@ Staff _$StaffFromJson(Map<String, dynamic> json) => Staff(
           ? null
           : Formation.fromJson(
               json['preferredFormation'] as Map<String, dynamic>),
+      attributes: (json['attributes'] as List<dynamic>?)
+              ?.map((e) => $enumDecode(_$ManagerAttributeEnumMap, e))
+              .toList() ??
+          const [],
       isAssigned: json['isAssigned'] as bool? ?? true,
       merchAssignment: $enumDecodeNullable(
               _$MerchAssignmentTypeEnumMap, json['merchAssignment']) ??
@@ -50,6 +54,9 @@ Map<String, dynamic> _$StaffToJson(Staff instance) => <String, dynamic>{
           .map((e) => _$FormationTypeEnumMap[e]!)
           .toList(),
       'preferredFormation': instance.preferredFormation?.toJson(),
+      'attributes': instance.attributes
+          .map((e) => _$ManagerAttributeEnumMap[e]!)
+          .toList(),
       'merchAssignment':
           _$MerchAssignmentTypeEnumMap[instance.merchAssignment]!,
       'merchProfitMarginEffectiveness': instance.merchProfitMarginEffectiveness,
@@ -79,6 +86,14 @@ const _$FormationTypeEnumMap = {
   FormationType.F111: 'F111',
   FormationType.F21: 'F21',
   FormationType.F12: 'F12',
+};
+
+const _$ManagerAttributeEnumMap = {
+  ManagerAttribute.YouthDeveloper: 'YouthDeveloper',
+  ManagerAttribute.Tactician: 'Tactician',
+  ManagerAttribute.Motivator: 'Motivator',
+  ManagerAttribute.Disciplinarian: 'Disciplinarian',
+  ManagerAttribute.Negotiator: 'Negotiator',
 };
 
 const _$MerchAssignmentTypeEnumMap = {

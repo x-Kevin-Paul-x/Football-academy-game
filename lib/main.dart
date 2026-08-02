@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import for SystemNavigator
 import 'package:provider/provider.dart'; // Import provider
 // import 'Screens/Dashboard.dart'; // No longer needed directly here
+import 'utils/app_theme.dart';
 import 'game_state_manager.dart'; // Import the GameStateManager
 // import 'models/difficulty.dart'; // No longer needed directly here
 // import 'Screens/SettingsScreen.dart'; // No longer needed directly here
@@ -29,35 +30,22 @@ class MyApp extends StatelessWidget {
       builder: (context, gameState, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Football Academy Manager', // Updated title
-          theme: ThemeData( // Light Theme
-            brightness: Brightness.light,
-            primarySwatch: Colors.deepPurple,
-            useMaterial3: true,
-            // Add other light theme specific properties
-          ),
-          darkTheme: ThemeData( // Dark Theme
-            brightness: Brightness.dark,
-            primarySwatch: Colors.deepPurple,
-            scaffoldBackgroundColor: Colors.grey[900],
-            appBarTheme: AppBarTheme(
-              backgroundColor: Colors.grey[850],
-              foregroundColor: Colors.white,
-            ),
-            bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              backgroundColor: Colors.grey[850],
-              selectedItemColor: Colors.deepPurpleAccent,
-              unselectedItemColor: Colors.grey[400],
-              type: BottomNavigationBarType.fixed,
-            ),
-            useMaterial3: true,
-            // Add other dark theme specific properties
-          ),
+          title: 'Football Academy Manager',
+          theme: _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
           themeMode: gameState.themeMode, // Use themeMode from GameStateManager
           home: const StartScreen(), // Set StartScreen as the home
         );
       },
     );
+  }
+
+  ThemeData _buildLightTheme() {
+    return AppTheme.lightTheme;
+  }
+
+  ThemeData _buildDarkTheme() {
+    return AppTheme.darkTheme;
   }
 }
 

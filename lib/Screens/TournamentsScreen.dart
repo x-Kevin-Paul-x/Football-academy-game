@@ -140,60 +140,16 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
         }
 
         return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          elevation: 3,
-          child: ListTile(
-            leading: Icon(
-              _getTournamentIcon(tournament.type),
-              color: Theme.of(context).colorScheme.secondary,
-              size: 40,
-            ),
-            title: Text(tournament.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Type: ${tournament.typeDisplay}'),
-                Text('Requires: ${tournament.requiredPlayers} players'),
-                Text('Reputation Req: ${tournament.requiredReputation}'),
-                Text('Entry Fee: ${currencyFormat.format(tournament.entryFee)}'),
-                Text('Prize (Base): ${currencyFormat.format(tournament.prizeMoneyBase)}'),
-                if (!isTemplates) // Show status and dates only for instances
-                  Text('Status: ${tournament.status.toString().split('.').last}'),
-                if (!isTemplates)
-                   Text('Teams: ${tournament.teamIds.length} / ${tournament.numberOfTeams}'),
-                if (!isTemplates && tournament.status != TournamentStatus.Scheduled)
-                   Text('Starts: ${DateFormat.yMMMd().format(tournament.startDate)}'),
-                if (tournament.status == TournamentStatus.Completed && tournament.winnerId != null)
-                   Text('Winner: ${_getTeamName(tournament.winnerId!, gameStateManager)}', style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-              ],
-            ),
-            trailing: isTemplates
-              ? _buildEnterButton(
-                  context,
-                  tournament, // Pass template
-                  canJoin,
-                  alreadyJoined,
-                  meetsPlayers,
-                  meetsReputation,
-                  gameStateManager,
-                )
-              : (tournament.status != TournamentStatus.Scheduled // Don't show button for scheduled before start
-                  ? IconButton(
-                      icon: const Icon(Icons.info_outline),
-                      tooltip: 'View Details',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TournamentDetailsScreen(tournamentId: tournament.id),
-                          ),
-                        );
-                      },
-                    )
-                  : null // No button for scheduled
-                ),
-             onTap: !isTemplates && tournament.status != TournamentStatus.Scheduled
-                ? () { // Allow tapping list tile to navigate for active/completed
+          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: !isTemplates && tournament.status != TournamentStatus.Scheduled
+                ? () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -201,11 +157,97 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
                       ),
                     );
                   }
-                : null, // No action on tap for templates or scheduled
-            isThreeLine: true, // Adjust based on content, might need more lines
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          _getTournamentIcon(tournament.type),
+                          color: Theme.of(context).colorScheme.secondary,
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tournament.name,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Type: ${tournament.typeDisplay}',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isTemplates)
+                        _buildEnterButton(
+                          context,
+                          tournament,
+                          canJoin,
+                          alreadyJoined,
+                          meetsPlayers,
+                          meetsReputation,
+                          gameStateManager,
+                        )
+                      else if (tournament.status != TournamentStatus.Scheduled)
+                        Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    ],
+                  ),
+                  const Divider(height: 24),
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 8,
+                    children: [
+                      _buildInfoChip(context, Icons.people, 'Req: ${tournament.requiredPlayers}'),
+                      _buildInfoChip(context, Icons.star_border, 'Rep: ${tournament.requiredReputation}'),
+                      _buildInfoChip(context, Icons.attach_money, 'Entry: ${currencyFormat.format(tournament.entryFee)}'),
+                      _buildInfoChip(context, Icons.emoji_events, 'Prize: ${currencyFormat.format(tournament.prizeMoneyBase)}'),
+                      if (!isTemplates)
+                        _buildInfoChip(context, Icons.info_outline, 'Status: ${tournament.status.name}'),
+                      if (!isTemplates)
+                        _buildInfoChip(context, Icons.group, 'Teams: ${tournament.teamIds.length}/${tournament.numberOfTeams}'),
+                    ],
+                  ),
+                  if (tournament.status == TournamentStatus.Completed && tournament.winnerId != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: Text(
+                        'Winner: ${_getTeamName(tournament.winnerId!, gameStateManager)}',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        const SizedBox(width: 4),
+        Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      ],
     );
   }
 

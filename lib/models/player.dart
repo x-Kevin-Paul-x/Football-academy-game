@@ -8,6 +8,17 @@ part 'player.g.dart'; // Added for generated code
 
 enum PlayerPosition { Goalkeeper, Defender, Midfielder, Forward }
 
+enum PlayerTrait {
+  Leader,       // Boosts team performance
+  Clutch,       // Better performance in important matches
+  InjuryProne,  // Higher chance of getting injured
+  Consistent,   // Less variance in match performance
+  Inconsistent, // High variance in match performance
+  SuperSub,     // Better performance when subbed in
+  FanFavorite,  // Boosts merch sales and attendance
+  Hothead,      // Higher chance of cards/fouls
+}
+
 @JsonSerializable(explicitToJson: true) // Added explicitToJson for the map
 class Player {
   final String id;
@@ -46,6 +57,10 @@ class Player {
   double fatigue; // Current fatigue level (e.g., 0.0 to 100.0)
   List<PlayerPosition> preferredPositions; // New: List of preferred positions
   double? lastMatchRating; // New: Rating from the last match played (0.0-10.0)
+
+  // --- Traits and Relationships ---
+  List<PlayerTrait> traits; // Inherent player behavioral or structural traits
+  Map<String, double> managerRelations; // Map of staffId to relationship score (0.0 to 100.0)
 
   // --- Mental Attributes ---
   int aggression;
@@ -117,6 +132,8 @@ class Player {
     this.fatigue = 0.0,
     required this.preferredPositions,
     this.lastMatchRating,
+    this.traits = const [],
+    this.managerRelations = const {},
     this.aggression = 10,
     this.composure = 10,
     this.concentration = 10,
@@ -197,6 +214,14 @@ class Player {
     maxPotential = (maxPotential + random.nextInt(potentialRandomness) - (potentialRandomness ~/ 2)).clamp(minPotential + 5, 99);
     if (minPotential > maxPotential) minPotential = maxPotential -5;
 
+    // Randomize traits (10% chance for each trait)
+    List<PlayerTrait> initialTraits = [];
+    for (var trait in PlayerTrait.values) {
+      if (random.nextDouble() < 0.10) {
+        initialTraits.add(trait);
+      }
+    }
+
 
     int potentialSkill = minPotential + random.nextInt(maxPotential - minPotential + 1);
     potentialSkill = potentialSkill.clamp(20, 99); // Ensure potential is within reasonable game bounds
@@ -247,6 +272,8 @@ class Player {
       stamina: generateAttributeValue(), // Use new generator
       preferredFormat: TournamentType.values[random.nextInt(TournamentType.values.length)],
       preferredPositions: preferred,
+      traits: initialTraits, // Pass randomized traits
+      managerRelations: {}, // Start with empty relations
       // Mental Attributes
       aggression: generateAttributeValue(),
       composure: generateAttributeValue(),
@@ -607,6 +634,14 @@ class Player {
       preferred.add(secondary);
     }
 
+    // Randomize traits (10% chance for each trait)
+    List<PlayerTrait> initialTraits = [];
+    for (var trait in PlayerTrait.values) {
+      if (random.nextDouble() < 0.10) {
+        initialTraits.add(trait);
+      }
+    }
+
     return Player(
       id: id,
       name: name,
@@ -620,6 +655,8 @@ class Player {
       fatigue: fatigue,
       isScouted: isScouted,
       preferredPositions: preferred,
+      traits: initialTraits,
+      managerRelations: {},
       // Generate all stats
       stamina: generatePositionalAttr('stamina'),
       aggression: generatePositionalAttr('aggression'),

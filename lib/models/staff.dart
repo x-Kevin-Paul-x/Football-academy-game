@@ -22,6 +22,14 @@ enum MerchAssignmentType {
   MatchSales,
 }
 
+enum ManagerAttribute {
+  YouthDeveloper,   // Bonus to player growth
+  Tactician,        // Bonus towards match results / formation fit calculations
+  Motivator,        // Boosts player morale / relationships easily
+  Disciplinarian,   // Prevents hothead penalties, keeps consistency, initial morale hit
+  Negotiator,       // Lowers player wage demands
+}
+
 @JsonSerializable(explicitToJson: true)
 class Staff {
   final String id;
@@ -42,6 +50,7 @@ class Staff {
   // Manager specific
   List<FormationType> knownFormations;
   Formation? preferredFormation;
+  List<ManagerAttribute> attributes; // Specific traits or skills the manager excels at
 
   // MerchandiseManager specific
   MerchAssignmentType merchAssignment;
@@ -62,6 +71,7 @@ class Staff {
     int? maxPlayersTrainable,
     List<FormationType>? knownFormations,
     this.preferredFormation,
+    this.attributes = const [],
     this.isAssigned = true,
     this.merchAssignment = MerchAssignmentType.None, // Default assignment
     // this.currentMerchStockValue = 0, // Removed
@@ -100,6 +110,7 @@ class Staff {
     int maxTrainable = 3 + (skill ~/ 20);
     List<FormationType> initialKnownFormations = [];
     Formation? initialPreferredFormation;
+    List<ManagerAttribute> initialAttributes = [];
     double initialMerchProfitMarginEffectiveness = 0.3 + (skill / 200.0); // Base 0.3 + up to 0.5 from skill (total 0.3 to 0.8)
     initialMerchProfitMarginEffectiveness = initialMerchProfitMarginEffectiveness.clamp(0.1, 0.95); // Clamp it
 
@@ -124,6 +135,13 @@ class Staff {
         initialPreferredFormation ??= predefinedFormations.firstWhereOrNull((f) => f.type == initialKnownFormations.first);
 
       }
+      
+      // Randomize attributes for this manager (e.g., 20% chance for each attribute)
+      for (var attr in ManagerAttribute.values) {
+        if (random.nextDouble() < 0.20) {
+          initialAttributes.add(attr);
+        }
+      }
     }
 
     return Staff(
@@ -138,6 +156,7 @@ class Staff {
       maxPlayersTrainable: (role == StaffRole.Coach) ? maxTrainable : 0,
       knownFormations: initialKnownFormations,
       preferredFormation: initialPreferredFormation,
+      attributes: initialAttributes,
       isAssigned: defaultIsAssignedForRandomStaff,
       merchAssignment: MerchAssignmentType.None,
       // currentMerchStockValue: 0, // Removed

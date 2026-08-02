@@ -77,157 +77,206 @@ class MatchDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildMatchInfo(BuildContext context, Match match, String homeTeamName, String awayTeamName) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${match.isSimulated ? "Final Score" : "Scheduled"}',
-              style: Theme.of(context).textTheme.titleLarge,
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4))],
+      ),
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        children: [
+          Text(
+            match.isSimulated ? "FINAL" : "UPCOMING",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+              color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(height: 8),
-            Center(
-              child: Text(
-                match.isSimulated
-                    ? '$homeTeamName ${match.homeScore} - ${match.awayScore} $awayTeamName'
-                    : '$homeTeamName vs $awayTeamName',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  homeTeamName,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text('Date: ${DateFormat.yMd().add_jm().format(match.matchDate)}'),
-            if (match.isSimulated)
-              Text('Viewership: ${match.viewership}'),
-            Text('Round: ${match.round}'),
-            if (match.isSimulated)
-              Text('Result: ${match.result?.name ?? 'N/A'}'),
-            if (!match.isSimulated)
-              const Text('Status: Pending Simulation'),
-          ],
-        ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  match.isSimulated ? '${match.homeScore} - ${match.awayScore}' : 'vs',
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  awayTeamName,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ], // children
+          ),
+          const SizedBox(height: 24),
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            alignment: WrapAlignment.center,
+            children: [
+              _buildMetaChip(context, Icons.calendar_month, DateFormat.yMMMd().format(match.matchDate)),
+              _buildMetaChip(context, Icons.format_list_numbered, 'Round ${match.round}'),
+              if (match.isSimulated)
+                _buildMetaChip(context, Icons.people_alt, '${NumberFormat("#,##0").format(match.viewership)} fans'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetaChip(BuildContext context, IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }
 
   Widget _buildEventLog(BuildContext context, Match match, GameStateManager gameState) {
     if (!match.isSimulated || match.eventLog.isEmpty) {
-      return const Text('No events recorded yet.');
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(child: Text('No events recorded.', style: TextStyle(fontWeight: FontWeight.bold))),
+      );
     }
 
-    // Sort events by minute
     final sortedEvents = List<MatchEvent>.from(match.eventLog)..sort((a, b) => a.minute.compareTo(b.minute));
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: sortedEvents.length,
-      itemBuilder: (context, index) {
-        final event = sortedEvents[index];
-        String playerName = 'Unknown Player';
-        String teamName = _getTeamName(event.teamId, gameState); // Get team name for context
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+      ),
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: sortedEvents.length,
+        separatorBuilder: (context, index) => Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.3)),
+        itemBuilder: (context, index) {
+          final event = sortedEvents[index];
+          String playerName = 'Unknown';
+          String teamName = _getTeamName(event.teamId, gameState);
 
-        // Find player name (check player academy, rivals, then AI clubs)
-        Player? player = gameState.academyPlayers.firstWhereOrNull((p) => p.id == event.playerId);
-        if (player == null) {
-          RivalAcademy? rivalAcademy = gameState.rivalAcademyMap[event.teamId];
-          player = rivalAcademy?.players.firstWhereOrNull((p) => p.id == event.playerId);
-        }
-        if (player == null) { // --- ADDED: Check AI Clubs ---
-          AIClub? aiClub = gameState.aiClubMap[event.teamId];
-          player = aiClub?.players.firstWhereOrNull((p) => p.id == event.playerId);
-        } // --- END ADDED ---
-        playerName = player?.name ?? (event.playerId ?? 'Unknown Player'); // Use player ID if name not found
+          Player? player = gameState.academyPlayers.firstWhereOrNull((p) => p.id == event.playerId);
+          if (player == null) {
+            RivalAcademy? rivalAcademy = gameState.rivalAcademyMap[event.teamId];
+            player = rivalAcademy?.players.firstWhereOrNull((p) => p.id == event.playerId);
+          }
+          if (player == null) {
+            AIClub? aiClub = gameState.aiClubMap[event.teamId];
+            player = aiClub?.players.firstWhereOrNull((p) => p.id == event.playerId);
+          }
+          playerName = player?.name ?? event.playerId;
 
-        IconData icon = Icons.info_outline; // Default icon
-        Color iconColor = Colors.grey;
-        String description = event.description; // Use the description from the event by default
+          IconData icon = Icons.info_outline;
+          Color iconColor = Colors.grey;
+          String description = event.description;
 
-        switch (event.type) {
-          case MatchEventType.Goal:
-            icon = Icons.sports_soccer;
-            iconColor = Colors.green;
-            description = 'Goal! ($teamName)'; // Add team context
-            break;
-          case MatchEventType.Assist:
-            icon = Icons.assistant;
-            iconColor = Colors.blue;
-             description = 'Assist ($teamName)';
-            break;
-          case MatchEventType.YellowCard:
-            icon = Icons.style; // Represents a card
-            iconColor = Colors.yellow.shade700;
-             description = 'Yellow Card ($teamName)';
-            break;
-          case MatchEventType.RedCard:
-            icon = Icons.style;
-            iconColor = Colors.red;
-             description = 'Red Card ($teamName)';
-            break;
-          case MatchEventType.Substitution:
-            icon = Icons.swap_horiz;
-            iconColor = Colors.orange;
-             description = 'Substitution ($teamName)'; // Description might need more detail from event data
-            break;
-          // --- Cases for event types NOT currently defined in MatchEventType enum ---
-          // case MatchEventType.Injury:
-          //    icon = Icons.local_hospital;
-          //    iconColor = Colors.redAccent;
-          //    description = 'Injury ($teamName)';
-          //    break;
-          // case MatchEventType.KickOff:
-          //    icon = Icons.timer;
-          //    iconColor = Colors.blueGrey;
-          //    description = 'Kick Off';
-          //    break;
-          // case MatchEventType.HalfTime:
-          //    icon = Icons.schedule; // Corrected icon again
-          //    iconColor = Colors.blueGrey;
-          //    description = 'Half Time';
-          //    break;
-          // case MatchEventType.FullTime:
-          //    icon = Icons.timer_off;
-          //    iconColor = Colors.blueGrey;
-          //    description = 'Full Time';
-          //    break;
-          // case MatchEventType.Save:
-          //    icon = Icons.shield;
-          //    iconColor = Colors.lightBlue;
-          //    description = 'Save ($teamName)';
-          //    break;
-          // case MatchEventType.Foul:
-          //    icon = Icons.warning_amber_rounded;
-          //    iconColor = Colors.orangeAccent;
-          //    description = 'Foul ($teamName)';
-          //    break;
-          // case MatchEventType.ChanceMissed:
-          //    icon = Icons.cancel_outlined;
-          //    iconColor = Colors.grey;
-          //    description = 'Chance Missed ($teamName)';
-          //    break;
-          // --- End undefined cases ---
-          case MatchEventType.PenaltyShootout: // Added case
-            icon = Icons.sports_soccer; // Use soccer ball icon
-            // Color based on outcome (assuming description contains 'scored' or 'missed')
-            iconColor = event.description.toLowerCase().contains('scored')
-                ? Colors.green.shade600
-                : Colors.red.shade600;
-            description = event.description; // Use the full description from the event
-            break;
-          case MatchEventType.Info: // Keep default icon/color
-            break;
-          // No default needed if all cases are handled
-        }
+          switch (event.type) {
+            case MatchEventType.Goal:
+              icon = Icons.sports_soccer;
+              iconColor = Colors.green;
+              description = 'Goal!';
+              break;
+            case MatchEventType.Assist:
+              icon = Icons.assistant;
+              iconColor = Colors.blue;
+              description = 'Assist';
+              break;
+            case MatchEventType.YellowCard:
+              icon = Icons.rectangle;
+              iconColor = Colors.yellow.shade700;
+              description = 'Yellow Card';
+              break;
+            case MatchEventType.RedCard:
+              icon = Icons.rectangle;
+              iconColor = Colors.red;
+              description = 'Red Card';
+              break;
+            case MatchEventType.Substitution:
+              icon = Icons.swap_horiz;
+              iconColor = Colors.orange;
+              description = 'Substitution';
+              break;
+            case MatchEventType.PenaltyShootout:
+              icon = Icons.sports_soccer;
+              iconColor = event.description.toLowerCase().contains('scored') ? Colors.green : Colors.red;
+              break;
+            case MatchEventType.Info:
+              break;
+          }
 
-        return ListTile(
-          leading: Icon(icon, color: iconColor),
-          title: Text("${event.minute}' - $description"),
-          subtitle: Text(playerName), // Show player name in subtitle
-        );
-      },
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 40,
+                  child: Text(
+                    "${event.minute}'",
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: iconColor, size: 16),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(description, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      Text('$playerName • $teamName', style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 

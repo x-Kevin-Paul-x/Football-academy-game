@@ -1,172 +1,228 @@
 import 'package:flutter/material.dart';
 import '../models/player.dart';
-
-import '../models/staff.dart'; // Import Staff for type hint, though not directly used in card display now
+import '../utils/app_theme.dart';
 
 class PlayerCard extends StatelessWidget {
   final Player player;
-  final bool showPotential; // Control whether to show potential skill
-  final List<Widget> actions; // Buttons like Sign, Reject, Train, etc.
-  final VoidCallback? onTap; // Callback for tapping the card
+  final bool showPotential;
+  final List<Widget> actions;
+  final VoidCallback? onTap;
 
   const PlayerCard({
     Key? key,
     required this.player,
     this.showPotential = false,
     this.actions = const [],
-    this.onTap, // Accept the tap callback
+    this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-      elevation: 3.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      child: InkWell( // Make the card tappable
-        onTap: onTap, // Use the provided callback
-        borderRadius: BorderRadius.circular(10.0), // Match card shape for ripple effect
+      decoration: AppTheme.capsuleCardDecoration(context),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(28),
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    player.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis, // Prevent long names from overflowing
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      player.name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Chip(
-                  label: Text(player.positionString),
-                  backgroundColor: _getPositionColor(player.naturalPosition).withOpacity(0.2),
-                  labelStyle: TextStyle(color: _getPositionColor(player.naturalPosition), fontWeight: FontWeight.bold),
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  visualDensity: VisualDensity.compact,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Wrap( // Use Wrap for chips to handle potential overflow
-              spacing: 8.0, // Horizontal space between chips
-              runSpacing: 4.0, // Vertical space between lines of chips
-              children: [
-                _buildInfoChip(context, Icons.cake_outlined, 'Age: ${player.age}'),
-                _buildInfoChip(
-                    context, Icons.attach_money_outlined, 'Wage: \$${player.weeklyWage}/wk'),
-                _buildInfoChip(context, Icons.star_outline,
-                    'Rep: ${player.reputation}'), // Display Reputation
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildSkillIndicator(
-                  context,
-                  label: 'Current Skill',
-                  value: player.currentSkill,
-                  color: Colors.blueAccent,
-                ),
-                if (showPotential)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
+                    decoration: BoxDecoration(
+                      color: _getPositionColor(player.naturalPosition).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20.0),
+                      border: Border.all(color: _getPositionColor(player.naturalPosition).withOpacity(0.4)),
+                    ),
+                    child: Text(
+                      player.positionString,
+                      style: TextStyle(
+                        color: _getPositionColor(player.naturalPosition),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: [
+                  _buildInfoChip(context, Icons.cake_outlined, '${player.age} yrs'),
+                  _buildInfoChip(context, Icons.attach_money_outlined, '\$${player.weeklyWage}/wk'),
+                  _buildInfoChip(context, Icons.star_border, 'Rep ${player.reputation}'),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
                   _buildSkillIndicator(
                     context,
-                    label: 'Potential Skill',
-                    value: player.potentialSkill,
-                    color: Colors.lightGreen, // Changed color slightly for better contrast
+                    label: 'Current',
+                    value: player.currentSkill,
+                    color: isDark ? AppTheme.darkAccentPill : AppTheme.lightPillActive,
                   ),
-              ],
-            ),
-            const SizedBox(height: 10), // Add spacing
-            // Display Fatigue and Stats
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Fatigue: ${player.fatigue.toStringAsFixed(1)}%', style: Theme.of(context).textTheme.bodyMedium),
-                Text('M: ${player.matchesPlayed} | G: ${player.goalsScored} | A: ${player.assists}', style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-            if (actions.isNotEmpty)
-              const Divider(height: 20, thickness: 1),
-            if (actions.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0), // Add some space above actions
-                child: Wrap(
-                  alignment: WrapAlignment.end, // Align actions to the end
-                  spacing: 8.0, // Space between action buttons
-                  children: actions,
+                  if (showPotential)
+                    _buildSkillIndicator(
+                      context,
+                      label: 'Potential',
+                      value: player.potentialSkill,
+                      color: AppTheme.accentGreen,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isDark ? AppTheme.darkPillInactive : AppTheme.lightPillInactive,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.battery_charging_full,
+                          size: 16,
+                          color: player.fatigue > 50 ? AppTheme.accentRed : AppTheme.accentGreen,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${player.fatigue.toStringAsFixed(0)}% Fatigue',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'M:${player.matchesPlayed} G:${player.goalsScored} A:${player.assists}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-          ],
-        ), // End Column
-       ), // End Padding
-      ), // End InkWell
-    ); // End Card
-  }
-
-  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return Chip(
-      avatar: Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
-      label: Text(text),
-      backgroundColor: colorScheme.surfaceContainerHighest,
-      labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-      visualDensity: VisualDensity.compact,
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      side: BorderSide.none,
+              if (actions.isNotEmpty) const SizedBox(height: 14),
+              if (actions.isNotEmpty)
+                Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 8.0,
+                  children: actions,
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildSkillIndicator(BuildContext context, {required String label, required int value, required Color color}) {
-    // UX: Wrap in Semantics to provide a clear, consolidated label for screen readers
-    return Semantics(
-      label: '$label: $value out of 100',
-      child: Column(
+  Widget _buildInfoChip(BuildContext context, IconData icon, String text) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.darkPillInactive : AppTheme.lightPillInactive,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          ExcludeSemantics(
-            child: Text(label, style: Theme.of(context).textTheme.labelMedium),
-          ),
-          const SizedBox(height: 4),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: ExcludeSemantics(
-                  child: CircularProgressIndicator(
-                    value: value / 100.0, // Assuming max skill is 100
-                    strokeWidth: 5,
-                    backgroundColor: color.withOpacity(0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                  ),
-                ),
-              ),
-              ExcludeSemantics(
-                child: Text(
-                  value.toString(),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+          Icon(icon, size: 14, color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildSkillIndicator(BuildContext context, {required String label, required int value, required Color color}) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 52,
+              height: 52,
+              child: CircularProgressIndicator(
+                value: value / 100.0,
+                strokeWidth: 5,
+                backgroundColor: color.withOpacity(0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+            ),
+            Text(
+              value.toString(),
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Color _getPositionColor(PlayerPosition position) {
-    // Using slightly brighter colors for dark theme
     switch (position) {
-      case PlayerPosition.Goalkeeper: return Colors.orangeAccent;
-      case PlayerPosition.Defender: return Colors.lightBlueAccent;
-      case PlayerPosition.Midfielder: return Colors.lightGreenAccent;
-      case PlayerPosition.Forward: return Colors.redAccent;
+      case PlayerPosition.Goalkeeper:
+        return AppTheme.accentGold;
+      case PlayerPosition.Defender:
+        return AppTheme.accentBlue;
+      case PlayerPosition.Midfielder:
+        return AppTheme.accentGreen;
+      case PlayerPosition.Forward:
+        return AppTheme.accentRed;
     }
   }
 }

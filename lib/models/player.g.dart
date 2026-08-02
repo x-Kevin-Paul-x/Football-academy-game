@@ -30,6 +30,15 @@ Player _$PlayerFromJson(Map<String, dynamic> json) => Player(
           .map((e) => $enumDecode(_$PlayerPositionEnumMap, e))
           .toList(),
       lastMatchRating: (json['lastMatchRating'] as num?)?.toDouble(),
+      traits: (json['traits'] as List<dynamic>?)
+              ?.map((e) => $enumDecode(_$PlayerTraitEnumMap, e))
+              .toList() ??
+          const [],
+      managerRelations:
+          (json['managerRelations'] as Map<String, dynamic>?)?.map(
+                (k, e) => MapEntry(k, (e as num).toDouble()),
+              ) ??
+              const {},
       aggression: (json['aggression'] as num?)?.toInt() ?? 10,
       composure: (json['composure'] as num?)?.toInt() ?? 10,
       concentration: (json['concentration'] as num?)?.toInt() ?? 10,
@@ -102,6 +111,8 @@ Map<String, dynamic> _$PlayerToJson(Player instance) => <String, dynamic>{
           .map((e) => _$PlayerPositionEnumMap[e]!)
           .toList(),
       'lastMatchRating': instance.lastMatchRating,
+      'traits': instance.traits.map((e) => _$PlayerTraitEnumMap[e]!).toList(),
+      'managerRelations': instance.managerRelations,
       'aggression': instance.aggression,
       'composure': instance.composure,
       'concentration': instance.concentration,
@@ -163,4 +174,15 @@ const _$PlayerStatusEnumMap = {
   PlayerStatus.Reserve: 'Reserve',
   PlayerStatus.Injured: 'Injured',
   PlayerStatus.LoanedOut: 'LoanedOut',
+};
+
+const _$PlayerTraitEnumMap = {
+  PlayerTrait.Leader: 'Leader',
+  PlayerTrait.Clutch: 'Clutch',
+  PlayerTrait.InjuryProne: 'InjuryProne',
+  PlayerTrait.Consistent: 'Consistent',
+  PlayerTrait.Inconsistent: 'Inconsistent',
+  PlayerTrait.SuperSub: 'SuperSub',
+  PlayerTrait.FanFavorite: 'FanFavorite',
+  PlayerTrait.Hothead: 'Hothead',
 };

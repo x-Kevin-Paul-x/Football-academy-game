@@ -1,10 +1,22 @@
 # Football Academy Game
 
-A comprehensive football academy management simulation game built with Flutter.
+A comprehensive football academy management simulation game built with Flutter featuring a cutting-edge futuristic capsule dashboard UI.
+
+![Futuristic Dashboard UI](assets/images/dashboard_preview.png)
 
 ## About The Game
 
 Take on the role of a football academy manager and guide your institution to glory! This game challenges you to build a successful football academy from the ground up. You'll be responsible for nurturing young talent, competing for trophies, and managing all the off-field aspects of running a football institution.
+
+## UI & Design Features
+
+- **Futuristic Neumorphic Capsule Aesthetics**: High-tech curved pill containers, luxury matte dark mode, and soft glass light mode.
+- **Floating Navigation Sidebar**: Quick capsule navigation between Home, Finance, Squad, Scouting, Staff, Facilities, Transfers, Tournaments, and Settings.
+- **Dynamic Header Bar**: Real-time Light/Dark theme quick-toggle, search bar, date pill indicator, news feed badge, and Advance Week action pill.
+- **Interactive Visual Data Widgets**:
+  - **Financial Vault Sparkline**: Cubic-spline trend line displaying budget health.
+  - **Academy Reputation Spoke Ring**: Radial visual indicator of academy reputation & tier rating.
+  - **Roster & Readiness Showcase**: Dark contrast showcase card featuring squad capacity, staff roster, facility levels, and squad morale progress bars.
 
 ## Features
 

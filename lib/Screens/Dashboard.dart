@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
-import 'dart:math'; // Import for random generation
-import 'package:provider/provider.dart'; // Import Provider
-import '../game_state_manager.dart'; // Import GameStateManager
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-// Import Screens
+import '../game_state_manager.dart';
+import '../utils/app_theme.dart';
+import '../widgets/capsule_sidebar.dart';
+import '../widgets/header_pill_bar.dart';
+import '../widgets/stat_ring_widget.dart';
+import '../widgets/mini_trend_chart.dart';
+
+// Screens
 import 'FinanceScreen.dart';
 import 'PlayerManagementScreen.dart';
 import 'StaffManagementScreen.dart';
@@ -13,13 +18,11 @@ import 'TournamentsScreen.dart';
 import 'SettingsScreen.dart';
 import 'ScoutingScreen.dart';
 import 'TransferOffersScreen.dart';
-import 'NewsScreen.dart'; // Import the new NewsScreen
+import 'NewsScreen.dart';
 
-// Import Models
+// Models
 import '../models/player.dart';
 import '../models/staff.dart';
-// NewsItem model is no longer needed directly here
-// import '../models/news_item.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -31,28 +34,23 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
   bool _isAdvancing = false;
-  // final Random _random = Random(); // Removed unused field
   final DateFormat _dateFormatter = DateFormat('MMMM d, yyyy');
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialization logic is handled by GameStateManager
-  }
 
   Future<void> _handleAdvanceWeek() async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: const Text('Advance Week?'),
         content: const Text(
-            'This will simulate matches, training, and finances for the week. You cannot undo this.'),
+          'This will simulate matches, training, and academy finances for the week.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Advance'),
           ),
@@ -65,7 +63,6 @@ class _DashboardState extends State<Dashboard> {
         _isAdvancing = true;
       });
 
-      // Artificial delay to ensure UI updates and shows the spinner/disabled state
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
@@ -79,220 +76,519 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  // --- Callbacks (Simplified - No longer passing state down) ---
-
-  void _hireStaff(Staff staffToHire) {
-    Provider.of<GameStateManager>(context, listen: false).hireStaff(staffToHire);
+  void _signPlayer(Player playerToSign) {
+    Provider.of<GameStateManager>(context, listen: false).signPlayer(playerToSign);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Hired ${staffToHire.name} (${staffToHire.role.name})')),
-    );
-  }
-
-   void _signPlayer(Player playerToSign) {
-     Provider.of<GameStateManager>(context, listen: false).signPlayer(playerToSign);
-     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Signed ${playerToSign.name}')),
     );
   }
 
-   void _rejectPlayer(Player playerToReject) {
-     Provider.of<GameStateManager>(context, listen: false).rejectPlayer(playerToReject);
+  void _rejectPlayer(Player playerToReject) {
+    Provider.of<GameStateManager>(context, listen: false).rejectPlayer(playerToReject);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Rejected ${playerToReject.name}')),
     );
   }
 
-  // --- UI Building ---
+  Widget _buildDashboardHome(GameStateManager gameState) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final currencyFormatter = NumberFormat.currency(symbol: '\$', decimalDigits: 0);
+    final numberFormatter = NumberFormat("#,##0", "en_US");
 
-  // Custom Dashboard Home widget - Reverted to simple layout + News Button
-  Widget _buildDashboardHome() {
-    return Consumer<GameStateManager>(
-      builder: (context, gameStateManager, child) {
-        final String formattedDate = _dateFormatter.format(gameStateManager.currentDate);
-        final int unreadNewsCount = gameStateManager.newsItems.where((item) => !item.isRead).length; // Count unread news
+    final double reputationPercent = (gameState.academyReputation / 100.0).clamp(0.0, 1.0);
 
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'Academy Dashboard',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Current Date: $formattedDate',
-                  style: const TextStyle(fontSize: 20),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Balance: \$${gameStateManager.balance.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 18, color: gameStateManager.balance >= 0 ? Colors.green : Colors.red),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Weekly Wages: \$${gameStateManager.totalWeeklyWages}',
-                  style: const TextStyle(fontSize: 16, color: Colors.orange),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Academy Reputation: ${gameStateManager.academyReputation}',
-                  style: const TextStyle(fontSize: 16, color: Colors.blue),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Fans: ${NumberFormat("#,##0", "en_US").format(gameStateManager.fans)}', // Added Fan Count
-                  style: const TextStyle(fontSize: 16, color: Colors.teal), // Example color
-                ),
-                const SizedBox(height: 30),
-                Tooltip(
-                  message: 'Simulate matches, training & finances',
-                  child: ElevatedButton.icon(
-                    onPressed: _isAdvancing ? null : _handleAdvanceWeek,
-                    icon: _isAdvancing
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.fast_forward),
-                    label: const Text('Advance 1 Week'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      textStyle: const TextStyle(fontSize: 18),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 0, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Metrics Grid
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 900;
+
+              return Flex(
+                direction: isWide ? Axis.horizontal : Axis.vertical,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Financial Trend Chart Card
+                  Expanded(
+                    flex: isWide ? 4 : 0,
+                    child: MiniTrendChart(
+                      title: 'Financial Vault',
+                      value: currencyFormatter.format(gameState.balance),
+                      percentageChange: '+12.4%',
+                      dataPoints: const [12, 14, 18, 16, 22, 28, 35, 42],
+                      lineColor: gameState.balance >= 0 ? AppTheme.accentGreen : AppTheme.accentRed,
                     ),
                   ),
-                ),
-                const SizedBox(height: 20), // Space before News button
-                Tooltip(
-                  message: 'Read match results and transfer news',
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      // Navigate to the NewsScreen FIRST
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const NewsScreen()),
-                    ).then((_) {
-                      // Mark as read AFTER returning from NewsScreen
-                      // This ensures the NewsScreen initially shows unread items correctly.
-                      // The badge on the dashboard will update when the dashboard rebuilds.
-                      Provider.of<GameStateManager>(context, listen: false).markAllNewsAsRead();
-                    });
-                  },
-                  icon: Badge( // Add badge to the icon
-                    label: Text(unreadNewsCount.toString()),
-                    isLabelVisible: unreadNewsCount > 0,
-                    child: const Icon(Icons.article),
+                  SizedBox(width: isWide ? 16 : 0, height: isWide ? 0 : 16),
+
+                  // Academy Reputation Ring Card
+                  Expanded(
+                    flex: isWide ? 3 : 0,
+                    child: StatRingWidget(
+                      percentage: reputationPercent,
+                      title: 'Academy Reputation',
+                      centerValue: '${gameState.academyReputation}',
+                      subtitle: 'Tier Rating',
+                      ringColor: isDark ? AppTheme.darkAccentPill : AppTheme.accentGold,
+                    ),
                   ),
-                  label: const Text('View News Feed'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    textStyle: const TextStyle(fontSize: 16),
+                  SizedBox(width: isWide ? 16 : 0, height: isWide ? 0 : 16),
+
+                  // Quick Stats Card
+                  Expanded(
+                    flex: isWide ? 3 : 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: AppTheme.capsuleCardDecoration(context),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Squad & Fan Base',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildStatRow(
+                            context,
+                            icon: Icons.groups,
+                            label: 'Active Players',
+                            value: '${gameState.academyPlayers.length}',
+                            color: AppTheme.accentBlue,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildStatRow(
+                            context,
+                            icon: Icons.favorite,
+                            label: 'Total Fans',
+                            value: numberFormatter.format(gameState.fans),
+                            color: AppTheme.accentRed,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildStatRow(
+                            context,
+                            icon: Icons.payments,
+                            label: 'Weekly Wages',
+                            value: '\$${numberFormatter.format(gameState.totalWeeklyWages)}',
+                            color: AppTheme.accentGold,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                ),
-              ],
-            ),
+                ],
+              );
+            },
           ),
-        );
-      },
+          const SizedBox(height: 20),
+
+          // Main Lower Row: Team Overview Dark Showcase + Latest News Feed Card
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 900;
+
+              return Flex(
+                direction: isWide ? Axis.horizontal : Axis.vertical,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Team Dark Showcase Card (Reference Image 1 & 2 Aesthetic)
+                  Expanded(
+                    flex: isWide ? 6 : 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: AppTheme.capsuleCardDecoration(context, isDarkCard: true),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Academy Roster & Development',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Youth Development & Talent Pipeline',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white.withOpacity(0.6),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white12,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  'Season 2026',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? AppTheme.darkAccentPill : Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              _buildPillStatBadge(
+                                title: 'Squad Size',
+                                value: '${gameState.academyPlayers.length} Players',
+                                icon: Icons.sports_soccer,
+                              ),
+                              const SizedBox(width: 12),
+                              _buildPillStatBadge(
+                                title: 'Staff Roster',
+                                value: '${gameState.hiredStaff.length} Staff',
+                                icon: Icons.badge,
+                              ),
+                              const SizedBox(width: 12),
+                              _buildPillStatBadge(
+                                title: 'Training Facility',
+                                value: 'Level ${gameState.trainingFacilityLevel}',
+                                icon: Icons.business,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          // Progress Bar
+                          Text(
+                            'Squad Readiness & Morale',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: LinearProgressIndicator(
+                              value: 0.78,
+                              minHeight: 8,
+                              backgroundColor: Colors.white12,
+                              color: isDark ? AppTheme.darkAccentPill : AppTheme.accentGreen,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: isWide ? 16 : 0, height: isWide ? 0 : 16),
+
+                  // Latest News Card
+                  Expanded(
+                    flex: isWide ? 4 : 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: AppTheme.capsuleCardDecoration(context),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Recent News Feed',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const NewsScreen()),
+                                  ).then((_) {
+                                    if (context.mounted) {
+                                      gameState.markAllNewsAsRead();
+                                    }
+                                  });
+                                },
+                                child: const Text('View All'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          if (gameState.newsItems.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Center(
+                                child: Text(
+                                  'No recent news items.',
+                                  style: TextStyle(
+                                    color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: gameState.newsItems.length.clamp(0, 3),
+                              separatorBuilder: (_, __) => const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final news = gameState.newsItems[index];
+                                return Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? AppTheme.darkPillInactive : AppTheme.lightPillInactive,
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: isDark ? AppTheme.darkCard : Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.article, size: 16),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              news.title,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              news.description,
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  // _getIconForNewsType is removed from here
+  Widget _buildStatRow(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-  // Lazy initialization of screen data
-  // Note: _buildScreenData is now called within build method to ensure context is available if needed later
-  List<Map<String, dynamic>> _buildScreenData(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.15),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 16, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? AppTheme.darkTextSecondary : AppTheme.lightTextSecondary,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppTheme.darkTextPrimary : AppTheme.lightTextPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPillStatBadge({
+    required String title,
+    required String value,
+    required IconData icon,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: Colors.white70),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 10, color: Colors.white54),
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<NavigationItemData> _buildNavigationItems(GameStateManager gameState) {
+    final allOffers = gameState.transferOffers;
+    final relevantOffersCount = allOffers.where((offer) {
+      return offer['sellingClubId'] == GameStateManager.playerAcademyId;
+    }).length;
+    final int unreadNewsCount = gameState.newsItems.where((item) => !item.isRead).length;
+
     return [
-      {'title': 'Dashboard', 'screen': null, 'icon': Icons.home}, // Screen is built directly
-      {'title': 'Finance', 'screen': const FinanceScreen(), 'icon': Icons.attach_money},
-      {'title': 'Players', 'screen': const PlayerManagementScreen(), 'icon': Icons.people},
-      {'title': 'Scouting', 'screen': ScoutingScreen(
-          signPlayerCallback: _signPlayer,
-          rejectPlayerCallback: _rejectPlayer,
-        ), 'icon': Icons.search},
-      {'title': 'Staff', 'screen': const StaffManagementScreen(), 'icon': Icons.work},
-      {'title': 'Facilities', 'screen': const FacilitiesScreen(), 'icon': Icons.business},
-      {'title': 'Transfers', 'screen': const TransferOffersScreen(), 'icon': Icons.swap_horiz},
-      {'title': 'Tournaments', 'screen': const TournamentsScreen(), 'icon': Icons.emoji_events},
-      {'title': 'Settings', 'screen': const SettingsScreen(), 'icon': Icons.settings},
+      NavigationItemData(title: 'Home', icon: Icons.grid_view_rounded, badgeCount: unreadNewsCount),
+      NavigationItemData(title: 'Finance', icon: Icons.account_balance_wallet_rounded),
+      NavigationItemData(title: 'Players', icon: Icons.sports_soccer_rounded),
+      NavigationItemData(title: 'Scouting', icon: Icons.search_rounded),
+      NavigationItemData(title: 'Staff', icon: Icons.people_alt_rounded),
+      NavigationItemData(title: 'Facilities', icon: Icons.business_center_rounded),
+      NavigationItemData(title: 'Transfers', icon: Icons.swap_horizontal_circle_rounded, badgeCount: relevantOffersCount),
+      NavigationItemData(title: 'Tournaments', icon: Icons.emoji_events_rounded),
+      NavigationItemData(title: 'Settings', icon: Icons.settings_rounded),
     ];
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  List<Widget> _buildScreensList() {
+    return [
+      const SizedBox(), // Home is built directly
+      const FinanceScreen(),
+      const PlayerManagementScreen(),
+      ScoutingScreen(
+        signPlayerCallback: _signPlayer,
+        rejectPlayerCallback: _rejectPlayer,
+      ),
+      const StaffManagementScreen(),
+      const FacilitiesScreen(),
+      const TransferOffersScreen(),
+      const TournamentsScreen(),
+      const SettingsScreen(),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    // Moved _buildScreenData call here
-    final List<Map<String, dynamic>> screenDataList = _buildScreenData(context);
-    final currentScreenData = screenDataList[_selectedIndex];
+    return Consumer<GameStateManager>(
+      builder: (context, gameState, child) {
+        final navItems = _buildNavigationItems(gameState);
+        final screens = _buildScreensList();
+        final currentTitle = navItems[_selectedIndex].title;
+        final formattedDate = _dateFormatter.format(gameState.currentDate);
 
-    final Brightness brightness = Theme.of(context).brightness;
-    final Color appBarBackgroundColor = Theme.of(context).appBarTheme.backgroundColor ?? (brightness == Brightness.dark ? Colors.grey[850]! : Colors.deepPurple);
-    final Color appBarForegroundColor = Theme.of(context).appBarTheme.foregroundColor ?? (brightness == Brightness.dark ? Colors.white : Colors.white);
+        return Scaffold(
+          body: Row(
+            children: [
+              // Capsule Navigation Sidebar
+              CapsuleSidebar(
+                selectedIndex: _selectedIndex,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                items: navItems,
+              ),
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(currentScreenData['title'] as String),
-        centerTitle: true,
-        backgroundColor: appBarBackgroundColor,
-        foregroundColor: appBarForegroundColor,
-      ),
-      body: _selectedIndex == 0
-          ? _buildDashboardHome() // Build dashboard directly
-          : currentScreenData['screen'] as Widget?, // Use screen from list, allowing null
-      bottomNavigationBar: Consumer<GameStateManager>(
-        builder: (context, gameStateManager, child) {
-          // Filter offers to only count those for the player's academy
-          final allOffers = gameStateManager.transferOffers;
-          final relevantOffersCount = allOffers.where((offer) {
-            // Ensure 'sellingClubId' exists and matches the player's academy ID
-            return offer['sellingClubId'] == GameStateManager.playerAcademyId;
-          }).length;
-          // Potentially add unread news count badge to dashboard icon later if desired
+              // Main Content Area
+              Expanded(
+                child: Column(
+                  children: [
+                    // Top Header Pill Bar
+                    HeaderPillBar(
+                      title: currentTitle,
+                      formattedDate: formattedDate,
+                      isAdvancing: _isAdvancing,
+                      onAdvanceWeek: _handleAdvanceWeek,
+                    ),
 
-          return BottomNavigationBar(
-            items: screenDataList.map((data) {
-              final String title = data['title'] as String;
-              final IconData iconData = data['icon'] as IconData;
-              Widget iconWidget = Icon(iconData);
-
-              if (title == 'Transfers' && relevantOffersCount > 0) {
-                iconWidget = Badge(
-                  label: Text(relevantOffersCount.toString()),
-                  child: iconWidget,
-                );
-              }
-              // Example: Add badge for unread news on Dashboard icon
-              // if (title == 'Dashboard' && gameStateManager.newsItems.where((n) => !n.isRead).isNotEmpty) {
-              //   iconWidget = Badge(
-              //     // label: Text(gameStateManager.newsItems.where((n) => !n.isRead).length.toString()), // Optional label
-              //     child: iconWidget,
-              //   );
-              // }
-
-              return BottomNavigationBarItem(
-                icon: iconWidget,
-                label: title,
-              );
-            }).toList(),
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.deepPurple,
-            unselectedItemColor: Colors.grey,
-            onTap: _onItemTapped,
-            type: BottomNavigationBarType.fixed,
-            showUnselectedLabels: true,
-          );
-        },
-      ),
+                    // Page Body
+                    Expanded(
+                      child: _selectedIndex == 0
+                          ? _buildDashboardHome(gameState)
+                          : Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 24, 24),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(28),
+                                child: screens[_selectedIndex],
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

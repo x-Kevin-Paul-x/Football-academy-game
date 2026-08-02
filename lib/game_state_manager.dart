@@ -716,7 +716,6 @@ class GameStateManager with ChangeNotifier {
 
     print("Checking for new tournaments to schedule...");
     int tournamentsScheduledThisMonth = 0;
-    bool forcedAttempt = false; // Flag to ensure at least one attempt if random fails
 
     // Shuffle templates to vary which ones are considered first
     List<Tournament> shuffledTemplates = List.from(_availableTournamentTemplates)..shuffle(_random);
@@ -729,37 +728,18 @@ class GameStateManager with ChangeNotifier {
       }
       // --- END NEW ---
 
+      if (!_shouldSpawnTournamentThisMonth(template)) {
+        print(" -> Skipping ${template.name} this month (cadence: ${_getTournamentSpawnCadenceMonths(template)} months).");
+        continue;
+      }
+
       // Check if an instance of this template is already scheduled or in progress
-      bool alreadyActive = _activeTournaments.any((t) => t.baseId == template.id && (t.status == TournamentStatus.Scheduled || t.status == TournamentStatus.InProgress));
+      bool alreadyActive = !_allowsConcurrentTournamentInstances(template) && _activeTournaments.any((t) => t.baseId == template.id && (t.status == TournamentStatus.Scheduled || t.status == TournamentStatus.InProgress));
       if (alreadyActive) {
         print(" -> Instance of ${template.name} already active. Skipping.");
         continue;
       }
-
-      // *** INCREASED CHANCE: Higher base chance, less dependent on rep ***
-      double baseChance = (template.format == TournamentFormat.League) ? 0.50 : 0.80; // Lower chance for league (Increased from 0.25 / 0.50)
-      double repModifier = (template.requiredReputation / 500.0).clamp(0.1, 0.5); // Rep still has some influence (10-50%)
-      double startChance = baseChance + (_random.nextDouble() * repModifier); // Base + Random Rep Influence
-      startChance = startChance.clamp(0.05, 0.95); // Clamp between 5% and 95%
-
-      // *** Force attempt if no tournaments scheduled yet this month ***
-      if (tournamentsScheduledThisMonth == 0 && !forcedAttempt) {
-          // If it's the last template and nothing scheduled, force the check
-          if (template == shuffledTemplates.last) {
-              print(" -> Forcing attempt for ${template.name} as last chance this month.");
-              startChance = 1.0; // Guarantee the check runs
-              forcedAttempt = true;
-          }
-          // Or, give a much higher chance earlier on if nothing scheduled yet
-          else if (_random.nextDouble() < 0.8) { // 80% chance to force an earlier attempt
-             print(" -> Increasing chance for ${template.name} as none scheduled yet.");
-             startChance = max(startChance, 0.9); // Ensure at least 90% chance
-             forcedAttempt = true; // Mark that we forced an attempt
-          }
-      }
-
-      if (_random.nextDouble() < startChance) {
-        print(" -> Considering scheduling ${template.name} (Chance: ${startChance.toStringAsFixed(2)})...");
+      print(" -> Considering scheduling ${template.name} on its ${_getTournamentSpawnCadenceMonths(template)}-month cadence...");
 
         List<String> participants = [];
         bool enoughParticipantsFound = false;
@@ -814,7 +794,7 @@ class GameStateManager with ChangeNotifier {
              playerEligible = _academyReputation >= youthRepReq &&
                                    _financeService.canAfford(template.entryFee.toDouble()) &&
                                    _academyPlayers.length >= template.requiredPlayers &&
-                                   !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
+                    _canPlayerJoinAnotherCompetition();
 
              eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation)); // Sort by reputation desc
              print(" -> Found ${eligibleAIClubs.length} eligible AI Clubs and ${eligibleYouthAcademies.length} eligible Youth Academies (Player eligible: $playerEligible) for Tier $leagueTier League.");
@@ -889,7 +869,7 @@ class GameStateManager with ChangeNotifier {
           bool playerEligible = _academyReputation >= template.requiredReputation &&
                                 _financeService.canAfford(template.entryFee.toDouble()) &&
                                 _academyPlayers.length >= template.requiredPlayers &&
-                                !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
+                    _canPlayerJoinAnotherCompetition();
 
           if (playerEligible) minRequired--; // Player can potentially fill one slot
 
@@ -928,11 +908,8 @@ class GameStateManager with ChangeNotifier {
           print(" -> Scheduled ${newTournament.name} (ID: ${newTournament.id}) starting ${DateFormat.yMMMd().format(newTournament.startDate)} with ${participants.length} teams.");
         }
         // --- END Create Instance ---
-
-      } else {
-         print(" -> Skipping ${template.name} this month (Rolled < ${startChance.toStringAsFixed(2)} chance).");
-      }
     }
+
     if (tournamentsScheduledThisMonth == 0) {
         print("No new tournaments were successfully scheduled this month.");
     }
@@ -1245,6 +1222,50 @@ class GameStateManager with ChangeNotifier {
     _financeService.updateWeeklyWages(staffWages + playerWages);
   }
 
+  Staff? _getBestManager() {
+    final managers = _hiredStaff.where((staff) => staff.role == StaffRole.Manager).toList();
+    if (managers.isEmpty) return null;
+    managers.sort((a, b) => b.skill.compareTo(a.skill));
+    return managers.first;
+  }
+
+  int _getPlayerCompetitionCapacity() {
+    final managerCount = _hiredStaff.where((staff) => staff.role == StaffRole.Manager).length;
+    return max(1, managerCount);
+  }
+
+  int _getPlayerActiveCompetitionCount() {
+    return _activeTournaments.where((tournament) => tournament.teamIds.contains(playerAcademyId)).length;
+  }
+
+  bool _canPlayerJoinAnotherCompetition() {
+    return _getPlayerActiveCompetitionCount() < _getPlayerCompetitionCapacity();
+  }
+
+  int _getTournamentSpawnCadenceMonths(Tournament template) {
+    if (template.format == TournamentFormat.League) {
+      return 12;
+    }
+
+    switch (template.type) {
+      case TournamentType.threeVthree:
+      case TournamentType.fiveVfive:
+        return 1;
+      case TournamentType.sevenVseven:
+      case TournamentType.elevenVeleven:
+        return 3;
+    }
+  }
+
+  bool _allowsConcurrentTournamentInstances(Tournament template) {
+    return template.format == TournamentFormat.Knockout;
+  }
+
+  bool _shouldSpawnTournamentThisMonth(Tournament template) {
+    final cadenceMonths = _getTournamentSpawnCadenceMonths(template);
+    return cadenceMonths <= 1 || (_timeService.currentDate.month % cadenceMonths == 0);
+  }
+
   bool hireStaff(Staff staffToHire) {
     int currentCount = _hiredStaff.where((s) => s.role == staffToHire.role).length;
     bool canHire = true;
@@ -1252,7 +1273,7 @@ class GameStateManager with ChangeNotifier {
     int totalMerchManagerCap = _maxStoreManagers + _maxMatchSalesManagers;
 
     switch (staffToHire.role) {
-      case StaffRole.Manager: if (currentCount >= 1) { canHire = false; reason = "Only one Manager allowed."; } break;
+      case StaffRole.Manager: break;
       case StaffRole.Coach: if (currentCount >= _maxCoaches) { canHire = false; reason = "Coach limit reached ($_maxCoaches). Upgrade Training Facility."; } break;
       case StaffRole.Scout: if (currentCount >= _maxScouts) { canHire = false; reason = "Scout limit reached ($_maxScouts). Upgrade Scouting Facility."; } break;
       case StaffRole.Physio: if (currentCount >= _maxPhysios) { canHire = false; reason = "Physio limit reached ($_maxPhysios). Upgrade Medical Bay."; } break;
@@ -1369,6 +1390,10 @@ class GameStateManager with ChangeNotifier {
     }
     if (!_financeService.canAfford(template.entryFee.toDouble())) {
       print(" -> Failed: Not enough balance (${_financeService.balance}/${template.entryFee})");
+      return false;
+    }
+    if (!_canPlayerJoinAnotherCompetition()) {
+      print(" -> Failed: Competition capacity reached (${_getPlayerActiveCompetitionCount()}/${_getPlayerCompetitionCapacity()}).");
       return false;
     }
     // Check if already joined an instance of this template
@@ -1514,7 +1539,7 @@ class GameStateManager with ChangeNotifier {
               }
             }
 
-            Staff? playerManager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
+            Staff? playerManager = _getBestManager();
             // --- Get Team Reputations for Viewership Calculation ---
             int homeRep = 0;
             int awayRep = 0;
@@ -2001,7 +2026,7 @@ class GameStateManager with ChangeNotifier {
 
     // Apply Manager Bonus for Player Academy
     if (teamId == playerAcademyId) {
-      Staff? manager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
+      Staff? manager = _getBestManager();
       if (manager != null) {
         int managerBonus = (manager.skill / 20).floor(); // Example: Skill 60 -> +3 bonus
         averageEffectiveSkill += managerBonus;
@@ -2044,7 +2069,7 @@ class GameStateManager with ChangeNotifier {
     int totalPlayersNeeded = startersNeeded + benchSize;
 
     // Get the manager's preferred formation or find a default
-    Staff? manager = _hiredStaff.firstWhereOrNull((s) => s.role == StaffRole.Manager);
+    Staff? manager = _getBestManager();
     // --- FIX: Use predefinedFormations ---
     Formation formation = manager?.preferredFormation ??
                          (predefinedFormations.firstWhereOrNull((f) => f.tournamentType == type) ?? // Find first matching type
@@ -2054,14 +2079,14 @@ class GameStateManager with ChangeNotifier {
     if (_academyPlayers.length < totalPlayersNeeded) {
       print("Warning: Not enough players in academy (${_academyPlayers.length}) for a ${type.toString()} match (needs $totalPlayersNeeded). Selecting all available.");
       List<Player> allPlayers = List<Player>.from(_academyPlayers);
-      allPlayers.sort(_sortByEffectiveSkill); // Sort even if not enough
+      allPlayers.sort((a, b) => _comparePlayersForFormation(a, b, formation)); // Sort even if not enough
       List<Player> starters = allPlayers.take(startersNeeded).toList();
       List<Player> bench = allPlayers.skip(startersNeeded).toList();
       return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
     }
 
     List<Player> availablePlayers = List<Player>.from(_academyPlayers);
-    availablePlayers.sort(_sortByEffectiveSkill); // Sort by skill, penalizing fatigue
+    availablePlayers.sort((a, b) => _comparePlayersForFormation(a, b, formation)); // Sort by skill, fatigue, and formation fit
 
     // Select starters and bench
     List<Player> starters = availablePlayers.sublist(0, startersNeeded);
@@ -2085,14 +2110,14 @@ class GameStateManager with ChangeNotifier {
     if (academy.players.length < totalPlayersNeeded) {
       print("Warning: Not enough players in rival academy ${academy.name} (${academy.players.length}) for a ${type.toString()} match (needs $totalPlayersNeeded). Selecting all available.");
       List<Player> allPlayers = List<Player>.from(academy.players);
-      allPlayers.sort(_sortByEffectiveSkill); // Sort even if not enough
+      allPlayers.sort((a, b) => _comparePlayersForFormation(a, b, formation)); // Sort even if not enough
       List<Player> starters = allPlayers.take(startersNeeded).toList();
       List<Player> bench = allPlayers.skip(startersNeeded).toList();
       return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
     }
 
     List<Player> availablePlayers = List<Player>.from(academy.players);
-    availablePlayers.sort(_sortByEffectiveSkill); // Sort by skill, penalizing fatigue
+    availablePlayers.sort((a, b) => _comparePlayersForFormation(a, b, formation)); // Sort by skill, fatigue, and formation fit
 
     // Select starters and bench
     List<Player> starters = availablePlayers.sublist(0, startersNeeded);
@@ -2115,14 +2140,14 @@ class GameStateManager with ChangeNotifier {
     if (club.players.length < totalPlayersNeeded) {
       print("Warning: Not enough players in AI club ${club.name} (${club.players.length}) for a ${type.toString()} match (needs $totalPlayersNeeded). Selecting all available.");
       List<Player> allPlayers = List<Player>.from(club.players);
-      allPlayers.sort(_sortByEffectiveSkill);
+      allPlayers.sort((a, b) => _comparePlayersForFormation(a, b, formation));
       List<Player> starters = allPlayers.take(startersNeeded).toList();
       List<Player> bench = allPlayers.skip(startersNeeded).toList();
       return MatchTeamSelection(formation: formation, starters: starters, bench: bench);
     }
 
     List<Player> availablePlayers = List<Player>.from(club.players);
-    availablePlayers.sort(_sortByEffectiveSkill); // Sort by skill, penalizing fatigue
+    availablePlayers.sort((a, b) => _comparePlayersForFormation(a, b, formation)); // Sort by skill, fatigue, and formation fit
 
     // Select starters and bench
     List<Player> starters = availablePlayers.sublist(0, startersNeeded);
@@ -2139,6 +2164,34 @@ class GameStateManager with ChangeNotifier {
     double effectiveScoreA = a.currentSkill - fatiguePenaltyA;
     double effectiveScoreB = b.currentSkill - fatiguePenaltyB;
     return effectiveScoreB.compareTo(effectiveScoreA); // Descending order
+  }
+
+  int _comparePlayersForFormation(Player a, Player b, Formation formation) {
+    double scoreA = _scorePlayerForFormation(a, formation);
+    double scoreB = _scorePlayerForFormation(b, formation);
+    return scoreB.compareTo(scoreA);
+  }
+
+  double _scorePlayerForFormation(Player player, Formation formation) {
+    double fatiguePenalty = player.fatigue > 75 ? 50 : (player.fatigue / 2);
+    int bestFitBonus = 0;
+
+    for (final requiredPosition in formation.positions) {
+      int fitBonus = 0;
+
+      if (player.naturalPosition == requiredPosition) {
+        fitBonus += 5;
+      } else if (player.preferredPositions.contains(requiredPosition)) {
+        fitBonus += 2;
+      }
+
+      fitBonus += (((player.positionalAffinity[requiredPosition] ?? 10) - 10) / 10).round();
+      if (fitBonus > bestFitBonus) {
+        bestFitBonus = fitBonus;
+      }
+    }
+
+    return player.currentSkill - fatiguePenalty + bestFitBonus;
   }
 
   // Helper to get number of starters needed
@@ -2995,7 +3048,7 @@ class GameStateManager with ChangeNotifier {
          playerEligible = _academyReputation >= youthRepReq &&
                                _financeService.canAfford(template.entryFee.toDouble()) &&
                                _academyPlayers.length >= template.requiredPlayers &&
-                               !_activeTournaments.any((at) => at.teamIds.contains(playerAcademyId));
+                                   _canPlayerJoinAnotherCompetition();
          eligibleYouthAcademies.sort((a, b) => b.reputation.compareTo(a.reputation));
       } else {
          // Tier 1 or lower-rep Tier 2: No youth academies eligible
