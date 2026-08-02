@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/tournament.dart';
-import 'TournamentDetailsScreen.dart'; // Import the details screen (updated name)
+import 'tournament_details_screen.dart'; // Import the details screen
 import 'package:intl/intl.dart'; // For currency formatting
 
 class TournamentHistoryScreen extends StatelessWidget {

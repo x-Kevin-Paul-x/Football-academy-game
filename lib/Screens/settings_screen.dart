@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/difficulty.dart'; // Import Difficulty enum
-import 'StartScreen.dart'; // Import StartScreen instead of main.dart
+import 'start_screen.dart'; // Import start_screen instead of main.dart
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

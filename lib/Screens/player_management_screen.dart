@@ -5,7 +5,7 @@ import '../models/player.dart';
 import '../models/staff.dart'; // Import Staff model
 import '../models/player_status.dart'; // Import PlayerStatus enum and helper
 import '../widgets/player_card.dart'; // Assuming a PlayerCard widget exists
-import 'PlayerAssignmentScreen.dart'; // Import the assignment screen
+import 'player_assignment_screen.dart'; // Import the assignment screen
 import 'package:intl/intl.dart'; // For number formatting
 
 class PlayerManagementScreen extends StatelessWidget {

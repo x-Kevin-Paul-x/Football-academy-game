@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:football_academy_game/Screens/ScoutingScreen.dart';
+import 'package:football_academy_game/screens/scouting_screen.dart';
 import 'package:football_academy_game/game_state_manager.dart';
 
 void main() {

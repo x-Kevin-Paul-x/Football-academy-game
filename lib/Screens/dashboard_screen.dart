@@ -10,15 +10,16 @@ import '../widgets/stat_ring_widget.dart';
 import '../widgets/mini_trend_chart.dart';
 
 // Screens
-import 'FinanceScreen.dart';
-import 'PlayerManagementScreen.dart';
-import 'StaffManagementScreen.dart';
-import 'FacilitiesScreen.dart';
-import 'TournamentsScreen.dart';
-import 'SettingsScreen.dart';
-import 'ScoutingScreen.dart';
-import 'TransferOffersScreen.dart';
-import 'NewsScreen.dart';
+import 'finance_screen.dart';
+import 'player_management_screen.dart';
+import 'staff_management_screen.dart';
+import 'facilities_screen.dart';
+import 'tournaments_screen.dart';
+import 'settings_screen.dart';
+import 'scouting_screen.dart';
+import 'transfer_offers_screen.dart';
+import 'transfer_hub_screen.dart';
+import 'news_screen.dart';
 
 // Models
 import '../models/player.dart';
@@ -529,7 +530,7 @@ class _DashboardState extends State<Dashboard> {
       ),
       const StaffManagementScreen(),
       const FacilitiesScreen(),
-      const TransferOffersScreen(),
+      const TransferHubScreen(),
       const TournamentsScreen(),
       const SettingsScreen(),
     ];

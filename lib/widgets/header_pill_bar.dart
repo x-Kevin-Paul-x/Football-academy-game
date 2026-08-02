@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../utils/app_theme.dart';
-import '../Screens/NewsScreen.dart';
+import '../screens/news_screen.dart';
 
 class HeaderPillBar extends StatelessWidget {
   final String title;

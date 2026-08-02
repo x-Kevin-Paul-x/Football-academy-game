@@ -6,7 +6,7 @@ import '../game_state_manager.dart'; // Import GameStateManager
 import '../models/tournament.dart';
 import '../models/match.dart' hide GameStateManager; // Hide dummy GameStateManager
 import '../models/player.dart'; // Import Player
-import 'MatchDetailsScreen.dart'; // Import the new screen
+import 'match_details_screen.dart'; // Import the match details screen
 import 'dart:math' as math;
 
 

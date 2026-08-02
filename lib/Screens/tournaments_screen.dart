@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../game_state_manager.dart';
 import '../models/tournament.dart';
 import '../models/rival_academy.dart'; // Import RivalAcademy
-import 'TournamentDetailsScreen.dart'; // Import TournamentDetailsScreen
+import 'tournament_details_screen.dart'; // Import tournament_details_screen
 
 class TournamentsScreen extends StatefulWidget {
   const TournamentsScreen({Key? key}) : super(key: key);

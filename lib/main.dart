@@ -6,7 +6,7 @@ import 'utils/app_theme.dart';
 import 'game_state_manager.dart'; // Import the GameStateManager
 // import 'models/difficulty.dart'; // No longer needed directly here
 // import 'Screens/SettingsScreen.dart'; // No longer needed directly here
-import 'Screens/StartScreen.dart'; // Import the new StartScreen
+import 'screens/start_screen.dart'; // Import the new start_screen
 
 void main() {
   // Ensure Flutter bindings are initialized before using plugins

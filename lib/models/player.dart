@@ -328,11 +328,15 @@ class Player {
   // --- Current Skill Getter ---
   // Returns the player's skill in their currently assigned position.
   int get currentSkill {
-    // Ensure positionalAffinity is initialized and contains the assignedPosition.
-    // If not, it might indicate an issue with initialization or an invalid assignedPosition.
-    // Fallback to a low value or throw an error if necessary.
     return positionalAffinity[assignedPosition] ?? 10; // Fallback to 10 if not found
   }
+
+  String get fullName => name;
+  String get position => naturalPosition.name;
+  int get overallRating => currentSkill;
+  int get shooting => finishing;
+  int get defending => tackling;
+  int get physicality => strength;
 
   // --- Method to Recalculate Positional Affinities ---
   // This should be called after any underlying detailed stats change (e.g., through training).

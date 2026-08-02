@@ -143,28 +143,59 @@ class GameStateManager with ChangeNotifier {
   bool _isGameOver = false;
   bool _isForcedSellActive = false;
 
+  // --- Cached Views for Zero Allocation Overhead ---
+  UnmodifiableListView<Player>? _cachedAcademyPlayersView;
+  UnmodifiableListView<Staff>? _cachedHiredStaffView;
+  UnmodifiableListView<Player>? _cachedScoutedPlayersView;
+  UnmodifiableListView<Staff>? _cachedAvailableStaffView;
+  UnmodifiableListView<Tournament>? _cachedActiveTournamentsView;
+  UnmodifiableListView<Tournament>? _cachedCompletedTournamentsView;
+  UnmodifiableListView<Tournament>? _cachedAvailableTemplatesView;
+  UnmodifiableListView<RivalAcademy>? _cachedRivalAcademiesView;
+  UnmodifiableMapView<String, RivalAcademy>? _cachedRivalAcademyMapView;
+  UnmodifiableListView<AIClub>? _cachedAIClubsView;
+  UnmodifiableMapView<String, AIClub>? _cachedAIClubMapView;
+  UnmodifiableListView<Map<String, dynamic>>? _cachedTransferOffersView;
+  List<NewsItem>? _cachedReversedNewsView;
+
+  void invalidateViewCaches() {
+    _cachedAcademyPlayersView = null;
+    _cachedHiredStaffView = null;
+    _cachedScoutedPlayersView = null;
+    _cachedAvailableStaffView = null;
+    _cachedActiveTournamentsView = null;
+    _cachedCompletedTournamentsView = null;
+    _cachedAvailableTemplatesView = null;
+    _cachedRivalAcademiesView = null;
+    _cachedRivalAcademyMapView = null;
+    _cachedAIClubsView = null;
+    _cachedAIClubMapView = null;
+    _cachedTransferOffersView = null;
+    _cachedReversedNewsView = null;
+  }
+
   // --- Getters ---
   bool get isGameOver => _isGameOver;
   bool get isForcedSellActive => _isForcedSellActive;
 
   DateTime get currentDate => _timeService.currentDate;
   String get academyName => _academyName;
-  List<Player> get academyPlayers => UnmodifiableListView(_academyPlayers);
-  List<Staff> get hiredStaff => UnmodifiableListView(_hiredStaff);
-  List<Player> get scoutedPlayers => UnmodifiableListView(_scoutedPlayers);
-  List<Staff> get availableStaff => UnmodifiableListView(_availableStaff);
+  List<Player> get academyPlayers => _cachedAcademyPlayersView ??= UnmodifiableListView(_academyPlayers);
+  List<Staff> get hiredStaff => _cachedHiredStaffView ??= UnmodifiableListView(_hiredStaff);
+  List<Player> get scoutedPlayers => _cachedScoutedPlayersView ??= UnmodifiableListView(_scoutedPlayers);
+  List<Staff> get availableStaff => _cachedAvailableStaffView ??= UnmodifiableListView(_availableStaff);
   double get balance => _financeService.balance;
   int get weeklyIncome => _financeService.weeklyIncome;
   int get totalWeeklyWages => _financeService.totalWeeklyWages;
-  List<Tournament> get activeTournaments => UnmodifiableListView(_activeTournaments);
-  List<Tournament> get completedTournaments => UnmodifiableListView(_completedTournaments);
-  List<Tournament> get availableTournamentTemplates => UnmodifiableListView(_availableTournamentTemplates);
+  List<Tournament> get activeTournaments => _cachedActiveTournamentsView ??= UnmodifiableListView(_activeTournaments);
+  List<Tournament> get completedTournaments => _cachedCompletedTournamentsView ??= UnmodifiableListView(_completedTournaments);
+  List<Tournament> get availableTournamentTemplates => _cachedAvailableTemplatesView ??= UnmodifiableListView(_availableTournamentTemplates);
   // Rival Academy Getters
-  List<RivalAcademy> get rivalAcademies => UnmodifiableListView(_rivalAcademies);
-  Map<String, RivalAcademy> get rivalAcademyMap => UnmodifiableMapView(_rivalAcademyMap);
+  List<RivalAcademy> get rivalAcademies => _cachedRivalAcademiesView ??= UnmodifiableListView(_rivalAcademies);
+  Map<String, RivalAcademy> get rivalAcademyMap => _cachedRivalAcademyMapView ??= UnmodifiableMapView(_rivalAcademyMap);
   // AI Club Getters
-  List<AIClub> get aiClubs => UnmodifiableListView(_aiClubs);
-  Map<String, AIClub> get aiClubMap => UnmodifiableMapView(_aiClubMap); // <-- ADDED GETTER
+  List<AIClub> get aiClubs => _cachedAIClubsView ??= UnmodifiableListView(_aiClubs);
+  Map<String, AIClub> get aiClubMap => _cachedAIClubMapView ??= UnmodifiableMapView(_aiClubMap);
   // Facility Getters
   int get trainingFacilityLevel => _trainingFacilityLevel;
   int get scoutingFacilityLevel => _scoutingFacilityLevel;
@@ -172,15 +203,14 @@ class GameStateManager with ChangeNotifier {
   int get maxCoaches => _maxCoaches;
   int get maxScouts => _maxScouts;
   int get maxPhysios => _maxPhysios;
-  // int get maxMerchandiseManagers => _maxMerchandiseManagers; // Replaced
   int get maxStoreManagers => _maxStoreManagers;
   int get maxMatchSalesManagers => _maxMatchSalesManagers;
   double get academyMerchStockValue => _financeService.academyMerchStockValue;
   int get fans => _fans;
   int get merchandiseStoreLevel => _merchandiseStoreLevel;
   int get academyReputation => _academyReputation;
-  List<Map<String, dynamic>> get transferOffers => UnmodifiableListView(_transferOffers);
-  List<NewsItem> get newsItems => List<NewsItem>.unmodifiable(_newsItems.reversed);
+  List<Map<String, dynamic>> get transferOffers => _cachedTransferOffersView ??= UnmodifiableListView(_transferOffers);
+  List<NewsItem> get newsItems => _cachedReversedNewsView ??= List<NewsItem>.unmodifiable(_newsItems.reversed);
   Difficulty get difficulty => _difficulty;
   ThemeMode get themeMode => _themeMode;
   int get playerAcademyTier => _playerAcademyTier;
@@ -705,7 +735,8 @@ class GameStateManager with ChangeNotifier {
       date: _timeService.currentDate
     ));
 
-    // 9. Notify Listeners
+    // 9. Invalidate Caches & Notify Listeners
+    invalidateViewCaches();
     notifyListeners();
   }
 
@@ -2652,6 +2683,14 @@ class GameStateManager with ChangeNotifier {
         _newsItems.removeAt(0);
     }
     // print("News Added: ${item.title}"); // Verbose
+  }
+
+  // Set Academy Name
+  void setAcademyName(String newName) {
+    if (newName.trim().isNotEmpty && _academyName != newName.trim()) {
+      _academyName = newName.trim();
+      notifyListeners();
+    }
   }
 
   // Set Difficulty
